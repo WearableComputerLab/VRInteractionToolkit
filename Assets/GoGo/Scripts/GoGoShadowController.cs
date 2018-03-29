@@ -7,7 +7,9 @@ using Valve.VR.InteractionSystem;
 public class GoGoShadowController : MonoBehaviour {
 
     public GameObject theController;
+
     public SteamVR_TrackedObject trackedObj;
+    private Hand refHand;
 
     private float distanceToExtend = 0f;
     
@@ -19,10 +21,13 @@ public class GoGoShadowController : MonoBehaviour {
     bool extending = false;
     float extensionSpeed = 0.02f;
     bool ranAlready = false;
+    
 
     // Use this for initialization
     void Start () {
         //trackedObj = this.GetComponent<SteamVR_TrackedObject>();
+        refHand = this.GetComponent<Hand>();
+        print(refHand.enabled);
     }
 	
 	// Update is called once per frame
@@ -37,9 +42,12 @@ public class GoGoShadowController : MonoBehaviour {
                 renderer.enabled = true;
             }
         }
-
-        checkForAction();
-        moveControllerForward();
+        if(refHand.controller != null) // Quick fix need a better way to wait until controller has been assigned
+        {
+            checkForAction();
+            moveControllerForward();
+        }
+        
     }
 
     void moveControllerForward()
@@ -72,9 +80,11 @@ public class GoGoShadowController : MonoBehaviour {
 
     void checkForAction()
     {
+        device = refHand.controller;
+
         if (!ranAlready)
         {
-            device = SteamVR_Controller.Input((int)trackedObj.index);
+            //device = SteamVR_Controller.Input((int)trackedObj.index);
             ranAlready = true;
         }
         if (device.GetPressDown(SteamVR_Controller.ButtonMask.Grip))
