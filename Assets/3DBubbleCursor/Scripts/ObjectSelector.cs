@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(SteamVR_TrackedObject))]
-public class PickupParent : MonoBehaviour {
+public class ObjectSelector : MonoBehaviour {
 
     SteamVR_TrackedObject trackedObj;
     SteamVR_Controller.Device device;
