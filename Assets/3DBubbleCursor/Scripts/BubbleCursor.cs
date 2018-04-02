@@ -13,7 +13,6 @@ public class BubbleCursor : MonoBehaviour {
      * TODO 
      * -Make compatible with the Oculus Rift
      * -Detect controllers & other gameobjects through script
-     * -Fix controller pad scrolling cursor in/out
      * -Make bubble cursor compatible with all type of gameobject shapes
      * -Refactor code
      * */
@@ -123,18 +122,19 @@ public class BubbleCursor : MonoBehaviour {
         }
     }
 
-    public bool pickUpMultipleObjects = false; //ensure only 1 object is picked up at a time
-    private bool pickedUpObject = false;
+    private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
+    private GameObject tempObjectStored;
     void PickupObject(GameObject obj) {
         if (trackedObj != null) {
-            if (controller.GetTouch(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false || pickUpMultipleObjects == true) {
+            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
                 //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
                 obj.transform.SetParent(cursor.transform);
+                tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
                 pickedUpObject = true;
             }
-            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true || pickUpMultipleObjects == true) {
+            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
                 //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
-                obj.transform.SetParent(null);
+                tempObjectStored.transform.SetParent(null);
                 pickedUpObject = false;
             }
         }
