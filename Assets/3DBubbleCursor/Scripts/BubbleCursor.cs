@@ -13,7 +13,6 @@ public class BubbleCursor : MonoBehaviour {
      * TODO 
      * -Make compatible with the Oculus Rift
      * -Detect controllers & other gameobjects through script
-     * -Fix controller pad scrolling cursor in/out
      * -Make bubble cursor compatible with all type of gameobject shapes
      * -Refactor code
      * */
@@ -38,14 +37,21 @@ public class BubbleCursor : MonoBehaviour {
     private readonly float bubbleOffset = 0.6f;
 
     void Awake() {
-        trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
-    }
+        if (controllerRightPicked == true) {
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+        } else if (controllerLeftPicked == true) {
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        } else if (cameraHeadPicked == true) {
+            trackedObj = cameraHead.GetComponent<SteamVR_TrackedObject>();
+        }
+   }
 
     // Use this for initialization
     void Start () {
         interactableObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
         startRadius = cursor.GetComponent<SphereCollider>().radius;
-
+        getControllerPosition();
+        extendDistance = Vector3.Distance(controllerPos, cursor.transform.position);
         /*cameraRig = GameObject.Find("[CameraRig]");
         controllerRight = cameraRig.transform.Find("Controller (right)").gameObject;
         controllerLeft = GameObject.Find("Controller (left)");
@@ -104,18 +110,82 @@ public class BubbleCursor : MonoBehaviour {
     /// Allows player to reposition the bubble cursor fowards & backwards.
     /// -Currently needs alot of work, only modifies the Z axis.
     /// </summary>
+    private float extendDistance = 0f;
+    private float cursorSpeed = 20f; // Decrease to make faster, Increase to make slower
 
     private void PadScrolling() {
         if (controller.GetAxis().y != 0) {
             //print(controller.GetAxis().y);
-            cursor.transform.position += new Vector3(0f, 0f, controller.GetAxis().y/20);
+            //cursor.transform.position += new Vector3(0f, 0f, controller.GetAxis().y/20);
+            extendDistance += controller.GetAxis().y / cursorSpeed;
+            moveCursor();
+        }
+    }
+
+    private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
+    private GameObject tempObjectStored;
+    void PickupObject(GameObject obj) {
+        if (trackedObj != null) {
+            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
+                obj.transform.SetParent(cursor.transform);
+                tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
+                pickedUpObject = true;
+            }
+            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
+                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
+                tempObjectStored.transform.SetParent(null);
+                pickedUpObject = false;
+            }
+        }
+    }
+
+    private Vector3 controllerPos = new Vector3(0, 0, 0);
+
+    void getControllerPosition() {
+        // Using the origin and the forward vector of the remote the extended positon of the remote can be calculated
+        if (controllerRightPicked == true) {
+            controllerPos = controllerRight.transform.forward;
+        } else if (controllerLeftPicked == true) {
+            controllerPos = controllerLeft.transform.forward;
+        } else if (cameraHeadPicked == true) {
+            controllerPos = cameraHead.transform.forward;
+        }
+    }
+
+    void moveCursor() {
+        getControllerPosition();
+        Vector3 pose = new Vector3(0, 0, 0); ;
+        if (controllerRightPicked == true) {
+            pose = controllerRight.transform.position;
+        } else if (controllerLeftPicked == true) {
+            pose = controllerLeft.transform.position;
+        } else if (cameraHeadPicked == true) {
+            pose = cameraHead.transform.position;
+        }
+
+        float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
+        // Using formula to find a point which lies at distance on a 3D line from vector and direction
+        pose.x = pose.x + (extendDistance / (distance_formula_on_vector)) * controllerPos.x;
+        pose.y = pose.y + (extendDistance / (distance_formula_on_vector)) * controllerPos.y;
+        pose.z = pose.z + (extendDistance / (distance_formula_on_vector)) * controllerPos.z;
+
+        cursor.transform.position = pose;
+        if (controllerRightPicked == true) {
+            cursor.transform.rotation = controllerRight.transform.rotation;
+        } else if (controllerLeftPicked == true) {
+            cursor.transform.rotation = controllerLeft.transform.rotation;
+        } else if (cameraHeadPicked == true) {
+            cursor.transform.rotation = cameraHead.transform.rotation;
         }
     }
 
     // Update is called once per frame
     void Update () {
-        controller = SteamVR_Controller.Input((int)trackedObj.index);
-        PadScrolling();
+        if (trackedObj != null) {
+            controller = SteamVR_Controller.Input((int)trackedObj.index);
+            PadScrolling();
+        }
 
         float[][] lowestDistances = ClosestObject();
         //float ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius;
@@ -152,15 +222,16 @@ public class BubbleCursor : MonoBehaviour {
         if (ClosestCircleRadius * 2 < SecondClosestCircleRadius * 2) {
             cursor.GetComponent<SphereCollider>().radius = (closestValue + ClosestCircleRadius);
             radiusBubble.transform.localScale = new Vector3((closestValue + ClosestCircleRadius)*2, (closestValue + ClosestCircleRadius)*2, (closestValue + ClosestCircleRadius)*2);
-            //print("TARGET:"+lowestDistances[0][1]);
+            print("TARGET:"+lowestDistances[0][1]);
             objectBubble.transform.localScale = new Vector3(0f, 0f, 0f);
-           
+            PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
         } else {
             cursor.GetComponent<SphereCollider>().radius = (closestValue + SecondClosestCircleRadius);
             radiusBubble.transform.localScale = new Vector3((closestValue + SecondClosestCircleRadius)*2, (closestValue + SecondClosestCircleRadius)*2, (closestValue + SecondClosestCircleRadius)*2);
-            //print("TARGET:" + lowestDistances[1][1]);
+            print("TARGET:" + lowestDistances[1][1]);
             objectBubble.transform.position = interactableObjects[(int)lowestDistances[0][1]].transform.position;
             objectBubble.transform.localScale = new Vector3(interactableObjects[(int)lowestDistances[0][1]].transform.localScale.x + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.y + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.z + bubbleOffset);
+            PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
         }
     }
 }
