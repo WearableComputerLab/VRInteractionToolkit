@@ -8,12 +8,14 @@ public class GoGo : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+
         
     }
-	
-	// Update is called once per frame
-	void Update () {
-        HideController();
+
+    // Update is called once per frame
+    void Update () {
+        
+        //HideController();
     }
 
     // Hides the controller so we only show the "shadow controller"

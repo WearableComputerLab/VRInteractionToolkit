@@ -9,10 +9,11 @@ public class GoGoShadowController : MonoBehaviour {
     public GameObject theController;
 
     public SteamVR_TrackedObject trackedObj;
-    private Hand refHand;
+
+    public GameObject theModel;
 
     private float distanceToExtend = 0f;
-    
+
     private SteamVR_Controller.Device device;
     private Vector3 vector_from_device;
     private Vector3 device_origin;
@@ -21,18 +22,45 @@ public class GoGoShadowController : MonoBehaviour {
     bool extending = false;
     float extensionSpeed = 0.02f;
     bool ranAlready = false;
-    
+
+    // TODO: THIS IS A HACK. NEED TO FIND A METHOD THAT JUST WAITS UNTIL THE MODEL IS INITALIZED INSTEAD OF CALLING OVER AND OVER
+    void makeModelChild()
+    {
+        if(theModel.transform.childCount > 0)
+        {
+            theModel.transform.parent = this.transform;
+        }
+        
+    }
 
     // Use this for initialization
     void Start () {
         //trackedObj = this.GetComponent<SteamVR_TrackedObject>();
-        refHand = this.GetComponent<Hand>();
-        print(refHand.enabled);
-    }
-	
-	// Update is called once per frame
-	void Update () {
+        CopySpecialComponents(theController, this.gameObject);
 
+    }
+
+    private void CopySpecialComponents(GameObject _sourceGO, GameObject _targetGO)
+    {
+        foreach (var component in _sourceGO.GetComponentsInChildren<Component>())
+        {
+            var componentType = component.GetType();
+            if (componentType != typeof(Transform) &&
+                componentType != typeof(MeshFilter) &&
+                componentType != typeof(MeshRenderer)
+                )
+            {
+                Debug.Log("Found a component of type " + component.GetType());
+                UnityEditorInternal.ComponentUtility.CopyComponent(component);
+                UnityEditorInternal.ComponentUtility.PasteComponentAsNew(_targetGO);
+                Debug.Log("Copied " + component.GetType() + " from " + _sourceGO.name + " to " + _targetGO.name);
+            }
+        }
+    }
+
+    // Update is called once per frame
+    void Update () {
+        makeModelChild();
         //this.GetComponentInChildren<SteamVR_RenderModel>().gameObject.SetActive(false);
         Renderer[] renderers = this.transform.parent.GetComponentsInChildren<Renderer>();
         foreach (Renderer renderer in renderers)
@@ -42,11 +70,9 @@ public class GoGoShadowController : MonoBehaviour {
                 renderer.enabled = true;
             }
         }
-        if(refHand.controller != null) // Quick fix need a better way to wait until controller has been assigned
-        {
-            checkForAction();
-            moveControllerForward();
-        }
+          checkForAction();
+          moveControllerForward();
+
         
     }
 
@@ -78,9 +104,10 @@ public class GoGoShadowController : MonoBehaviour {
         transform.rotation = theController.transform.rotation;
     }
 
+    
     void checkForAction()
     {
-        device = refHand.controller;
+        device = SteamVR_Controller.Input((int)trackedObj.index);
 
         if (!ranAlready)
         {
@@ -93,12 +120,12 @@ public class GoGoShadowController : MonoBehaviour {
             device.TriggerHapticPulse(1000);
         }
         Vector2 touchpad = (device.GetAxis(EVRButtonId.k_EButton_Axis0)); // Getting reference to the touchpad
-        if (touchpad.y > 0.7f && device.GetPressDown(SteamVR_Controller.ButtonMask.Axis0)) // top side of touchpad and pushing down
+        if (touchpad.y > 0f && device.GetPressDown(SteamVR_Controller.ButtonMask.Axis0)) // top side of touchpad and pushing down
         {
             extending = true;
             extendingForward = true;
         }
-        else if (touchpad.y < -0.7f && device.GetPressDown(SteamVR_Controller.ButtonMask.Axis0)) // bottom side of touchpad and pushing down
+        else if (touchpad.y < 0f && device.GetPressDown(SteamVR_Controller.ButtonMask.Axis0)) // bottom side of touchpad and pushing down
         {
             extending = true;
             extendingForward = false;
@@ -108,6 +135,7 @@ public class GoGoShadowController : MonoBehaviour {
             extending = false;
         }
     }
+    
     public void increaseDistanceToExtend()
     {
         distanceToExtend += extensionSpeed;
