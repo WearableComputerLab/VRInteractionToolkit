@@ -12,11 +12,18 @@ public class Flashlight : MonoBehaviour {
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device device;
 
+    public float transparency = 0.5f;
+    public Color theColor = new Color(1f, 1f, 1f, 1f);
+
     // Use this for initialization
     void Start () {
         objectAttachedTo = this.transform.parent.gameObject;
         trackedObj = this.GetComponentInParent<SteamVR_TrackedObject>();
         device = SteamVR_Controller.Input((int)trackedObj.index);
+
+        GameObject flashLightModel = this.transform.GetChild(0).gameObject;
+
+        flashLightModel.GetComponent<MeshRenderer>().material.color = new Color(theColor.r, theColor.b, theColor.g, transparency);
     }
 	
 	// Update is called once per frame
