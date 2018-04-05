@@ -5,7 +5,8 @@ using Valve.VR;
 
 // Must be parented to a steam controller to can access controls to change size
 
-public class Flashlight : MonoBehaviour {
+public class Flashlight : MonoBehaviour
+{
 
     public GameObject objectAttachedTo;
 
@@ -15,19 +16,24 @@ public class Flashlight : MonoBehaviour {
     public float transparency = 0.5f;
     public Color theColor = new Color(1f, 1f, 1f, 1f);
 
+    public float resizeSpeed = 0.01f;
+
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         objectAttachedTo = this.transform.parent.gameObject;
         trackedObj = this.GetComponentInParent<SteamVR_TrackedObject>();
         device = SteamVR_Controller.Input((int)trackedObj.index);
 
-        GameObject flashLightModel = this.transform.GetChild(0).gameObject;
+        //GameObject flashLightModel = this.transform.GetChild(0).gameObject;
+        //flashLightModel.GetComponent<MeshRenderer>().material.color = new Color(theColor.r, theColor.b, theColor.g, transparency);
 
-        flashLightModel.GetComponent<MeshRenderer>().material.color = new Color(theColor.r, theColor.b, theColor.g, transparency);
+        this.GetComponent<MeshRenderer>().material.color = new Color(theColor.r, theColor.b, theColor.g, transparency);
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
         checkForInput();
 
         this.transform.position = objectAttachedTo.transform.position;
@@ -40,21 +46,35 @@ public class Flashlight : MonoBehaviour {
     {
         //Dont allow size to change if object is in hand - check by getting child object
 
-        FlashlightSelection childSelector = this.transform.GetComponentInChildren<FlashlightSelection>();
-        if ( !childSelector.holdingObject())
+        FlashlightSelection childSelector = this.transform.GetComponent<FlashlightSelection>();
+        if (!childSelector.holdingObject())
         {
             Vector2 touchpad = (device.GetAxis(EVRButtonId.k_EButton_Axis0)); // Getting reference to the touchpad
-            if (touchpad.y > 0f) // top side of touchpad and pushing down
-            {
-                this.transform.localScale += new Vector3(0.01f, 0.01f, 0.01f);
-            }
-            else if (touchpad.y < 0f) // bottom side of touchpad and pushing down
-            {
-                if (this.transform.localScale.x > 0f)
-                {
-                    this.transform.localScale -= new Vector3(0.01f, 0.01f, 0.01f);
-                }
 
+
+            if (touchpad.y > 0.7f) // Touchpad up
+            {
+                this.transform.localScale += new Vector3(0f, 0f, resizeSpeed);
+            }
+
+            else if (touchpad.y < -0.7f) // Touchpad down
+            {
+                if (this.transform.localScale.z > 0f)
+                {
+                    this.transform.localScale -= new Vector3(0f, 0f, resizeSpeed);
+                }
+            }
+            
+            else if (touchpad.x > 0.7f) // Touchpad right 
+            {
+                    this.transform.localScale += new Vector3(resizeSpeed, resizeSpeed, 0f);
+            }
+            else if (touchpad.x < -0.7f) // Touchpad left
+            {
+                if (this.transform.localScale.x > 0f && this.transform.localScale.y > 0f)
+                {
+                    this.transform.localScale -= new Vector3(resizeSpeed, resizeSpeed, 0f);
+                }     
             }
         }
     }
