@@ -2,16 +2,17 @@
 
 public class DepthRay : MonoBehaviour {
 
-    /* Flexible Pointer implementation by Kieran May
+    /* Depth Ray implementation by Kieran May
      * University of South Australia
      * 
      * TODO
-     * -Change alpha of object to see laser
-     * -Fix issue with laser going through controller
+	 * -Add physics to gameObjects
+     * -Refactor Code
      * */
 
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
+    public GameObject mirroredCube;
     private RaycastHit[] raycastObjects;
 
     public GameObject laserPrefab;
@@ -26,21 +27,29 @@ public class DepthRay : MonoBehaviour {
     /int leftIndex = SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Leftmost);*/
 
     private void ShowLaser(RaycastHit hit) {
+        mirroredCube.SetActive(false);
         laser.SetActive(true);
         laserTransform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
         //cubeAssister.transform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
         //laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, distance*10);
-        laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance*2);
+        laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
         //print(distance);
     }
-
-
     private void ShowLaser() {
         laser.SetActive(true);
-        laserTransform.position = Vector3.Lerp(trackedObj.transform.position, forward, .5f);
-        laserTransform.LookAt(forward);
-        laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, 10f);
+        mirroredCube.SetActive(true);
+
+
+        //laser.transform.position = trackedObj.transform.position*2;
+        //laser.transform.position = new Vector3(trackedObj.transform.position.x, trackedObj.transform.position.y, trackedObj.transform.position.z*1.25f);
+        //laser.transform.position = Vector3.Lerp(trackedObj.transform.position, forward, 0.6f);
+        //laserTransform.LookAt(forward);
+        //laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, 1f);
+        //laserTransform.position = Vector3.Lerp(trackedObj.transform.position, forward, .5f);
+        /*laserTransform.position = Vector3.Lerp(trackedObj.transform.position, forward, .5f);
+        laserTransform.LookAt(trackedObj.transform.position);
+        laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, 10f);*/
     }
 
     private float extendDistance = 0f;
@@ -55,19 +64,48 @@ public class DepthRay : MonoBehaviour {
         }
     }
 
+    private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
+    private GameObject tempObjectStored;
+    void PickupObject(GameObject obj) {
+        if (trackedObj != null) {
+            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
+                obj.transform.SetParent(trackedObj.transform);
+                tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
+                pickedUpObject = true;
+            }
+            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
+                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
+                tempObjectStored.transform.SetParent(null);
+                pickedUpObject = false;
+            }
+        }
+    }
+
 
     void moveCubeAssister() {
         //getControllerPosition();
-        Vector3 pose = trackedObj.transform.position;
+        Vector3 mirroredPos = trackedObj.transform.position;
+        Vector3 pos = trackedObj.transform.position;
         Vector3 controllerPos = trackedObj.transform.forward;
         float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
         // Using formula to find a point which lies at distance on a 3D line from vector and direction
-        pose.x = pose.x + (extendDistance / (distance_formula_on_vector)) * controllerPos.x;
-        pose.y = pose.y + (extendDistance / (distance_formula_on_vector)) * controllerPos.y;
-        pose.z = pose.z + (extendDistance / (distance_formula_on_vector)) * controllerPos.z;
+        if (extendDistance < 0) {
+            extendDistance = 0;
+        }
+        pos.x = pos.x + (extendDistance / (distance_formula_on_vector)) * controllerPos.x;
+        pos.y = pos.y + (extendDistance / (distance_formula_on_vector)) * controllerPos.y;
+        pos.z = pos.z + (extendDistance / (distance_formula_on_vector)) * controllerPos.z;
 
-        cubeAssister.transform.position = pose;
+        mirroredPos.x = mirroredPos.x + (100f / (distance_formula_on_vector)) * controllerPos.x;
+        mirroredPos.y = mirroredPos.y + (100f / (distance_formula_on_vector)) * controllerPos.y;
+        mirroredPos.z = mirroredPos.z + (100f / (distance_formula_on_vector)) * controllerPos.z;
+
+        cubeAssister.transform.position = pos;
         cubeAssister.transform.rotation = trackedObj.transform.rotation;
+
+        mirroredCube.transform.position = mirroredPos;
+        mirroredCube.transform.rotation = trackedObj.transform.rotation;
     }
 
     public float thickness = 0.002f;
@@ -123,8 +161,20 @@ public class DepthRay : MonoBehaviour {
         if (hits.Length >= 1) {
             raycastObjects = hits;
             int closestVal = ClosestObject();
-            print("My closest value:" + raycastObjects[closestVal].transform.name);
+            if (raycastObjects[closestVal].transform.name == "Mirrored Cube") {
+                print("Could not find object");
+            } else {
+                print("My closest value:" + raycastObjects[closestVal].transform.name);
+                Color color = raycastObjects[closestVal].transform.GetComponent<Renderer>().material.color;
+                color.a = 1.0f;
+                raycastObjects[closestVal].transform.GetComponent<Renderer>().material.color = color;
+                PickupObject(raycastObjects[closestVal].transform.gameObject);
+                //Renderer rend = raycastObjects[closestVal].transform.GetComponent<Renderer>();
+                //rend.material.color = Color.red;
+                //raycastObjects[closestVal].transform.GetComponent<Renderer>().material.color = Color.clear;
+            }
         }
+        //raycastObjects[closestVal].transform.GetComponent<Renderer>().material.color = Color.white;
         for (int i = 0; i < hits.Length; i++) {
             RaycastHit hit = hits[i];
             //print("hit:" + hit.transform.name + " index:"+i);
