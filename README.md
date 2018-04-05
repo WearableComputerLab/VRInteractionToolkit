@@ -1,5 +1,11 @@
 # VRInteractionToolkit
 
+# List of Techniques (Updated Weekly)
+https://docs.google.com/document/d/1z1cqlON__YbIfm96woaRHOlqhPY0gTIAuAptGbjNyoI
+
+# Full Systems Requirement document available at:
+https://docs.google.com/document/d/1FSQwYgCCjmWu63tQH6qZWRbKkr2_fT3JTO9mafTVEZs
+
 Project Scope
 
 To implement (and re-implement) the specified virtual reality user interaction techniques by the client as an open-source alternative to make them more accessible to the community. These techniques will be created as individual prefabs within the Unity video game engine so that they can be dropped onto an existing project to be utilized easily by anyone. They must be cross-platform and work with any primarily the HTC Vive and Oculus VR hardware that utilizes VR goggles, motion controllers, and tracking sensors. The techniques must be highly customizable while still easy to use. 
