@@ -33,23 +33,29 @@ public class Flashlight : MonoBehaviour {
         this.transform.position = objectAttachedTo.transform.position;
         Quaternion rot = objectAttachedTo.transform.rotation;
         //this.transform.rotation = controller.transform.rotation;
-        this.transform.rotation = Quaternion.LookRotation(objectAttachedTo.transform.forward * -1); // Might be able to fix this with initial rotation of cone being changed
+        //this.transform.rotation = Quaternion.LookRotation(objectAttachedTo.transform.forward * -1); // Might be able to fix this with initial rotation of cone being changed
     }
 
     void checkForInput()
     {
-        Vector2 touchpad = (device.GetAxis(EVRButtonId.k_EButton_Axis0)); // Getting reference to the touchpad
-        if (touchpad.y > 0f) // top side of touchpad and pushing down
+        //Dont allow size to change if object is in hand - check by getting child object
+
+        FlashlightSelection childSelector = this.transform.GetComponentInChildren<FlashlightSelection>();
+        if ( !childSelector.holdingObject())
         {
-            this.transform.localScale += new Vector3(0.01f, 0.01f, 0.01f);
-        }
-        else if (touchpad.y < 0f) // bottom side of touchpad and pushing down
-        {
-            if(this.transform.localScale.x > 0f)
+            Vector2 touchpad = (device.GetAxis(EVRButtonId.k_EButton_Axis0)); // Getting reference to the touchpad
+            if (touchpad.y > 0f) // top side of touchpad and pushing down
             {
-                this.transform.localScale -= new Vector3(0.01f, 0.01f, 0.01f);
+                this.transform.localScale += new Vector3(0.01f, 0.01f, 0.01f);
             }
-            
+            else if (touchpad.y < 0f) // bottom side of touchpad and pushing down
+            {
+                if (this.transform.localScale.x > 0f)
+                {
+                    this.transform.localScale -= new Vector3(0.01f, 0.01f, 0.01f);
+                }
+
+            }
         }
     }
 }

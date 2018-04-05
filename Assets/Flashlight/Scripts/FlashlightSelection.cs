@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ *  Keeping info on things I have done here for now
+ *  So that each flashlight has no collision with eachother put them on seperate layers
+*/
 public class FlashlightSelection : MonoBehaviour {
 
     public SteamVR_TrackedObject theController;
@@ -13,6 +17,12 @@ public class FlashlightSelection : MonoBehaviour {
     private SteamVR_Controller.Device Controller
     {
         get { return SteamVR_Controller.Input((int)theController.index); }
+    }
+
+    // Checks if holding object in hand
+    public bool holdingObject()
+    {
+        return objectInHand != null;
     }
 
     void OnEnable()
@@ -92,8 +102,13 @@ public class FlashlightSelection : MonoBehaviour {
             GetComponent<FixedJoint>().connectedBody = null;
             Destroy(GetComponent<FixedJoint>());
 
-            objectInHand.GetComponent<Rigidbody>().velocity = GetComponent<Rigidbody>().velocity;
-            objectInHand.GetComponent<Rigidbody>().angularVelocity = GetComponent<Rigidbody>().angularVelocity;
+
+            // TODO: Fix this so that it throws with the correct velocity applied
+            //objectInHand.GetComponent<Rigidbody>().velocity = GetComponent<Rigidbody>().velocity;
+            //objectInHand.GetComponent<Rigidbody>().angularVelocity = GetComponent<Rigidbody>().angularVelocity;
+
+            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
+            objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }
 
         objectInHand = null;
