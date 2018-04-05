@@ -10,16 +10,11 @@ public class BubbleCursor3D : MonoBehaviour {
     /* 3D Bubble Cursor implementation by Kieran May
      * University of South Australia
      * 
-     * TODO 
-     * -Make compatible with the Oculus Rift
-     * -Detect controllers & other gameobjects through script
-     * -Make bubble cursor compatible with all type of gameobject shapes
-     * -Refactor code
      * */
 
     private GameObject[] interactableObjects; // In-game objects
     public GameObject cursor;
-    private float minRadius = 50f;
+    private float minRadius = 2f;
     public GameObject radiusBubble;
     public GameObject objectBubble;
 
@@ -220,14 +215,14 @@ public class BubbleCursor3D : MonoBehaviour {
         //print("FIRST closest radius:" + ClosestCircleRadius*2 + " | closest value:" + closestValue);
         //print("SECOND closest radius:" + SecondClosestCircleRadius* 2 + " | closest value:" + closestValue);
         if (ClosestCircleRadius * 2 < SecondClosestCircleRadius * 2) {
-            cursor.GetComponent<SphereCollider>().radius = (closestValue + ClosestCircleRadius);
-            radiusBubble.transform.localScale = new Vector3((closestValue + ClosestCircleRadius)*2, (closestValue + ClosestCircleRadius)*2, (closestValue + ClosestCircleRadius)*2);
+            cursor.GetComponent<SphereCollider>().radius = (closestValue + ClosestCircleRadius) + minRadius;
+            radiusBubble.transform.localScale = new Vector3((closestValue + ClosestCircleRadius + minRadius) *2, (closestValue + ClosestCircleRadius + minRadius) *2, (closestValue + ClosestCircleRadius + minRadius) *2);
             print("TARGET:"+lowestDistances[0][1]);
             objectBubble.transform.localScale = new Vector3(0f, 0f, 0f);
             PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
         } else {
-            cursor.GetComponent<SphereCollider>().radius = (closestValue + SecondClosestCircleRadius);
-            radiusBubble.transform.localScale = new Vector3((closestValue + SecondClosestCircleRadius)*2, (closestValue + SecondClosestCircleRadius)*2, (closestValue + SecondClosestCircleRadius)*2);
+            cursor.GetComponent<SphereCollider>().radius = (closestValue + SecondClosestCircleRadius) + minRadius;
+            radiusBubble.transform.localScale = new Vector3((closestValue + SecondClosestCircleRadius + minRadius) *2, (closestValue + SecondClosestCircleRadius + minRadius) *2, (closestValue + SecondClosestCircleRadius + minRadius) *2);
             print("TARGET:" + lowestDistances[1][1]);
             objectBubble.transform.position = interactableObjects[(int)lowestDistances[0][1]].transform.position;
             objectBubble.transform.localScale = new Vector3(interactableObjects[(int)lowestDistances[0][1]].transform.localScale.x + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.y + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.z + bubbleOffset);
