@@ -4,8 +4,14 @@ using UnityEngine;
 
 public class SphereCasting : MonoBehaviour {
 
+    /* Sphere-Casting implementation by Kieran May
+    * University of South Australia
+    * 
+    * */
+
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
+    public PickupObjects pickupObjs;
 
     public GameObject laserPrefab;
     private GameObject laser;
@@ -20,7 +26,16 @@ public class SphereCasting : MonoBehaviour {
         //sphereObject.transform.position = hit.transform.position;
         //sphereObject.transform.position = hitPoint;
         if (hit.transform.gameObject.name != "Mirrored Cube") {
-            sphereObject.transform.position = hitPoint;
+            //sphereObject.transform.position = hitPoint;
+            sphereObject.transform.position = hit.transform.position;
+            sphereObject.SetActive(true);
+            //pickupObjs.selectableObjects.Clear();
+        } else {
+            //pickupObjs.selectableObjects.Clear();
+            //PickupObjects.selectableObjects.Clear();
+            pickupObjs.clearList();
+            sphereObject.SetActive(false);
+
         }
         laserTransform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
@@ -39,7 +54,6 @@ public class SphereCasting : MonoBehaviour {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (controller.GetAxis().y != 0) {
             extendRadius += controller.GetAxis().y / cursorSpeed;
-            //sphereObject.GetComponent<SphereCollider>().radius = extendRadius;
             sphereObject.transform.localScale = new Vector3((extendRadius) * 2, (extendRadius) * 2, (extendRadius) * 2);
         }
     }
@@ -51,8 +65,7 @@ public class SphereCasting : MonoBehaviour {
     void Start() {
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
-
-        //extendRadius = sphereObject.GetComponent<SphereCollider>().radius;
+        pickupObjs = sphereObject.GetComponent<PickupObjects>();
     }
 
     void mirroredObject() {
@@ -79,6 +92,8 @@ public class SphereCasting : MonoBehaviour {
             //print("hit:" + hit.transform.name);
             hitPoint = hit.point;
             ShowLaser(hit);
+            pickupObjs.PickupObject(controller, trackedObj, pickupObjs.getSelectableObjects());
+            pickupObjs.clearList();
         }
     }
 
