@@ -12,6 +12,7 @@ public class SphereCasting : MonoBehaviour {
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
     public PickupObjects pickupObjs;
+    public SquadMenu menu;
 
     public GameObject laserPrefab;
     private GameObject laser;
@@ -19,6 +20,7 @@ public class SphereCasting : MonoBehaviour {
     private Vector3 hitPoint;
     public GameObject mirroredCube;
     public GameObject sphereObject;
+    public bool squadEnabled = true;
 
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
@@ -29,11 +31,7 @@ public class SphereCasting : MonoBehaviour {
             //sphereObject.transform.position = hitPoint;
             sphereObject.transform.position = hit.transform.position;
             sphereObject.SetActive(true);
-            //pickupObjs.selectableObjects.Clear();
         } else {
-            //pickupObjs.selectableObjects.Clear();
-            //PickupObjects.selectableObjects.Clear();
-            pickupObjs.clearList();
             sphereObject.SetActive(false);
 
         }
@@ -65,7 +63,11 @@ public class SphereCasting : MonoBehaviour {
     void Start() {
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
-        pickupObjs = sphereObject.GetComponent<PickupObjects>();
+        if (squadEnabled == false) {
+            pickupObjs = sphereObject.GetComponent<PickupObjects>();
+        } else if (squadEnabled == true) {
+            menu = sphereObject.GetComponent<SquadMenu>();
+        }
     }
 
     void mirroredObject() {
@@ -81,8 +83,15 @@ public class SphereCasting : MonoBehaviour {
         mirroredCube.transform.rotation = trackedObj.transform.rotation;
     }
 
+    void printArray() {
+        for (int i=0; i< menu.selectableObjectsCount(); i++) {
+            print(i+" | "+menu.selectableObjects[i]);
+        }
+    }
+
     void Update() {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+        //printArray();
         mirroredObject();
         PadScrolling();
         ShowLaser();
@@ -92,8 +101,13 @@ public class SphereCasting : MonoBehaviour {
             //print("hit:" + hit.transform.name);
             hitPoint = hit.point;
             ShowLaser(hit);
-            pickupObjs.PickupObject(controller, trackedObj, pickupObjs.getSelectableObjects());
-            pickupObjs.clearList();
+            if (squadEnabled == false) {
+                pickupObjs.PickupObject(controller, trackedObj, pickupObjs.getSelectableObjects());
+                pickupObjs.clearList();
+            } else if (squadEnabled == true) {
+                menu.enableSQUAD(controller, trackedObj, menu.getSelectableObjects());
+                menu.clearList();
+            }
         }
     }
 
