@@ -5,11 +5,12 @@ using Valve.VR;
 
 public class FlexiblePointer : MonoBehaviour
 {
+    // DOING PUBLICLY FOR TESTING LATER SEE IF CAN DO IT AUTOMATICALLY! Also because it needs both controlers need checks that they are both online otherwise do nothing
+    public SteamVR_TrackedObject trackedObj1;
+    public SteamVR_TrackedObject trackedObj2;
 
-    private SteamVR_TrackedObject trackedObj;
-
-    public float pointerLength = 1f;
-    private float curve = 0f;
+    private float curve = 0.2f;
+    public float scaleFactor = 2f;
 
     private float[] point0; // Hand location
     private float[] point1; // The curve
@@ -22,14 +23,9 @@ public class FlexiblePointer : MonoBehaviour
     private Transform[] laserTransform;
     private Vector3 hitPoint;
 
-    private SteamVR_Controller.Device Controller
-    {
-        get { return SteamVR_Controller.Input((int)trackedObj.index); }
-    }
-
     void Awake()
     {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
+        
     }
 
     // Use this for initialization
@@ -49,30 +45,66 @@ public class FlexiblePointer : MonoBehaviour
             laserTransform[i] = laserPart.transform;
             lasers[i] = laserPart;
         }
-        
         setPoint0and1();
     }
 
-    
+    // Returns 1 for controller 1 and 2 for controller 2
+    int calculatePointingController()
+    {
+        Vector3 playerPos = this.transform.position;
+        float distTo1 = distBetweenVectors(playerPos, trackedObj1.transform.position);
+        float distTo2 = distBetweenVectors(playerPos, trackedObj2.transform.position);
+
+        if(distTo1 > distTo2)
+        {
+            return 1;
+        } else
+        {
+            return 2;
+        }
+    }
 
     void setPoint0and1()
     {
-        // setting test points
-        Vector3 controllerPos = trackedObj.transform.position;
-        Vector3 forwardVector = trackedObj.transform.forward;
+        // Setting test points
+        Vector3 controller1Pos = trackedObj1.transform.position;
+        Vector3 controller1Forward = trackedObj1.transform.forward;
 
-        float distance_formula_on_vector = Mathf.Sqrt(forwardVector.x * forwardVector.x + forwardVector.y * forwardVector.y + forwardVector.z * forwardVector.z);
+        Vector3 controller2Pos = trackedObj2.transform.position;
+        Vector3 controller2Forward = trackedObj2.transform.forward;
 
-        // Hand position and first points
-        point0[0] = controllerPos.x;
-        point0[1] = controllerPos.y;
-        point0[2] = controllerPos.z;
+        // Will extend further based on the scale factor
+        // by multiplying the distance between controllers by it
+        // and calculating new end control point
+        float distanceBetweenControllers = distBetweenVectors(controller1Pos, controller2Pos)*scaleFactor;
 
-        // Point extended along line
-        point2[0] = controllerPos.x + (pointerLength / (distance_formula_on_vector)) * forwardVector.x;
-        point2[1] = controllerPos.y + (pointerLength / (distance_formula_on_vector)) * forwardVector.y;
-        point2[2] = controllerPos.z + (pointerLength / (distance_formula_on_vector)) * forwardVector.z;
+        if (calculatePointingController() == 1)
+        {
+            // Start control point
+            point0[0] = controller2Pos.x;
+            point0[1] = controller2Pos.y;
+            point0[2] = controller2Pos.z;
 
+            float distance_formula_on_vector = Mathf.Sqrt(controller1Forward.x * controller1Forward.x + controller1Forward.y * controller1Forward.y + controller1Forward.z * controller1Forward.z);
+
+            // End control point
+            point2[0] = controller1Pos.x + (distanceBetweenControllers / (distance_formula_on_vector)) * controller1Forward.x; ;
+            point2[1] = controller1Pos.y + (distanceBetweenControllers / (distance_formula_on_vector)) * controller1Forward.y; ;
+            point2[2] = controller1Pos.z + (distanceBetweenControllers / (distance_formula_on_vector)) * controller1Forward.z; ;
+        } else
+        {
+            // Start control point
+            point0[0] = controller1Pos.x;
+            point0[1] = controller1Pos.y;
+            point0[2] = controller1Pos.z;
+
+            float distance_formula_on_vector = Mathf.Sqrt(controller2Forward.x * controller2Forward.x + controller2Forward.y * controller2Forward.y + controller2Forward.z * controller2Forward.z);
+
+            // End control point
+            point2[0] = controller2Pos.x + (distanceBetweenControllers / (distance_formula_on_vector)) * controller2Forward.x;
+            point2[1] = controller2Pos.y + (distanceBetweenControllers / (distance_formula_on_vector)) * controller2Forward.y;
+            point2[2] = controller2Pos.z + (distanceBetweenControllers / (distance_formula_on_vector)) * controller2Forward.z;
+        }
         setCurve();
     }
 
@@ -93,6 +125,11 @@ public class FlexiblePointer : MonoBehaviour
         point1[2] = midZ;
     }
 
+    float distBetweenVectors(Vector3 one, Vector3 two)
+    {
+        return Mathf.Sqrt(Mathf.Pow(one.x - two.x, 2) + Mathf.Pow(one.y - two.y, 2) + Mathf.Pow(one.z - two.z, 2));
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -104,13 +141,21 @@ public class FlexiblePointer : MonoBehaviour
     {
         float valueToSearchBezierBy = 0f;
 
-        Vector3 positionOfLastLaserPart = trackedObj.transform.position;
+        Vector3 positionOfLastLaserPart;
+        if (calculatePointingController() == 1)
+        {
+            positionOfLastLaserPart = trackedObj2.transform.position;
+        } else
+        {
+            positionOfLastLaserPart = trackedObj1.transform.position;
+        }
+
         for (int i = 0; i < numOfLasers; i++) 
         {
             lasers[i].SetActive(true);
             float[] pointOnBezier = getBezierPoint(valueToSearchBezierBy);
             Vector3 nextPart = new Vector3(pointOnBezier[0], pointOnBezier[1], pointOnBezier[2]);
-            float distBetweenParts = Mathf.Sqrt(Mathf.Pow(nextPart.x - positionOfLastLaserPart.x, 2) + Mathf.Pow(nextPart.y - positionOfLastLaserPart.y, 2) + Mathf.Pow(nextPart.z - positionOfLastLaserPart.z, 2));
+            float distBetweenParts = distBetweenVectors(nextPart, positionOfLastLaserPart);
 
             laserTransform[i].position = Vector3.Lerp(positionOfLastLaserPart, nextPart, .5f);
             laserTransform[i].LookAt(nextPart);
@@ -120,16 +165,6 @@ public class FlexiblePointer : MonoBehaviour
             positionOfLastLaserPart = nextPart;
             valueToSearchBezierBy += (1f / numOfLasers);
         }
-
-        /*
-        RaycastHit hit;
-        Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
-        if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit, 100))
-        {
-            hitPoint = hit.point;
-            ShowLaser(hit);
-        }     
-        */
     }
 
     // t being betweek 0 and 1 to get a spot on the curve
