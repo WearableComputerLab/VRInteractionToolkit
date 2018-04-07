@@ -9,18 +9,18 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1107956822668496}
+  m_RootGameObject: {fileID: 1552384495066432}
   m_IsPrefabParent: 1
---- !u!1 &1107956822668496
+--- !u!1 &1552384495066432
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4414207424731234}
-  - component: {fileID: 33559728738925374}
-  - component: {fileID: 23324874367645540}
+  - component: {fileID: 4997579523371934}
+  - component: {fileID: 33839635656453120}
+  - component: {fileID: 23138304288332322}
   m_Layer: 0
   m_Name: Laser
   m_TagString: Untagged
@@ -28,12 +28,12 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4414207424731234
+--- !u!4 &4997579523371934
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1107956822668496}
+  m_GameObject: {fileID: 1552384495066432}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 5, z: 0}
   m_LocalScale: {x: 0.005, y: 0.005, z: 1}
@@ -41,12 +41,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &23324874367645540
+--- !u!23 &23138304288332322
 MeshRenderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1107956822668496}
+  m_GameObject: {fileID: 1552384495066432}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -75,10 +75,10 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!33 &33559728738925374
+--- !u!33 &33839635656453120
 MeshFilter:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1107956822668496}
+  m_GameObject: {fileID: 1552384495066432}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
