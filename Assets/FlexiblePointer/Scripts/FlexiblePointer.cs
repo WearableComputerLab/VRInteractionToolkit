@@ -1,4 +1,24 @@
-﻿using System.Collections;
+﻿/*
+ *  Flexible pointer - VR interaction tool allowing the user to bend a ray cast
+ *  along a bezier curve utilizng the HTC Vive controllers.
+ *  
+ *  Copyright(C) 2018  Ian Hanan
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.If not, see<http://www.gnu.org/licenses/>.
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
@@ -165,9 +185,9 @@ public class FlexiblePointer : MonoBehaviour
         float midY = (point0[1] + point1[1]) / 2;
         float midZ = (point0[2] + point1[2]) / 2;
 
-        point1[0] = midX;
-        point1[1] = midY;
-        point1[2] = midZ;
+        point1[0] = midX + curve;
+        point1[1] = midY + curve;
+        point1[2] = midZ + curve;
 
         testControlPoint.transform.position = new Vector3(midX, midY, midZ);
     }
