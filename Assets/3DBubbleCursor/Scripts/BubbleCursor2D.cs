@@ -101,7 +101,8 @@ public class BubbleCursor2D : MonoBehaviour {
         float closestValue = Mathf.Min(ClosestCircleRadius, SecondClosestCircleRadius);
         //print("FIRST:" + ClosestCircleRadius*2);
         //print("SECOND:" + SecondClosestCircleRadius*2);
-
+        print("FIRST closest radius:" + ClosestCircleRadius + " | closest value:" + closestValue);
+        print("SECOND closest radius:" + SecondClosestCircleRadius + " | closest value:" + closestValue);
         if (ClosestCircleRadius * 2 < SecondClosestCircleRadius * 2) {
             this.GetComponent<CircleCollider2D>().radius = (closestValue + ClosestCircleRadius);
             //objectBubble.GetComponent<RectTransform>().sizeDelta = new Vector2(ClosestCircle.GetComponent<RectTransform>().sizeDelta.x + bubbleOffset, ClosestCircle.GetComponent<RectTransform>().sizeDelta.y + bubbleOffset);

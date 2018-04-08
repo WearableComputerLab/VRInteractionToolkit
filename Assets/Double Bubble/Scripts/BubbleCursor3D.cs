@@ -10,17 +10,19 @@ public class BubbleCursor3D : MonoBehaviour {
     /* 3D Bubble Cursor implementation by Kieran May
      * University of South Australia
      * 
+     * TODO
+     * -IMPORTANT: Found out scaling issue: fix is (scale/radius) ex (1.0 scale / 0.5f radius) = 2f (use this value to divide by the overall dist)
      * */
 
     private GameObject[] interactableObjects; // In-game objects
     public GameObject cursor;
-    private float minRadius = 2f;
+    private float minRadius = 1f;
     public GameObject radiusBubble;
     public GameObject objectBubble;
 
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
-
+    public BubbleSelection bubbleSelection;
 
     public GameObject controllerRight;
     public GameObject controllerLeft;
@@ -31,7 +33,7 @@ public class BubbleCursor3D : MonoBehaviour {
 
     private readonly float bubbleOffset = 0.6f;
 
-    void Awake() {
+    public SteamVR_TrackedObject getTrackedObject() {
         if (controllerRightPicked == true) {
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
         } else if (controllerLeftPicked == true) {
@@ -39,11 +41,17 @@ public class BubbleCursor3D : MonoBehaviour {
         } else if (cameraHeadPicked == true) {
             trackedObj = cameraHead.GetComponent<SteamVR_TrackedObject>();
         }
-   }
+        return trackedObj;
+    }
+
+    void Awake() {
+        trackedObj = getTrackedObject();
+    }
 
     // Use this for initialization
     void Start () {
         interactableObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
+        //bubbleSelection = radiusBubble.GetComponent<BubbleSelection>();
         //minRadius = cursor.GetComponent<SphereCollider>().radius;
         getControllerPosition();
         extendDistance = Vector3.Distance(controllerPos, cursor.transform.position);
@@ -52,6 +60,7 @@ public class BubbleCursor3D : MonoBehaviour {
         controllerLeft = GameObject.Find("Controller (left)");
         cameraHead = GameObject.Find("Camera (head)");*/
         SetParent();
+        bubbleSelection.trackedObj = getTrackedObject();
     }
 
     void SetParent() {
@@ -215,18 +224,36 @@ public class BubbleCursor3D : MonoBehaviour {
         //print("FIRST closest radius:" + ClosestCircleRadius*2 + " | closest value:" + closestValue);
         //print("SECOND closest radius:" + SecondClosestCircleRadius* 2 + " | closest value:" + closestValue);
         if (ClosestCircleRadius * 2 < SecondClosestCircleRadius * 2) {
-            cursor.GetComponent<SphereCollider>().radius = (closestValue + ClosestCircleRadius) + minRadius;
-            radiusBubble.transform.localScale = new Vector3((closestValue + ClosestCircleRadius + minRadius) *2, (closestValue + ClosestCircleRadius + minRadius) *2, (closestValue + ClosestCircleRadius + minRadius) *2);
-            print("TARGET:"+lowestDistances[0][1]);
+            cursor.GetComponent<SphereCollider>().radius = (closestValue + ClosestCircleRadius);
+            if (cursor.GetComponent<SphereCollider>().radius < minRadius) {
+                cursor.GetComponent<SphereCollider>().radius = minRadius;
+            }
+            radiusBubble.transform.localScale = new Vector3((closestValue + ClosestCircleRadius) * 2, (closestValue + ClosestCircleRadius) * 2, (closestValue + ClosestCircleRadius) * 2);
+            if (radiusBubble.transform.localScale.x < minRadius*2) {
+                radiusBubble.transform.localScale = new Vector3(minRadius * 2, minRadius * 2, minRadius * 2);
+            }
+            //print("TARGET:"+lowestDistances[0][1]);
             objectBubble.transform.localScale = new Vector3(0f, 0f, 0f);
-            PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
+            //PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
+            //bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
+            bubbleSelection.enableMenu(controller, trackedObj, bubbleSelection.getSelectableObjects());
+            bubbleSelection.clearList();
         } else {
-            cursor.GetComponent<SphereCollider>().radius = (closestValue + SecondClosestCircleRadius) + minRadius;
-            radiusBubble.transform.localScale = new Vector3((closestValue + SecondClosestCircleRadius + minRadius) *2, (closestValue + SecondClosestCircleRadius + minRadius) *2, (closestValue + SecondClosestCircleRadius + minRadius) *2);
-            print("TARGET:" + lowestDistances[1][1]);
+            cursor.GetComponent<SphereCollider>().radius = (closestValue + SecondClosestCircleRadius);
+            if (cursor.GetComponent<SphereCollider>().radius < minRadius) {
+                cursor.GetComponent<SphereCollider>().radius = minRadius;
+            }
+            radiusBubble.transform.localScale = new Vector3((closestValue + SecondClosestCircleRadius) * 2, (closestValue + SecondClosestCircleRadius) * 2, (closestValue + SecondClosestCircleRadius) * 2);
+            if (radiusBubble.transform.localScale.x < minRadius * 2) {
+                radiusBubble.transform.localScale = new Vector3(minRadius * 2, minRadius * 2, minRadius * 2);
+            }
+            //print("TARGET:" + lowestDistances[1][1]);
             objectBubble.transform.position = interactableObjects[(int)lowestDistances[0][1]].transform.position;
             objectBubble.transform.localScale = new Vector3(interactableObjects[(int)lowestDistances[0][1]].transform.localScale.x + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.y + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.z + bubbleOffset);
-            PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
+            //PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
+            //bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
+            bubbleSelection.enableMenu(controller, trackedObj, bubbleSelection.getSelectableObjects());
+            bubbleSelection.clearList();
         }
     }
 }
