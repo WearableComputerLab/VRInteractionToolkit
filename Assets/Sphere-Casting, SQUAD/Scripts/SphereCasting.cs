@@ -13,6 +13,7 @@ public class SphereCasting : MonoBehaviour {
     private SteamVR_Controller.Device controller;
     public PickupObjects pickupObjs;
     public SquadMenu menu;
+    public static bool inMenu = false;
 
     public GameObject laserPrefab;
     private GameObject laser;
@@ -23,11 +24,14 @@ public class SphereCasting : MonoBehaviour {
     public bool squadEnabled = true;
 
     private void ShowLaser(RaycastHit hit) {
+        //print("object hit:" + hit.transform.gameObject.name);
+        //menu.selectQuad(controller, hit.transform.gameObject);
+        //print(inMenu);
         mirroredCube.SetActive(false);
         laser.SetActive(true);
         //sphereObject.transform.position = hit.transform.position;
         //sphereObject.transform.position = hitPoint;
-        if (hit.transform.gameObject.name != "Mirrored Cube") {
+        if (hit.transform.gameObject.name != "Mirrored Cube" && inMenu == false) {
             //sphereObject.transform.position = hitPoint;
             sphereObject.transform.position = hit.transform.position;
             sphereObject.SetActive(true);
@@ -91,6 +95,7 @@ public class SphereCasting : MonoBehaviour {
 
     void Update() {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+        //print(menu.selectableObjectsCount());
         //printArray();
         mirroredObject();
         PadScrolling();
@@ -104,9 +109,14 @@ public class SphereCasting : MonoBehaviour {
             if (squadEnabled == false) {
                 pickupObjs.PickupObject(controller, trackedObj, pickupObjs.getSelectableObjects());
                 pickupObjs.clearList();
-            } else if (squadEnabled == true) {
+            } else if (squadEnabled == true && menu.isActive() == false && menu.quadrantIsPicked() == false) {
                 menu.enableSQUAD(controller, trackedObj, menu.getSelectableObjects());
                 menu.clearList();
+            } else if (squadEnabled == true && menu.quadrantIsPicked() == true && menu.isActive() == true) {
+                //print("object selected:" + hit.transform.gameObject.name);
+                menu.selectObject(controller, hit.transform.gameObject);
+            } else if (squadEnabled == true && menu.quadrantIsPicked() == false && menu.isActive() == true) {
+                menu.selectQuad(controller, hit.transform.gameObject);
             }
         }
     }

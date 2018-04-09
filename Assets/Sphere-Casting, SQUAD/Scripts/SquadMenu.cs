@@ -13,20 +13,54 @@ public class SquadMenu : MonoBehaviour {
     public GameObject canvas;
     public GameObject panel;
     public GameObject prefabText;
+    public Material quadrantMaterial;
+    private bool quadrantPicked = false;
 
     public List<GameObject> selectableObjects = new List<GameObject>();
 
+    private void destroyChildGameObjects() {
+        foreach (Transform child in panel.transform) {
+            if (child.gameObject.name != "CreateTrianglesSprite" && child.gameObject.name != "TriangleQuadObject") {
+                GameObject.Destroy(child.gameObject);
+            }
+        }
+    }
+
+    public bool isActive() {
+        return panel.activeInHierarchy;
+    }
+
+    public bool quadrantIsPicked() {
+        return quadrantPicked;
+    }
+
     public void disableSQUAD() {
+        clearList();
         canvas.SetActive(false);
         panel.SetActive(false);
+        SphereCasting.inMenu = false;
+        quadrantPicked = false;
+        pickedObject = null;
+        destroyChildGameObjects();
+        print("Squad disabled..");
+
     }
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
+    private GameObject pickedObject;
+
+    public void selectObject(SteamVR_Controller.Device controller, GameObject obj) {
+        if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && quadrantIsPicked() == true && pickedObject == null) {
+            disableSQUAD();
+            pickedObject = obj;
+    }
+    }
 
     public void enableSQUAD(SteamVR_Controller.Device controller, SteamVR_TrackedObject trackedObj, List<GameObject> obj) {
         if (trackedObj != null) {
             if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
-                //canvas.SetActive(true);
+                print("EnableSquad() called");
+                SphereCasting.inMenu = true;
                 panel.SetActive(true);
                 generate2DObjects(obj);
             }
@@ -34,12 +68,24 @@ public class SquadMenu : MonoBehaviour {
     }
 
 
+    public void selectQuad(SteamVR_Controller.Device controller, GameObject obj) {
+        if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger)) {
+            if (obj.name == "TriangleQuadObject" && isActive() == true && quadrantPicked == false) {
+                Renderer rend = obj.transform.GetComponent<Renderer>();
+                //rend.material.color = Color.blue;
+                rend.material = quadrantMaterial;
+                quadrantPicked = true;
+                //obj.transform.GetComponent<Renderer>().material.color = Color.clear;
+            }
+        }
+    }
+
     //Stores 36 objects
 
     private GameObject pickedObjText = null;
     private GameObject pickedObj2D = null;
     private GameObject pickedObj = null;
-    private int[] imageSlots = new int[9];
+    private int[] imageSlots;
     private int[,] locChanges = new int[,] { {1,2}, { 2, 3 } };
     private float[,] left = new float[,] { { -0.35f, 0.2f },
                                               { -0.4f, 0.1f }, { -0.3f, 0.1f },
@@ -65,9 +111,10 @@ public class SquadMenu : MonoBehaviour {
 
 
     void generate2DObjects(List<GameObject> pickedObject) {
+        imageSlots = new int[9];
         panel.transform.SetParent(null);
         canvas.transform.SetParent(null);
-        print("Amount of objects selected:" + pickedObject.Count);
+        //print("Amount of objects selected:" + pickedObject.Count);
         for (int i = 0; i < pickedObject.Count; i++) {
             //print("object:" + pickedObject[i].name + " | count:" + (i+1));
             pickedObj = pickedObject[i];
@@ -81,7 +128,7 @@ public class SquadMenu : MonoBehaviour {
             } if ((i + 1) % 4 == 0) {
                 stage = 4;
             }
-            print("object:" + pickedObject[i].name + " | count:" + (i + 1) + " | stage:"+stage);
+            //print("object:" + pickedObject[i].name + " | count:" + (i + 1) + " | stage:"+stage);
             pickedObj2D = Instantiate(pickedObject[i], new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
             pickedObj2D.transform.SetParent(panel.transform, false);
             pickedObj2D.gameObject.AddComponent<Rigidbody>();
@@ -136,6 +183,7 @@ public class SquadMenu : MonoBehaviour {
     public void enableSQUAD() {
         //canvas.SetActive(true);
         panel.SetActive(true);
+        SphereCasting.inMenu = true;
     }
 
     private void Start() {
