@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SquadMenu : MonoBehaviour {
 	
@@ -8,12 +9,16 @@ public class SquadMenu : MonoBehaviour {
     * University of South Australia
     * 
     * -SQUAD is an extension of Sphere-Casting which places selected objects into a QUAD menu for more precise selection
-    * */
+    * 
+    * TODO
+    * -Refactor code
+    */
 
-    public GameObject canvas;
     public GameObject panel;
     public GameObject prefabText;
     public Material quadrantMaterial;
+    public Material triangleMaterial;
+    public GameObject cameraHead;
     private bool quadrantPicked = false;
 
     public List<GameObject> selectableObjects = new List<GameObject>();
@@ -22,6 +27,8 @@ public class SquadMenu : MonoBehaviour {
         foreach (Transform child in panel.transform) {
             if (child.gameObject.name != "CreateTrianglesSprite" && child.gameObject.name != "TriangleQuadObject") {
                 GameObject.Destroy(child.gameObject);
+            } else if (child.gameObject.name == "TriangleQuadObject") {
+                child.gameObject.transform.GetComponent<Renderer>().material = triangleMaterial;
             }
         }
     }
@@ -34,9 +41,30 @@ public class SquadMenu : MonoBehaviour {
         return quadrantPicked;
     }
 
+    public void hideAllGameObjects() {
+        GameObject[] allObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+        foreach (GameObject obj in allObjects) {
+            if (obj.name != "CreateTriangles" && obj.name != "[CameraRig]" && obj.name != "[SteamVR]") {
+                print("Hidden Object:" + obj.name);
+                obj.SetActive(false);
+            }
+        }
+    }
+
+    public void showAllGameObjects() {
+        GameObject[] allObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+        foreach (GameObject obj in allObjects) {
+            if (obj.name != "CreateTriangles" && obj.name != "[CameraRig]" && obj.name != "[SteamVR]") {
+                print("Hidden Object:" + obj.name);
+                obj.SetActive(true);
+            }
+        }
+    }
+
     public void disableSQUAD() {
         clearList();
-        canvas.SetActive(false);
+        //showAllGameObjects();
+        panel.transform.SetParent(cameraHead.transform);
         panel.SetActive(false);
         SphereCasting.inMenu = false;
         quadrantPicked = false;
@@ -48,12 +76,23 @@ public class SquadMenu : MonoBehaviour {
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     private GameObject pickedObject;
+    private GameObject lastPickedObject;
+    private Material oldPickedObjectMaterial;
 
     public void selectObject(SteamVR_Controller.Device controller, GameObject obj) {
-        if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && quadrantIsPicked() == true && pickedObject == null) {
+        //print("picked object:" + pickedObject);
+        if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && quadrantIsPicked() == true && pickedObject == null && obj.transform.parent == panel.transform && obj.name != "TriangleQuadObject") {
+            //disableSQUAD();
+            //pickedObject = obj;
+            string objName = obj.name.Substring(0, obj.name.Length-7);
+            //print("obj picked:" + objName);
+            pickedObject = GameObject.Find(objName);
+            lastPickedObject = pickedObject;
+            print("Final picked object:" + objName);
+            oldPickedObjectMaterial = pickedObject.transform.GetComponent<Renderer>().material;
+            pickedObject.transform.GetComponent<Renderer>().material = quadrantMaterial;
             disableSQUAD();
-            pickedObject = obj;
-    }
+        }
     }
 
     public void enableSQUAD(SteamVR_Controller.Device controller, SteamVR_TrackedObject trackedObj, List<GameObject> obj) {
@@ -62,7 +101,11 @@ public class SquadMenu : MonoBehaviour {
                 print("EnableSquad() called");
                 SphereCasting.inMenu = true;
                 panel.SetActive(true);
+                //hideAllGameObjects();
                 generate2DObjects(obj);
+                if (lastPickedObject != null) {
+                    lastPickedObject.transform.GetComponent<Renderer>().material = oldPickedObjectMaterial;
+                }
             }
         }
     }
@@ -113,7 +156,6 @@ public class SquadMenu : MonoBehaviour {
     void generate2DObjects(List<GameObject> pickedObject) {
         imageSlots = new int[9];
         panel.transform.SetParent(null);
-        canvas.transform.SetParent(null);
         //print("Amount of objects selected:" + pickedObject.Count);
         for (int i = 0; i < pickedObject.Count; i++) {
             //print("object:" + pickedObject[i].name + " | count:" + (i+1));
@@ -151,29 +193,29 @@ public class SquadMenu : MonoBehaviour {
                 pos = imageSlots[0]-1;
                 posX = left[pos, 0];
                 posY = left[pos, 1];
-                pickedObj2D.transform.localPosition = new Vector3(posX, posY, 0f);
-                pickedObjText.transform.localPosition = new Vector3(posX-0.01f, posY - 0.04f, 0f);
+                pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
+                pickedObjText.transform.localPosition = new Vector3(posX-0.01f, posY - 0.04f, -0.00001f);
             } else if (stage == 2) {
                 imageSlots[1]++;
                 pos = imageSlots[1]-1;
                 posX = right[pos, 0];
                 posY = right[pos, 1];
-                pickedObj2D.transform.localPosition = new Vector3(posX, posY, 0f);
-                pickedObjText.transform.localPosition = new Vector3(posX - 0.01f, posY - 0.04f, 0f);
+                pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
+                pickedObjText.transform.localPosition = new Vector3(posX - 0.01f, posY - 0.04f, -0.00001f);
             } else if (stage == 3) {
                 imageSlots[2]++;
                 pos = imageSlots[2] - 1;
                 posX = up[pos, 0];
                 posY = up[pos, 1];
-                pickedObj2D.transform.localPosition = new Vector3(posX, posY, 0f);
-                pickedObjText.transform.localPosition = new Vector3(posX - 0.01f, posY - 0.04f, 0f);
+                pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
+                pickedObjText.transform.localPosition = new Vector3(posX - 0.01f, posY - 0.04f, -0.00001f);
             } else if (stage == 4) {
                 imageSlots[3]++;
                 pos = imageSlots[3] - 1;
                 posX = down[pos, 0];
                 posY = down[pos, 1];
-                pickedObj2D.transform.localPosition = new Vector3(posX, posY, 0f);
-                pickedObjText.transform.localPosition = new Vector3(posX - 0.01f, posY - 0.04f, 0f);
+                pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
+                pickedObjText.transform.localPosition = new Vector3(posX - 0.01f, posY - 0.04f, -0.00001f);
             }
             //pickedObj2D.transform.localPosition = Vector3.zero;
         }
@@ -181,7 +223,6 @@ public class SquadMenu : MonoBehaviour {
 
 
     public void enableSQUAD() {
-        //canvas.SetActive(true);
         panel.SetActive(true);
         SphereCasting.inMenu = true;
     }

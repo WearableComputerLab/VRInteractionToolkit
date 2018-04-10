@@ -114,6 +114,7 @@ public class SphereCasting : MonoBehaviour {
                 menu.clearList();
             } else if (squadEnabled == true && menu.quadrantIsPicked() == true && menu.isActive() == true) {
                 //print("object selected:" + hit.transform.gameObject.name);
+                //todo check if obj is child of createtriangles panel
                 menu.selectObject(controller, hit.transform.gameObject);
             } else if (squadEnabled == true && menu.quadrantIsPicked() == false && menu.isActive() == true) {
                 menu.selectQuad(controller, hit.transform.gameObject);
