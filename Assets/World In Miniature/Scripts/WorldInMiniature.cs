@@ -5,6 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class WorldInMiniature : MonoBehaviour {
 
+    /* World In Miniature implementation by Kieran May
+     * University of South Australia
+     * 
+     * */
+
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
     public GameObject worldInMinParent;
@@ -24,7 +29,9 @@ public class WorldInMiniature : MonoBehaviour {
                     if (!ignorableObjectsString.Contains(allSceneObjects[i].name)) {
                         GameObject cloneObject = Instantiate(allSceneObjects[i], new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
                         cloneObject.transform.SetParent(worldInMinParent.transform, false);
-                        cloneObject.gameObject.AddComponent<Rigidbody>();
+                        if (cloneObject.gameObject.GetComponent<Rigidbody>() == null) {
+                            cloneObject.gameObject.AddComponent<Rigidbody>();
+                        }
                         cloneObject.gameObject.GetComponent<Rigidbody>().isKinematic = true;
                         //cloneObject.gameObject.AddComponent<Collider>();
                         //cloneObject.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
