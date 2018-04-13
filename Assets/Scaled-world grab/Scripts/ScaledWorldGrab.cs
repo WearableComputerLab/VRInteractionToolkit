@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HOMER : MonoBehaviour {
+public class ScaledWorldGrab : MonoBehaviour {
 
     /* HOMER implementation by Kieran May
      * University of South Australia
@@ -29,32 +29,44 @@ public class HOMER : MonoBehaviour {
         InstantiateObject(hit.transform.gameObject);
     }
 
-    float Disth = 0f;
-    float Disto = 0f;
+
     bool objSelected = false;
-    public GameObject cameraHead; // t
-    private GameObject virtualHand;
+    public GameObject cameraHead;
+    public GameObject cameraRig;
+    //private GameObject virtualHand;
     private GameObject selectedObject;
-    public GameObject handPrefab;
     private Transform oldParent;
+    float Disteh;
+    float Disteo;
+    float scaleAmount;
 
     private void InstantiateObject(GameObject obj) {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
-            virtualHand = Instantiate(new GameObject("hand"));
-            virtualHand.transform.position = obj.transform.position;
-            virtualHand.SetActive(true);
+            //virtualHand = Instantiate(new GameObject("hand"));
+            //virtualHand.transform.position = obj.transform.position;
+            //virtualHand.SetActive(true);
             selectedObject = obj;
             oldParent = selectedObject.transform.parent;
             objSelected = true;
-            selectedObject.transform.SetParent(virtualHand.transform);
+            //selectedObject.transform.SetParent(virtualHand.transform);
             laser.SetActive(false);
 
-            Disth = Vector3.Distance(trackedObj.transform.position, cameraHead.transform.position);
-            Disto = Vector3.Distance(obj.transform.position, cameraHead.transform.position);
+            Disteh = Vector3.Distance(cameraHead.transform.position, trackedObj.transform.position);
+            Disteo = Vector3.Distance(cameraHead.transform.position, obj.transform.position);
+            scaleAmount = Disteo / Disteh;
+            /*foreach (Transform children in cameraRig.transform) {
+                if (children.gameObject != cameraHead) {
+                    children.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
+                }
+            }*/
+            print("scale amount:" + scaleAmount);
+            cameraHead.transform.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
+            selectedObject.transform.SetParent(trackedObj.transform);
         }
     }
 
-    private void HomerFormula() {
+    private void WorldGrab() {
+        /*
         //print("updating frame..");
         virtualHand.transform.localEulerAngles = trackedObj.transform.localEulerAngles;
         //each frame
@@ -63,10 +75,10 @@ public class HOMER : MonoBehaviour {
         Vector3 thcurr = (trackedObj.transform.position - cameraHead.transform.position);
         Vector3 VirtualHandPos = cameraHead.transform.position + Distvh * (thcurr);
         virtualHand.transform.position = VirtualHandPos;
-
+        */
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
             objSelected = false;
-            Destroy(virtualHand);
+            //Destroy(virtualHand);
             selectedObject.transform.SetParent(oldParent);
         }
     }
@@ -113,7 +125,7 @@ public class HOMER : MonoBehaviour {
             moveMirroredCube();
             castRay();
         } else if (objSelected == true) {
-            HomerFormula();
+            WorldGrab();
         }
     }
 }
