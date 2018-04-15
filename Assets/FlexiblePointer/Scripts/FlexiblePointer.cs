@@ -30,12 +30,11 @@ public class FlexiblePointer : MonoBehaviour
     public SteamVR_TrackedObject trackedObj2;
     public GameObject testControlPoint;
 
-    private float curve = 0.2f;
     public float scaleFactor = 2f;
 
-    private float[] point0; // Hand location
-    private float[] point1; // The curve
-    private float[] point2; // The distance
+    private Vector3 point0;
+    private Vector3 point1;
+    private Vector3 point2;
 
     // Laser vars
     private int numOfLasers = 20;
@@ -44,19 +43,9 @@ public class FlexiblePointer : MonoBehaviour
     private Transform[] laserTransform;
     private Vector3 hitPoint;
 
-    void Awake()
-    {
-
-    }
-
     // Use this for initialization
     void Start()
     {
-        // Setting up points
-        point0 = new float[3];
-        point1 = new float[3];
-        point2 = new float[3];
-
         // Initalizing all the lasers
         lasers = new GameObject[numOfLasers];
         laserTransform = new Transform[numOfLasers];
@@ -108,32 +97,28 @@ public class FlexiblePointer : MonoBehaviour
             forwardVectorBetweenRemotes = new Vector3(controller1Pos.x - controller2Pos.x, controller1Pos.y - controller2Pos.y, controller1Pos.z - controller2Pos.z);
 
             // Start control point
-            point0[0] = controller2Pos.x;
-            point0[1] = controller2Pos.y;
-            point0[2] = controller2Pos.z;
+            point0 = controller2Pos;
 
             float distance_formula_on_vector = Mathf.Sqrt(forwardVectorBetweenRemotes.x * forwardVectorBetweenRemotes.x + forwardVectorBetweenRemotes.y * forwardVectorBetweenRemotes.y + forwardVectorBetweenRemotes.z * forwardVectorBetweenRemotes.z);
 
             // End control point
-            point2[0] = controller1Pos.x + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.x; ;
-            point2[1] = controller1Pos.y + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.y; ;
-            point2[2] = controller1Pos.z + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.z; ;
+            point2.x = controller1Pos.x + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.x; ;
+            point2.y = controller1Pos.y + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.y; ;
+            point2.z = controller1Pos.z + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.z; ;
         }
         else
         {
             forwardVectorBetweenRemotes = new Vector3(controller2Pos.x - controller1Pos.x, controller2Pos.y - controller1Pos.y, controller2Pos.z - controller1Pos.z);
 
             // Start control point
-            point0[0] = controller1Pos.x;
-            point0[1] = controller1Pos.y;
-            point0[2] = controller1Pos.z;
+            point0 = controller1Pos;
 
             float distance_formula_on_vector = Mathf.Sqrt(forwardVectorBetweenRemotes.x * forwardVectorBetweenRemotes.x + forwardVectorBetweenRemotes.y * forwardVectorBetweenRemotes.y + forwardVectorBetweenRemotes.z * forwardVectorBetweenRemotes.z);
 
             // End control point
-            point2[0] = controller2Pos.x + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.x;
-            point2[1] = controller2Pos.y + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.y;
-            point2[2] = controller2Pos.z + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.z;
+            point2.x = controller2Pos.x + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.x;
+            point2.y = controller2Pos.y + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.y;
+            point2.z = controller2Pos.z + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.z;
         }
 
         setCurveControlPoint();
@@ -170,12 +155,9 @@ public class FlexiblePointer : MonoBehaviour
 
         Vector3 midPointBetweenPoints = (point1+point2)/2;
 
+        // Cube showing where control point is (for testing remove after)
         testControlPoint.transform.position = midPointBetweenPoints;
-
-        point1[0] = midPointBetweenPoints.x;
-        point1[1] = midPointBetweenPoints.y;
-        point1[2] = midPointBetweenPoints.z;
-        
+       
     }
 
     // Update is called once per frame
@@ -202,8 +184,7 @@ public class FlexiblePointer : MonoBehaviour
         for (int i = 0; i < numOfLasers; i++)
         {
             lasers[i].SetActive(true);
-            float[] pointOnBezier = getBezierPoint(valueToSearchBezierBy);
-            Vector3 nextPart = new Vector3(pointOnBezier[0], pointOnBezier[1], pointOnBezier[2]);
+            Vector3 nextPart = getBezierPoint(valueToSearchBezierBy);
             float distBetweenParts = Vector3.Distance(nextPart, positionOfLastLaserPart);
 
             laserTransform[i].position = Vector3.Lerp(positionOfLastLaserPart, nextPart, .5f);
@@ -217,13 +198,8 @@ public class FlexiblePointer : MonoBehaviour
     }
 
     // t being betweek 0 and 1 to get a spot on the curve
-    float[] getBezierPoint(float t)
+    Vector3 getBezierPoint(float t)
     {
-        float[] thePoint = new float[3];
-        // Formula used to get position on point
-        thePoint[0] = (1 - t) * (1 - t) * point0[0] + 2 * (1 - t) * t * point1[0] + t * t * point2[0];  // x
-        thePoint[1] = (1 - t) * (1 - t) * point0[1] + 2 * (1 - t) * t * point1[1] + t * t * point2[1];  // y
-        thePoint[2] = (1 - t) * (1 - t) * point0[2] + 2 * (1 - t) * t * point1[2] + t * t * point2[2];  // z
-        return thePoint;
+        return (Mathf.Pow(1 - t, 2) * point0 + 2 * (1 - t) * t * point1 + Mathf.Pow(t, 2) * point2); 
     }
 }
