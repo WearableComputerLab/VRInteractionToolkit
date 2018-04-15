@@ -215,9 +215,7 @@ public class FlexiblePointer : MonoBehaviour
 
                 } 
             }
-
         }
-
     }
 
     // t being betweek 0 and 1 to get a spot on the curve

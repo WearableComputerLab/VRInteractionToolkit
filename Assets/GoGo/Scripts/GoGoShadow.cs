@@ -47,7 +47,7 @@ public class GoGoShadow : MonoBehaviour {
     bool ranAlready = false;
     bool calibrated = false;
     Vector3 chestPosition;
-
+    float armLength;
 
     // TODO: THIS IS A HACK. NEED TO FIND A METHOD THAT JUST WAITS UNTIL THE MODEL IS INITALIZED INSTEAD OF CALLING OVER AND OVER
     void makeModelChild()
@@ -64,14 +64,15 @@ public class GoGoShadow : MonoBehaviour {
     {
         if(calibrated) // will only work if has been calibrated
         {
-            float armLength = Vector3.Distance(trackedObj.transform.position, chestPosition);
+            float distChestPos = Vector3.Distance(trackedObj.transform.position, chestPosition);
 
             float k = 1f / 6f;
 
-            float D = (1f / 3f) * armLength; // 2/3 of users arm length
-            if (armLength >= D)
+            float D = (2f / 3f) * armLength; // 2/3 of users arm length
+            D = 0;
+            if (distChestPos >= D)
             {
-                return armLength + k * (float)Math.Pow(armLength - D, 2);
+                return distChestPos + k * (float)Math.Pow(distChestPos - D, 2);
             }
         }
         
@@ -89,6 +90,7 @@ public class GoGoShadow : MonoBehaviour {
         // Uses skew lines formula
         Vector3 n = Vector3.Cross(headVector, Vector3.Cross(armVector, headVector));
         chestPosition = controller + ((Vector3.Dot((headPos - controller), n)) / (Vector3.Dot(armVector, n))) * armVector;
+        armLength = Vector3.Distance(trackedObj.transform.position, chestPosition);
         calibrated = true;
     }
 
@@ -140,6 +142,7 @@ public class GoGoShadow : MonoBehaviour {
         // Using the origin and the forward vector of the remote the extended positon of the remote can be calculated
         Vector3 theVector = theController.transform.forward;
         Vector3 pose = theController.transform.position;
+        Quaternion rot = theController.transform.rotation;
 
         float distance_formula_on_vector = Mathf.Sqrt(theVector.x * theVector.x + theVector.y * theVector.y + theVector.z * theVector.z);
 
@@ -154,7 +157,7 @@ public class GoGoShadow : MonoBehaviour {
         }
 
         transform.position = pose;
-        transform.rotation = theController.transform.rotation;
+        transform.rotation = rot;
     }
 
     
