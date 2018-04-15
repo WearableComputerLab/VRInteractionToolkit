@@ -22,9 +22,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using Valve.VR.InteractionSystem;
 
 public class BendCast : MonoBehaviour
 {
+
+    public Material MaterialToHighlightObjects;
+    private Material unhighlightedObject;
 
     private SteamVR_TrackedObject trackedObj;
     private GameObject currentlyPointingAt;
@@ -76,7 +80,7 @@ public class BendCast : MonoBehaviour
 
         Vector3 p0 = castingBezierFrom;
         Vector3 p2 = currentlyPointingAt.transform.position;
-        Vector3 p1 = p2 - currentlyPointingAt.transform.forward * -1;
+        Vector3 p1 = p2 - currentlyPointingAt.transform.forward;
         return Mathf.Pow(1f - t, 2f) * p0 + 2f * (1f - t) * t * p1 + Mathf.Pow(t, 2) * p2;
     }
 
@@ -92,7 +96,7 @@ public class BendCast : MonoBehaviour
 
         valueToSearchBezierBy += (1f / numOfLasers);
 
-        for (int i = 1; i < numOfLasers; i++)
+        for (int i = 0; i < numOfLasers; i++)
         {
             lasers[i].SetActive(true);
             Vector3 pointOnBezier = GetBezierPosition(valueToSearchBezierBy);
@@ -155,32 +159,16 @@ public class BendCast : MonoBehaviour
         }
         if (objectWithShortestDistance != null)
         {
-            lasers[0].SetActive(true);
-
-            currentlyPointingAt = objectWithShortestDistance;
-
-            // shortening laser so the rest is curve
-            float shorteningFactor = 0.9f;
-
-            // Cast straight part of laser
-            float laserLength = distBetweenVectors(trackedObj.transform.position, currentlyPointingAt.transform.position) * shorteningFactor;
-
-            Vector3 forward = trackedObj.transform.forward;
-            Vector3 pose = trackedObj.transform.position;
-            float distance_formula_on_vector = Mathf.Sqrt(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
-
-            Vector3 newVec = new Vector3();
+            if(currentlyPointingAt != null && currentlyPointingAt != objectWithShortestDistance)
+            {
+                currentlyPointingAt.GetComponent<Renderer>().material = unhighlightedObject;
+                unhighlightedObject = objectWithShortestDistance.GetComponent<Renderer>().material;
+            }
             
+            currentlyPointingAt = objectWithShortestDistance;
+            castingBezierFrom = trackedObj.transform.position;
 
-            newVec.x = pose.x + (laserLength / (distance_formula_on_vector)) * forward.x;
-            newVec.y = pose.y + (laserLength / (distance_formula_on_vector)) * forward.y;
-            newVec.z = pose.z + (laserLength / (distance_formula_on_vector)) * forward.z;
-
-            castingBezierFrom = newVec;
-
-            laserTransform[0].position = Vector3.Lerp(trackedObj.transform.position, newVec, .5f);
-            laserTransform[0].LookAt(newVec);
-            laserTransform[0].localScale = new Vector3(laserTransform[0].localScale.x, laserTransform[0].localScale.y, laserLength);
+            currentlyPointingAt.GetComponent<Renderer>().material = MaterialToHighlightObjects;
         }
     }
 }
