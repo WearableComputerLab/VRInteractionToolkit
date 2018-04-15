@@ -43,6 +43,8 @@ public class FlexiblePointer : MonoBehaviour
     private Transform[] laserTransform;
     private Vector3 hitPoint;
 
+    
+
     // Use this for initialization
     void Start()
     {
@@ -152,11 +154,11 @@ public class FlexiblePointer : MonoBehaviour
         // Figuring out point 2
         Vector3 localPoint2 = p2 + ((Vector3.Dot((p1 - p2), n1)) / (Vector3.Dot(d2, n1))) * d2;
 
-        point1 = (localPoint1 + localPoint2) /2;
+        point1 = (localPoint1 + localPoint2) / 2;
 
         // Cube showing where control point is (for testing remove after)
         testControlPoint.transform.position = point1;
-       
+
     }
 
     // Update is called once per frame
@@ -180,12 +182,15 @@ public class FlexiblePointer : MonoBehaviour
             positionOfLastLaserPart = trackedObj1.transform.position;
         }
 
+
+        // -1 so can project out the last laser
         for (int i = 0; i < numOfLasers; i++)
         {
+
+
             lasers[i].SetActive(true);
             Vector3 nextPart = getBezierPoint(valueToSearchBezierBy);
             float distBetweenParts = Vector3.Distance(nextPart, positionOfLastLaserPart);
-
             laserTransform[i].position = Vector3.Lerp(positionOfLastLaserPart, nextPart, .5f);
             laserTransform[i].LookAt(nextPart);
             laserTransform[i].localScale = new Vector3(laserTransform[i].localScale.x, laserTransform[i].localScale.y,
@@ -193,12 +198,31 @@ public class FlexiblePointer : MonoBehaviour
 
             positionOfLastLaserPart = nextPart;
             valueToSearchBezierBy += (1f / numOfLasers);
+
+            if (i > 0)
+            {
+                // Do a ray cast check on each part to check for collision (extended from laser part)
+                Vector3 dir = laserTransform[i - 1].forward;
+                RaycastHit hit;
+                if (Physics.Raycast(positionOfLastLaserPart, dir, out hit, distBetweenParts))
+                {
+                    // no object previouslly was highlighted so just highlight this one
+                    HoverOnRayHit objectHit = hit.transform.gameObject.GetComponent<HoverOnRayHit>();
+                    if (objectHit != null)
+                    {
+                        objectHit.OnRayHit();
+                    }
+
+                } 
+            }
+
         }
+
     }
 
     // t being betweek 0 and 1 to get a spot on the curve
     Vector3 getBezierPoint(float t)
     {
-        return (Mathf.Pow(1 - t, 2) * point0 + 2 * (1 - t) * t * point1 + Mathf.Pow(t, 2) * point2); 
+        return (Mathf.Pow(1 - t, 2) * point0 + 2 * (1 - t) * t * point1 + Mathf.Pow(t, 2) * point2);
     }
 }
