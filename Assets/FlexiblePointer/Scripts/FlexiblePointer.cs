@@ -73,8 +73,8 @@ public class FlexiblePointer : MonoBehaviour
     int calculatePointingController()
     {
         Vector3 playerPos = this.transform.position;
-        float distTo1 = distBetweenVectors(playerPos, trackedObj1.transform.position);
-        float distTo2 = distBetweenVectors(playerPos, trackedObj2.transform.position);
+        float distTo1 = Vector3.Distance(playerPos, trackedObj1.transform.position);
+        float distTo2 = Vector3.Distance(playerPos, trackedObj2.transform.position);
 
         return 1;
         // Allows to switch between but is buggy so while testing will keep off
@@ -101,7 +101,7 @@ public class FlexiblePointer : MonoBehaviour
         // Will extend further based on the scale factor
         // by multiplying the distance between controllers by it
         // and calculating new end control point
-        float distanceBetweenControllers = distBetweenVectors(controller1Pos, controller2Pos) * scaleFactor;
+        float distanceBetweenControllers = Vector3.Distance(controller1Pos, controller2Pos) * scaleFactor;
 
         if (calculatePointingController() == 1)
         {
@@ -142,7 +142,7 @@ public class FlexiblePointer : MonoBehaviour
     // Initalizes point1 's curve
     void setCurveControlPoint()
     {
-        /*
+        
         // Setting control point of curve
         // Based off of rotation of controllers
         // to calculate the control point we find the perpendicular vector (in the center of the vector between each remote
@@ -150,7 +150,7 @@ public class FlexiblePointer : MonoBehaviour
         // and use the backward vector of the pointing remote and its intersection
 
         // assuming 1 is pointing controller for test
-        Vector3 d1 = trackedObj1.transform.forward * -1;
+        Vector3 d1 = trackedObj1.transform.forward;
         Vector3 d2 = trackedObj2.transform.forward;
 
         Vector3 p1 = trackedObj1.transform.position;
@@ -163,38 +163,19 @@ public class FlexiblePointer : MonoBehaviour
         Vector3 n2 = Vector3.Cross(d2, (Vector3.Cross(d1, d2)));
 
         // Figuring out point 1
-        float p1Numerator = Vector3.Dot((p2 - p1), n2);
-        float p1Denominator = Vector3.Dot(d1, n2);
-        float p1afterDivision = p1Numerator / p1Denominator;
-        Vector3 point1 = p1 + p1afterDivision * d1;
+        Vector3 point1 = p1 + ((Vector3.Dot((p2 - p1), n2)) / (Vector3.Dot(d1, n2))) * d1;
 
         // Figuring out point 2
-        float p2Numerator = Vector3.Dot((p1 - p2), n1);
-        float p2Denominator = Vector3.Dot(d2, n1);
-        float p2afterDivision = p2Numerator / p2Denominator;
-        Vector3 point2 = p2 + p2afterDivision * p2;
+        Vector3 point2 = p2 + ((Vector3.Dot((p1 - p2), n1)) / (Vector3.Dot(d2, n1))) * d2;
 
         Vector3 midPointBetweenPoints = (point1+point2)/2;
-        print(point1.x);
 
         testControlPoint.transform.position = midPointBetweenPoints;
-        */
+
+        point1[0] = midPointBetweenPoints.x;
+        point1[1] = midPointBetweenPoints.y;
+        point1[2] = midPointBetweenPoints.z;
         
-        // Midpoint of the points 0 and 1
-        float midX = (point0[0] + point1[0]) / 2;
-        float midY = (point0[1] + point1[1]) / 2;
-        float midZ = (point0[2] + point1[2]) / 2;
-
-        point1[0] = midX + curve;
-        point1[1] = midY + curve;
-        point1[2] = midZ + curve;
-
-        testControlPoint.transform.position = new Vector3(midX, midY, midZ);
-    }
-
-    float distBetweenVectors(Vector3 one, Vector3 two)
-    {
-        return Mathf.Sqrt(Mathf.Pow(one.x - two.x, 2) + Mathf.Pow(one.y - two.y, 2) + Mathf.Pow(one.z - two.z, 2));
     }
 
     // Update is called once per frame
@@ -223,7 +204,7 @@ public class FlexiblePointer : MonoBehaviour
             lasers[i].SetActive(true);
             float[] pointOnBezier = getBezierPoint(valueToSearchBezierBy);
             Vector3 nextPart = new Vector3(pointOnBezier[0], pointOnBezier[1], pointOnBezier[2]);
-            float distBetweenParts = distBetweenVectors(nextPart, positionOfLastLaserPart);
+            float distBetweenParts = Vector3.Distance(nextPart, positionOfLastLaserPart);
 
             laserTransform[i].position = Vector3.Lerp(positionOfLastLaserPart, nextPart, .5f);
             laserTransform[i].LookAt(nextPart);
