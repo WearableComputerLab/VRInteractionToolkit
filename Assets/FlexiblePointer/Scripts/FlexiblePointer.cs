@@ -127,7 +127,6 @@ public class FlexiblePointer : MonoBehaviour
     // Initalizes point1 's curve
     void setCurveControlPoint()
     {
-        
         // Setting control point of curve
         // Based off of rotation of controllers
         // to calculate the control point we find the perpendicular vector (in the center of the vector between each remote
@@ -135,7 +134,7 @@ public class FlexiblePointer : MonoBehaviour
         // and use the backward vector of the pointing remote and its intersection
 
         // assuming 1 is pointing controller for test
-        Vector3 d1 = trackedObj1.transform.forward;
+        Vector3 d1 = trackedObj1.transform.forward * -1f;
         Vector3 d2 = trackedObj2.transform.forward;
 
         Vector3 p1 = trackedObj1.transform.position;
@@ -148,15 +147,15 @@ public class FlexiblePointer : MonoBehaviour
         Vector3 n2 = Vector3.Cross(d2, (Vector3.Cross(d1, d2)));
 
         // Figuring out point 1
-        Vector3 point1 = p1 + ((Vector3.Dot((p2 - p1), n2)) / (Vector3.Dot(d1, n2))) * d1;
+        Vector3 localPoint1 = p1 + ((Vector3.Dot((p2 - p1), n2)) / (Vector3.Dot(d1, n2))) * d1;
 
         // Figuring out point 2
-        Vector3 point2 = p2 + ((Vector3.Dot((p1 - p2), n1)) / (Vector3.Dot(d2, n1))) * d2;
+        Vector3 localPoint2 = p2 + ((Vector3.Dot((p1 - p2), n1)) / (Vector3.Dot(d2, n1))) * d2;
 
-        Vector3 midPointBetweenPoints = (point1+point2)/2;
+        point1 = (localPoint1 + localPoint2) /2;
 
         // Cube showing where control point is (for testing remove after)
-        testControlPoint.transform.position = midPointBetweenPoints;
+        testControlPoint.transform.position = point1;
        
     }
 
