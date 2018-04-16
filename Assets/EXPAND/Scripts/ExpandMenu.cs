@@ -65,6 +65,7 @@ public class ExpandMenu : MonoBehaviour {
     private GameObject pickedObject;
     private GameObject lastPickedObject;
     private Material oldPickedObjectMaterial;
+    public Material selectedMaterial;
 
     public void selectObject(SteamVR_Controller.Device controller, GameObject obj) {
         //print("picked object:" + pickedObject);
@@ -76,6 +77,7 @@ public class ExpandMenu : MonoBehaviour {
             lastPickedObject = pickedObject;
             print("Final picked object:" + objName);
             oldPickedObjectMaterial = pickedObject.transform.GetComponent<Renderer>().material;
+            pickedObject.transform.GetComponent<Renderer>().material = selectedMaterial;
             disableEXPAND();
         }
     }

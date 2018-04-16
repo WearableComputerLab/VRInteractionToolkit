@@ -63,6 +63,7 @@ public class HOMER : MonoBehaviour {
         Vector3 thcurr = (trackedObj.transform.position - cameraHead.transform.position);
         Vector3 VirtualHandPos = cameraHead.transform.position + Distvh * (thcurr);
         virtualHand.transform.position = VirtualHandPos;
+        virtualHand.transform.position = new Vector3(virtualHand.transform.position.x, virtualHand.transform.position.y, virtualHand.transform.position.z);
 
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
             objSelected = false;

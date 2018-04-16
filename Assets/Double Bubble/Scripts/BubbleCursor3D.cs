@@ -185,75 +185,80 @@ public class BubbleCursor3D : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
-        if (trackedObj != null) {
-            controller = SteamVR_Controller.Input((int)trackedObj.index);
-            PadScrolling();
+    void Update() {
+        /*print(bubbleSelection.inBubbleSelection);
+        if (bubbleSelection.inBubbleSelection == true) {
+            cursor.SetActive(false);
         }
-
-        float[][] lowestDistances = ClosestObject();
-        //float ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius;
-        //float SecondClosestCircleRadius = lowestDistances[1][0] - interactableObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius;
-        float ClosestCircleRadius = 0f;
-        float SecondClosestCircleRadius = 0f;
-
-
-        if (interactableObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(SphereCollider)) {
-            ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius;
-        }
-        if (interactableObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(SphereCollider)) {
-            SecondClosestCircleRadius = lowestDistances[1][0] - interactableObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius;
-        }
-
-        if (interactableObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(CapsuleCollider)) {
-            ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<CapsuleCollider>().radius;
-        }
-        if (interactableObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(CapsuleCollider)) {
-            SecondClosestCircleRadius = lowestDistances[1][0] - interactableObjects[(int)lowestDistances[1][1]].GetComponent<CapsuleCollider>().radius;
-        }
-
-        if (interactableObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(BoxCollider)) {
-            ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<BoxCollider>().size.x;
-        }
-        if (interactableObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(BoxCollider)) {
-            SecondClosestCircleRadius = lowestDistances[1][0] - interactableObjects[(int)lowestDistances[1][1]].GetComponent<BoxCollider>().size.x;
-        }
-
-        float closestValue = Mathf.Min(ClosestCircleRadius, SecondClosestCircleRadius);
-        //print("updating");
-        //print("FIRST closest radius:" + ClosestCircleRadius*2 + " | closest value:" + closestValue);
-        //print("SECOND closest radius:" + SecondClosestCircleRadius* 2 + " | closest value:" + closestValue);
-        if (ClosestCircleRadius * 2 < SecondClosestCircleRadius * 2) {
-            cursor.GetComponent<SphereCollider>().radius = (closestValue + ClosestCircleRadius);
-            if (cursor.GetComponent<SphereCollider>().radius < minRadius) {
-                cursor.GetComponent<SphereCollider>().radius = minRadius;
+        else if (bubbleSelection.inBubbleSelection == false) {*/
+            if (trackedObj != null) {
+                controller = SteamVR_Controller.Input((int)trackedObj.index);
+                PadScrolling();
             }
-            radiusBubble.transform.localScale = new Vector3((closestValue + ClosestCircleRadius) * 2, (closestValue + ClosestCircleRadius) * 2, (closestValue + ClosestCircleRadius) * 2);
-            if (radiusBubble.transform.localScale.x < minRadius*2) {
-                radiusBubble.transform.localScale = new Vector3(minRadius * 2, minRadius * 2, minRadius * 2);
+
+            float[][] lowestDistances = ClosestObject();
+            //float ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius;
+            //float SecondClosestCircleRadius = lowestDistances[1][0] - interactableObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius;
+            float ClosestCircleRadius = 0f;
+            float SecondClosestCircleRadius = 0f;
+
+
+            if (interactableObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(SphereCollider)) {
+                ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius;
             }
-            //print("TARGET:"+lowestDistances[0][1]);
-            objectBubble.transform.localScale = new Vector3(0f, 0f, 0f);
-            //PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
-            //bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
-            bubbleSelection.enableMenu(controller, trackedObj, bubbleSelection.getSelectableObjects());
-            bubbleSelection.clearList();
-        } else {
-            cursor.GetComponent<SphereCollider>().radius = (closestValue + SecondClosestCircleRadius);
-            if (cursor.GetComponent<SphereCollider>().radius < minRadius) {
-                cursor.GetComponent<SphereCollider>().radius = minRadius;
+            if (interactableObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(SphereCollider)) {
+                SecondClosestCircleRadius = lowestDistances[1][0] - interactableObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius;
             }
-            radiusBubble.transform.localScale = new Vector3((closestValue + SecondClosestCircleRadius) * 2, (closestValue + SecondClosestCircleRadius) * 2, (closestValue + SecondClosestCircleRadius) * 2);
-            if (radiusBubble.transform.localScale.x < minRadius * 2) {
-                radiusBubble.transform.localScale = new Vector3(minRadius * 2, minRadius * 2, minRadius * 2);
+
+            if (interactableObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(CapsuleCollider)) {
+                ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<CapsuleCollider>().radius;
             }
-            //print("TARGET:" + lowestDistances[1][1]);
-            objectBubble.transform.position = interactableObjects[(int)lowestDistances[0][1]].transform.position;
-            objectBubble.transform.localScale = new Vector3(interactableObjects[(int)lowestDistances[0][1]].transform.localScale.x + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.y + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.z + bubbleOffset);
-            //PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
-            //bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
-            bubbleSelection.enableMenu(controller, trackedObj, bubbleSelection.getSelectableObjects());
-            bubbleSelection.clearList();
+            if (interactableObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(CapsuleCollider)) {
+                SecondClosestCircleRadius = lowestDistances[1][0] - interactableObjects[(int)lowestDistances[1][1]].GetComponent<CapsuleCollider>().radius;
+            }
+
+            if (interactableObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(BoxCollider)) {
+                ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<BoxCollider>().size.x;
+            }
+            if (interactableObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(BoxCollider)) {
+                SecondClosestCircleRadius = lowestDistances[1][0] - interactableObjects[(int)lowestDistances[1][1]].GetComponent<BoxCollider>().size.x;
+            }
+
+            float closestValue = Mathf.Min(ClosestCircleRadius, SecondClosestCircleRadius);
+            //print("updating");
+            //print("FIRST closest radius:" + ClosestCircleRadius*2 + " | closest value:" + closestValue);
+            //print("SECOND closest radius:" + SecondClosestCircleRadius* 2 + " | closest value:" + closestValue);
+            if (ClosestCircleRadius * 2 < SecondClosestCircleRadius * 2) {
+                cursor.GetComponent<SphereCollider>().radius = (closestValue + ClosestCircleRadius);
+                if (cursor.GetComponent<SphereCollider>().radius < minRadius) {
+                    cursor.GetComponent<SphereCollider>().radius = minRadius;
+                }
+                radiusBubble.transform.localScale = new Vector3((closestValue + ClosestCircleRadius) * 2, (closestValue + ClosestCircleRadius) * 2, (closestValue + ClosestCircleRadius) * 2);
+                if (radiusBubble.transform.localScale.x < minRadius * 2) {
+                    radiusBubble.transform.localScale = new Vector3(minRadius * 2, minRadius * 2, minRadius * 2);
+                }
+                //print("TARGET:"+lowestDistances[0][1]);
+                objectBubble.transform.localScale = new Vector3(0f, 0f, 0f);
+                //PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
+                //bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
+                bubbleSelection.enableMenu(controller, trackedObj, bubbleSelection.getSelectableObjects());
+                bubbleSelection.clearList();
+            } else {
+                cursor.GetComponent<SphereCollider>().radius = (closestValue + SecondClosestCircleRadius);
+                if (cursor.GetComponent<SphereCollider>().radius < minRadius) {
+                    cursor.GetComponent<SphereCollider>().radius = minRadius;
+                }
+                radiusBubble.transform.localScale = new Vector3((closestValue + SecondClosestCircleRadius) * 2, (closestValue + SecondClosestCircleRadius) * 2, (closestValue + SecondClosestCircleRadius) * 2);
+                if (radiusBubble.transform.localScale.x < minRadius * 2) {
+                    radiusBubble.transform.localScale = new Vector3(minRadius * 2, minRadius * 2, minRadius * 2);
+                }
+                //print("TARGET:" + lowestDistances[1][1]);
+                objectBubble.transform.position = interactableObjects[(int)lowestDistances[0][1]].transform.position;
+                objectBubble.transform.localScale = new Vector3(interactableObjects[(int)lowestDistances[0][1]].transform.localScale.x + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.y + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.z + bubbleOffset);
+                //PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
+                //bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
+                bubbleSelection.enableMenu(controller, trackedObj, bubbleSelection.getSelectableObjects());
+                bubbleSelection.clearList();
+            }
         }
-    }
 }

@@ -40,28 +40,30 @@ public class ScaledWorldGrab : MonoBehaviour {
     float Disteo;
     float scaleAmount;
 
+    Vector3 oldScale;
+
     private void InstantiateObject(GameObject obj) {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
-            //virtualHand = Instantiate(new GameObject("hand"));
-            //virtualHand.transform.position = obj.transform.position;
-            //virtualHand.SetActive(true);
-            selectedObject = obj;
-            oldParent = selectedObject.transform.parent;
-            objSelected = true;
-            //selectedObject.transform.SetParent(virtualHand.transform);
-            laser.SetActive(false);
+            if (objSelected == false) {
+                selectedObject = obj;
+                oldParent = selectedObject.transform.parent;
+                objSelected = true;
+                //selectedObject.transform.SetParent(virtualHand.transform);
+                laser.SetActive(false);
 
-            Disteh = Vector3.Distance(cameraHead.transform.position, trackedObj.transform.position);
-            Disteo = Vector3.Distance(cameraHead.transform.position, obj.transform.position);
-            scaleAmount = Disteo / Disteh;
-            /*foreach (Transform children in cameraRig.transform) {
-                if (children.gameObject != cameraHead) {
-                    children.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
-                }
-            }*/
-            print("scale amount:" + scaleAmount);
-            cameraHead.transform.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
-            selectedObject.transform.SetParent(trackedObj.transform);
+                Disteh = Vector3.Distance(cameraHead.transform.position, trackedObj.transform.position);
+                Disteo = Vector3.Distance(cameraHead.transform.position, obj.transform.position);
+                scaleAmount = Disteo / Disteh;
+                /*foreach (Transform children in cameraRig.transform) {
+                    if (children.gameObject != cameraHead) {
+                        children.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
+                    }
+                }*/
+                print("scale amount:" + scaleAmount);
+                oldScale = cameraHead.transform.localScale;
+                cameraHead.transform.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
+                selectedObject.transform.SetParent(trackedObj.transform);
+            }
         }
     }
 
@@ -78,8 +80,8 @@ public class ScaledWorldGrab : MonoBehaviour {
         */
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
             objSelected = false;
-            //Destroy(virtualHand);
             selectedObject.transform.SetParent(oldParent);
+            cameraHead.transform.localScale = oldScale;
         }
     }
 

@@ -27,28 +27,33 @@ public class iSith : MonoBehaviour {
     public static Vector3 leftController = new Vector3(0, 0, 0);
     public static Vector3 rightController = new Vector3(0, 0, 0);
 
-    public static Vector3 leftLaser = new Vector3(0, 0, 0);
-    public static Vector3 rightLaser = new Vector3(0, 0, 0);
+    public static Transform leftLaser;
+    public static Transform rightLaser;
 
     private void interactionPosition() {
         //print(trackedObj.name);
         if (trackedObj.name == "Controller (left)" && trackedObj.transform.position != null) {
             leftController = trackedObj.transform.position;
-            leftLaser = laser.transform.position;
+            leftLaser = laser.transform;
             //print("leftController:" + leftController);
             //print("rightController:" + rightController);
         } else if (trackedObj.name == "Controller (right)" && trackedObj.transform.position != null) {
             rightController = trackedObj.transform.position;
-            rightLaser = laser.transform.position;
+            rightLaser = laser.transform;
             //print("rightController:" + rightController);
         }
         print(leftController);
         print(rightController);
 
-        //Vector3 crossed = Vector3.Cross(leftController, rightController);
-        Vector3 crossed = Vector3.Lerp(leftLaser, rightLaser, 0.5f);
+        Vector3 crossed = Vector3.Lerp(leftLaser.position, rightLaser.position, 0.5f);
         print("crossedval:" + crossed);
         pointOfInteraction.transform.localPosition = crossed;
+        //Vector3 pos = new Vector3(Mathf.Clamp(crossed.x, 0f, leftLaser.position.x), Mathf.Clamp(crossed.y, 0f, leftLaser.position.y), Mathf.Clamp(crossed.z, 0f, leftLaser.position.z));
+        //pointOfInteraction.transform.localPosition = pos;
+        //pointOfInteraction.transform.localPosition = new Vector3(Mathf.Clamp(crossed.z, 0f, 10f));
+        /*pos.x = pointOfInteraction.transform.position.x + (dist / (distance_formula_on_vector)) * controllerPos.x;
+        pos.y = pointOfInteraction.transform.position.y + (dist / (distance_formula_on_vector)) * controllerPos.y;
+        pos.z = pointOfInteraction.transform.position.z + (dist / (distance_formula_on_vector)) * controllerPos.z;*/
         //float controllerDist = Vector3.Distance(leftController, rightController);
         //print("dist:"+ controllerDist);
         //pointOfInteraction.transform.position = leftController;
@@ -77,6 +82,24 @@ public class iSith : MonoBehaviour {
                 pickedUpObject = false;
             }
         }
+    }*/
+    /*private float dist;
+    void interactionDistance() {
+        Vector3 pos = trackedObj.transform.position;
+        Vector3 controllerPos = trackedObj.transform.forward;
+        float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
+        // Using formula to find a point which lies at distance on a 3D line from vector and direction
+        if (dist < 0) {
+            dist = 0;
+        }
+        pos.x = pointOfInteraction.transform.position.x + (dist / (distance_formula_on_vector)) * controllerPos.x;
+        pos.y = pointOfInteraction.transform.position.y + (dist / (distance_formula_on_vector)) * controllerPos.y;
+        pos.z = pointOfInteraction.transform.position.z + (dist / (distance_formula_on_vector)) * controllerPos.z;
+
+
+        pointOfInteraction.transform.position = pos;
+        pointOfInteraction.transform.rotation = trackedObj.transform.rotation;
+
     }*/
 
     private float extendDistance = 0f;

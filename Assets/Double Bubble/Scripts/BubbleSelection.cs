@@ -13,6 +13,7 @@ public class BubbleSelection : MonoBehaviour {
     public GameObject cursor2D;
     public GameObject radiusBubble2D;
     public GameObject objectBubble2D;
+    public bool inBubbleSelection = false;
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     private GameObject tempObjectStored;
@@ -69,10 +70,11 @@ public class BubbleSelection : MonoBehaviour {
         }
         int lowestValue = 0;
         for (int i = 0; i < pickedObjects.Length; i++) {
-            Vector3 objPos = panel.transform.Find(pickedObjects[i].name + "(Clone)").transform.localPosition;
+            Transform objPos = panel.transform.Find(pickedObjects[i].name + "(Clone)").transform;
             print("cursorPos:" + cursor2D.transform.localPosition);
-            print("objPos:" + objPos);
-            float dist = Vector3.Distance(cursor2D.transform.localPosition, objPos)*10;
+            print("objPos:" + objPos.localPosition);
+            float dist = Vector3.Distance(cursor2D.transform.localPosition, objPos.localPosition);
+            dist = dist * (0.5f / objPos.localScale.x);
             if (i == 0) {
                 lowestDist = dist;
                 lowestValue = 0;
@@ -114,12 +116,14 @@ public class BubbleSelection : MonoBehaviour {
 
     public void disableMenu() {
         panel.SetActive(false);
+        inBubbleSelection = false;
     }
 
     public void enableMenu(SteamVR_Controller.Device controller, SteamVR_TrackedObject trackedObj, List<GameObject> obj) {
         if (trackedObj != null) {
             if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
                 panel.SetActive(true);
+                inBubbleSelection = true;
                 generate2DObjects(obj);
             }
         }
@@ -166,7 +170,7 @@ public class BubbleSelection : MonoBehaviour {
         return selectableObjects.Count;
     }
 
-    private readonly float bubbleOffset = 0.6f;
+    private readonly float bubbleOffset = 0.05f;
 
     private void Update() {
         if (trackedObj != null) {
@@ -185,56 +189,79 @@ public class BubbleSelection : MonoBehaviour {
 
             //print("SIZE:" + pickedObjects.Length);
             print("lowestDist:" + lowestDistances[0][1]);
-            float scaledRadiusClosest = pickedObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius * (pickedObjects[(int)lowestDistances[0][1]].transform.localScale.x/10f);
-            float scaledRadiusSecond = pickedObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius * (pickedObjects[(int)lowestDistances[1][1]].transform.localScale.x/10f);
-            print("scaled radius closest:" + scaledRadiusClosest + " | w/out radius:" + lowestDistances[0][0]);
-            print("scaled radius second:" + scaledRadiusSecond + " | w/out radius:" + lowestDistances[1][0]);
+            //float scaledRadiusClosest = pickedObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius * (pickedObjects[(int)lowestDistances[0][1]].transform.localScale.x/10f);
+            //float scaledRadiusSecond = pickedObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius * (pickedObjects[(int)lowestDistances[1][1]].transform.localScale.x/10f);
+            //print("x:" + pickedObjects[(int)lowestDistances[0][1]].transform.localScale.x);
+            //print("scaled radius closest:" + scaledRadiusClosest + " | w/out radius:" + lowestDistances[0][0]);
+            //print("scaled radius second:" + scaledRadiusSecond + " | w/out radius:" + lowestDistances[1][0]);
             //ClosestCircleRadius = lowestDistances[0][0] + pickedObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius;
             //SecondClosestCircleRadius = lowestDistances[1][0] - pickedObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius;
-            ClosestCircleRadius = lowestDistances[0][0] + scaledRadiusClosest;
-            SecondClosestCircleRadius = lowestDistances[1][0] - scaledRadiusSecond;
-        //ClosestCircleRadius = lowestDistances[0][0];
-        //SecondClosestCircleRadius = lowestDistances[1][0];
 
-        /*if (pickedObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(SphereCollider)) {
-            ClosestCircleRadius = lowestDistances[0][0] + pickedObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius;
-        }
-        if (pickedObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(SphereCollider)) {
-            SecondClosestCircleRadius = lowestDistances[1][0] - pickedObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius;
-        }
+            //ClosestCircleRadius = lowestDistances[0][0] + pickedObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius/2f;
+            //SecondClosestCircleRadius = lowestDistances[1][0] - pickedObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius/2f;
 
-        if (pickedObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(CapsuleCollider)) {
-            ClosestCircleRadius = lowestDistances[0][0] + pickedObjects[(int)lowestDistances[0][1]].GetComponent<CapsuleCollider>().radius;
-        }
-        if (pickedObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(CapsuleCollider)) {
-            SecondClosestCircleRadius = lowestDistances[1][0] - pickedObjects[(int)lowestDistances[1][1]].GetComponent<CapsuleCollider>().radius;
-        }
 
-        if (pickedObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(BoxCollider)) {
-            ClosestCircleRadius = lowestDistances[0][0] + pickedObjects[(int)lowestDistances[0][1]].GetComponent<BoxCollider>().size.x;
-        }
-        if (pickedObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(BoxCollider)) {
-            SecondClosestCircleRadius = lowestDistances[1][0] - pickedObjects[(int)lowestDistances[1][1]].GetComponent<BoxCollider>().size.x;
-        }*/
+            //ClosestCircleRadius = lowestDistances[0][0];
+            //SecondClosestCircleRadius = lowestDistances[1][0];
 
-        float closestValue = Mathf.Min(ClosestCircleRadius, SecondClosestCircleRadius);
-            //closestValue *= 10f;
+            Transform gameObjClosest = panel.transform.Find(pickedObjects[(int)lowestDistances[0][1]].transform.name + "(Clone)");
+            Transform gameObjSecond = panel.transform.Find(pickedObjects[(int)lowestDistances[1][1]].transform.name + "(Clone)");
+            if (pickedObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(SphereCollider)) {
+                /*Transform findObject = panel.transform.Find(pickedObjects[(int)lowestDistances[0][1]].transform.name + "(Clone)");
+                float objectScale = findObject.GetComponent<SphereCollider>().radius / (findObject.localScale.x * 10);
+                //cursor2D.GetComponent<SphereCollider>().radius = (closestValue + ClosestCircleRadius)/2f;
+                float finalVal = lowestDistances[0][0] + (pickedObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius * gameObjClosest.localScale.x * 10);
+                finalVal = finalVal / objectScale;
+                ClosestCircleRadius = finalVal;*/
+
+
+                print("gameobjscale:" + gameObjClosest.localScale.x);
+                print("old:"+ pickedObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius / 2f);
+                ClosestCircleRadius = lowestDistances[0][0] + (pickedObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius * gameObjClosest.localScale.x*10);
+                print("new:" + (pickedObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius * gameObjClosest.localScale.x * 10));
+            }
+            if (pickedObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(SphereCollider)) {
+                SecondClosestCircleRadius = lowestDistances[1][0] - (pickedObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius * gameObjSecond.localScale.x * 10);
+            }
+
+            if (pickedObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(CapsuleCollider)) {
+                ClosestCircleRadius = lowestDistances[0][0] + pickedObjects[(int)lowestDistances[0][1]].GetComponent<CapsuleCollider>().radius / 2f;
+            }
+            if (pickedObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(CapsuleCollider)) {
+                SecondClosestCircleRadius = lowestDistances[1][0] - pickedObjects[(int)lowestDistances[1][1]].GetComponent<CapsuleCollider>().radius / 2f;
+            }
+
+            if (pickedObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(BoxCollider)) {
+                ClosestCircleRadius = lowestDistances[0][0] + pickedObjects[(int)lowestDistances[0][1]].GetComponent<BoxCollider>().size.x / 2f;
+            }
+            if (pickedObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(BoxCollider)) {
+                SecondClosestCircleRadius = lowestDistances[1][0] - pickedObjects[(int)lowestDistances[1][1]].GetComponent<BoxCollider>().size.x / 2f;
+            }
+
+            float closestValue = Mathf.Min(ClosestCircleRadius, SecondClosestCircleRadius);
 
             print("FIRST closest radius:" + ClosestCircleRadius + " | closest value:" + closestValue);
             print("SECOND closest radius:" + SecondClosestCircleRadius + " | closest value:" + closestValue);
-            if (ClosestCircleRadius * 2 < SecondClosestCircleRadius * 2) {
-                cursor2D.GetComponent<SphereCollider>().radius = (closestValue + ClosestCircleRadius)/2f;
-                print("new radius:" + closestValue + ClosestCircleRadius);
-                //radiusBubble2D.transform.localScale = new Vector3((closestValue + ClosestCircleRadius), (closestValue + ClosestCircleRadius), (closestValue + ClosestCircleRadius));
+            if (ClosestCircleRadius < SecondClosestCircleRadius) {
+                Transform findObject = panel.transform.Find(pickedObjects[(int)lowestDistances[0][1]].transform.name + "(Clone)");
+                float objectScale = findObject.GetComponent<SphereCollider>().radius / (findObject.localScale.x*10);
+                //cursor2D.GetComponent<SphereCollider>().radius = (closestValue + ClosestCircleRadius)/2f;
+                float finalVal = (closestValue + ClosestCircleRadius) / 2f;
+                finalVal = finalVal/objectScale;
+                cursor2D.GetComponent<SphereCollider>().radius = finalVal;
+                radiusBubble2D.transform.localScale = new Vector3((closestValue + ClosestCircleRadius), (closestValue + ClosestCircleRadius), (closestValue + ClosestCircleRadius));
                 //print("TARGET:" + pickedObjects[(int)lowestDistances[0][1]].name);
-                //objectBubble2D.transform.localScale = new Vector3(0f, 0f, 0f);
+                objectBubble2D.transform.localScale = new Vector3(0f, 0f, 0f);
             } else {
                 cursor2D.GetComponent<SphereCollider>().radius = (closestValue + SecondClosestCircleRadius)/2f;
                 print("new radius:" + closestValue + SecondClosestCircleRadius);
-                //radiusBubble2D.transform.localScale = new Vector3((closestValue + SecondClosestCircleRadius), (closestValue + SecondClosestCircleRadius), (closestValue + SecondClosestCircleRadius));
+                radiusBubble2D.transform.localScale = new Vector3((closestValue + SecondClosestCircleRadius), (closestValue + SecondClosestCircleRadius), (closestValue + SecondClosestCircleRadius));
                 //print("TARGET:" + pickedObjects[(int)lowestDistances[1][1]].name);
-                //objectBubble2D.transform.position = pickedObjects[(int)lowestDistances[0][1]].transform.position;
-                //objectBubble2D.transform.localScale = new Vector3(pickedObjects[(int)lowestDistances[0][1]].transform.localScale.x + bubbleOffset, pickedObjects[(int)lowestDistances[0][1]].transform.localScale.y + bubbleOffset, pickedObjects[(int)lowestDistances[0][1]].transform.localScale.z + bubbleOffset);
+                //print("OBJECT:" + pickedObjects[(int)lowestDistances[0][1]].transform.name);
+                //print("DIST:" + panel.transform.Find(pickedObjects[(int)lowestDistances[0][1]].transform.name+"(Clone)").localPosition);
+                Transform findObject = panel.transform.Find(pickedObjects[(int)lowestDistances[0][1]].transform.name + "(Clone)");
+                objectBubble2D.transform.localPosition = findObject.localPosition;
+                objectBubble2D.transform.localScale = new Vector3(findObject.transform.localScale.x + bubbleOffset, findObject.localScale.y + bubbleOffset, findObject.transform.localScale.z + bubbleOffset);
             }
         }
     }
