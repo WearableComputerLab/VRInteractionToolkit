@@ -17,7 +17,7 @@ public class WorldInMiniature : MonoBehaviour {
     public GameObject[] ignorableObjects;
     public GameObject cameraHead;
     private bool WiMAactive = false;
-    private List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light"};
+    private List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light", "background"};
     private float scaleAmount = 20f;
 
     void createWiM() {
@@ -46,7 +46,7 @@ public class WorldInMiniature : MonoBehaviour {
                         cloneObject.transform.localPosition = new Vector3(posX, posY, posZ);
                     }
                 }
-                worldInMinParent.transform.SetParent(null);
+                //worldInMinParent.transform.SetParent(null);
                 //worldInMinParent.transform.localEulerAngles = new Vector3(0f, cameraHead.transform.localEulerAngles.y-45f, 0f);
                 worldInMinParent.transform.localEulerAngles = new Vector3(0f, trackedObj.transform.localEulerAngles.y - 45f, 0f);
                 //worldInMinParent.transform.localPosition -= new Vector3(0f, worldInMinParent.transform.position.y / 1.25f, 0f);
@@ -89,6 +89,7 @@ public class WorldInMiniature : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         allSceneObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+        //allSceneObjects = FindObjectsOfType<GameObject>();
         worldInMinParent.transform.SetParent(trackedObj.transform);
         resetAllProperties();
     }
