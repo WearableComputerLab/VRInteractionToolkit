@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class ScaledWorldGrab : MonoBehaviour {
 
-    /* HOMER implementation by Kieran May
+    /* Scaled-world grab implementation by Kieran May
      * University of South Australia
      * 
-     * The HOMER algorithm I wrote is based off: (pg 34-35) https://people.cs.vt.edu/~bowman/3dui.org/course_notes/siggraph2001/basic_techniques.pdf 
-     * 
+     * The Scaled-world grab algorithm I wrote is based off: (pg 37) https://people.cs.vt.edu/~bowman/3dui.org/course_notes/siggraph2001/basic_techniques.pdf 
+     *      - The initial selection technique used in this implementation is ray-casting
      * */
 
     SteamVR_TrackedObject trackedObj;
@@ -40,7 +40,18 @@ public class ScaledWorldGrab : MonoBehaviour {
     float Disteo;
     float scaleAmount;
 
-    Vector3 oldScale;
+    Vector3 oldHeadScale;
+    Vector3 oldCameraRigScale;
+
+    //Tham's scale method
+    public void ScaleAround(Transform target, Transform pivot, Vector3 scale) {
+        Transform pivotParent = pivot.parent;
+        Vector3 pivotPos = pivot.position;
+        pivot.parent = target;
+        target.localScale = scale;
+        target.position += pivotPos - pivot.position;
+        pivot.parent = pivotParent;
+    }
 
     private void InstantiateObject(GameObject obj) {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
@@ -48,23 +59,54 @@ public class ScaledWorldGrab : MonoBehaviour {
                 selectedObject = obj;
                 oldParent = selectedObject.transform.parent;
                 objSelected = true;
-                //selectedObject.transform.SetParent(virtualHand.transform);
                 laser.SetActive(false);
 
                 Disteh = Vector3.Distance(cameraHead.transform.position, trackedObj.transform.position);
                 Disteo = Vector3.Distance(cameraHead.transform.position, obj.transform.position);
+                print("cameraHead:"+ cameraHead.transform.position);
+                print("hand:" + trackedObj.transform.position);
+                print("object:" + obj.transform.localPosition);
+
                 scaleAmount = Disteo / Disteh;
-                /*foreach (Transform children in cameraRig.transform) {
-                    if (children.gameObject != cameraHead) {
-                        children.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
-                    }
-                }*/
                 print("scale amount:" + scaleAmount);
-                oldScale = cameraHead.transform.localScale;
-                cameraHead.transform.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
-                selectedObject.transform.SetParent(trackedObj.transform);
+                oldHeadScale = cameraHead.transform.localScale;
+                oldCameraRigScale = cameraRig.transform.localScale;
+                //cameraHead.transform.localScale = new Vector3(2f, 2f, 2f);
+                ScaleAround(cameraRig.transform, cameraHead.transform, new Vector3(scaleAmount, scaleAmount, scaleAmount));
+
+                Vector3 eyeProportion = cameraHead.transform.localScale / scaleAmount;
+                //Keep eye distance proportionate to original position
+                cameraHead.transform.localScale = eyeProportion;
+                //ScaleAround(cameraRig.transform, cameraHead.transform, new Vector3(4f, 4f, 4f));
+                //selectedObject.transform.SetParent(trackedObj.transform);
+            } else if (objSelected == true) {
+                resetProperties();
             }
         }
+    }
+
+    bool objectGrabbed = false;
+
+    private void OnTriggerStay(Collider col) {
+        if (objSelected == true) {
+            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger)) {
+                col.gameObject.transform.SetParent(trackedObj.gameObject.transform);
+                objectGrabbed = true;
+            }
+            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && objectGrabbed == true) {
+                col.gameObject.transform.SetParent(null);
+                objectGrabbed = false;
+                resetProperties();
+            }
+        }
+    }
+
+    void resetProperties() {
+        objSelected = false;
+        selectedObject.transform.SetParent(oldParent);
+        cameraHead.transform.localScale = new Vector3(1f, 1f, 1f);
+        cameraRig.transform.localScale = new Vector3(1f, 1f, 1f);
+        cameraRig.transform.localPosition = new Vector3(0f, 0f, 0f);
     }
 
     private void WorldGrab() {
@@ -78,10 +120,13 @@ public class ScaledWorldGrab : MonoBehaviour {
         Vector3 VirtualHandPos = cameraHead.transform.position + Distvh * (thcurr);
         virtualHand.transform.position = VirtualHandPos;
         */
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) { // temp
+            //Resetting everything back to normal
             objSelected = false;
             selectedObject.transform.SetParent(oldParent);
-            cameraHead.transform.localScale = oldScale;
+            cameraHead.transform.localScale = new Vector3(1f, 1f, 1f);
+            cameraRig.transform.localScale = new Vector3(1f, 1f, 1f);
+            cameraRig.transform.localPosition = new Vector3(0f, 0f, 0f);
         }
     }
 
