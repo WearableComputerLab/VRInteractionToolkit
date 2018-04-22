@@ -55,7 +55,7 @@ public class ScaledWorldGrab : MonoBehaviour {
 
     private void InstantiateObject(GameObject obj) {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
-            if (objSelected == false) {
+            if (objSelected == false && obj.transform.name != "Mirrored Cube") {
                 selectedObject = obj;
                 oldParent = selectedObject.transform.parent;
                 objSelected = true;
