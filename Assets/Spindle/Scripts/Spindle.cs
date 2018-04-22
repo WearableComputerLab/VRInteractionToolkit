@@ -39,7 +39,7 @@ public class Spindle : MonoBehaviour {
         pose.z = midPoint.z + (10f / (distance_formula_on_vector)) * theVector.z;
 
 
-        // creating a point from the perpendicular vector to allways look at
+
         Vector3 targetPostition = new Vector3(trackedObj1.transform.position.x,
                                        trackedObj1.transform.position.y,
                                        interactionObject.transform.position.z);
