@@ -31,7 +31,7 @@ public class BubbleCursor3D : MonoBehaviour {
     public bool controllerLeftPicked;
     public bool cameraHeadPicked;
 
-    private readonly float bubbleOffset = 0.6f;
+    public readonly float bubbleOffset = 0.6f;
 
     public SteamVR_TrackedObject getTrackedObject() {
         if (controllerRightPicked == true) {
@@ -45,7 +45,7 @@ public class BubbleCursor3D : MonoBehaviour {
     }
 
     void Awake() {
-        trackedObj = getTrackedObject();
+        getTrackedObject();
     }
 
     // Use this for initialization
@@ -60,7 +60,7 @@ public class BubbleCursor3D : MonoBehaviour {
         controllerLeft = GameObject.Find("Controller (left)");
         cameraHead = GameObject.Find("Camera (head)");*/
         SetParent();
-        bubbleSelection.trackedObj = getTrackedObject();
+        //bubbleSelection.trackedObj = getTrackedObject();
     }
 
     void SetParent() {
@@ -191,10 +191,11 @@ public class BubbleCursor3D : MonoBehaviour {
             cursor.SetActive(false);
         }
         else if (bubbleSelection.inBubbleSelection == false) {*/
-            if (trackedObj != null) {
-                controller = SteamVR_Controller.Input((int)trackedObj.index);
-                PadScrolling();
-            }
+        //if (trackedObj != null) {
+        if (bubbleSelection.inBubbleSelection == false) {
+            controller = SteamVR_Controller.Input((int)trackedObj.index);
+            PadScrolling();
+            //}
 
             float[][] lowestDistances = ClosestObject();
             //float ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius;
@@ -241,8 +242,12 @@ public class BubbleCursor3D : MonoBehaviour {
                 objectBubble.transform.localScale = new Vector3(0f, 0f, 0f);
                 //PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
                 //bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
-                bubbleSelection.enableMenu(controller, trackedObj, bubbleSelection.getSelectableObjects());
-                bubbleSelection.clearList();
+                if (bubbleSelection.getSelectableObjects().Count > 1) {
+                    bubbleSelection.enableMenu(controller, trackedObj, bubbleSelection.getSelectableObjects());
+                    bubbleSelection.clearList();
+                } else {
+                    PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
+                }
             } else {
                 cursor.GetComponent<SphereCollider>().radius = (closestValue + SecondClosestCircleRadius);
                 if (cursor.GetComponent<SphereCollider>().radius < minRadius) {
@@ -257,8 +262,13 @@ public class BubbleCursor3D : MonoBehaviour {
                 objectBubble.transform.localScale = new Vector3(interactableObjects[(int)lowestDistances[0][1]].transform.localScale.x + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.y + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.z + bubbleOffset);
                 //PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
                 //bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
-                bubbleSelection.enableMenu(controller, trackedObj, bubbleSelection.getSelectableObjects());
-                bubbleSelection.clearList();
+                if (bubbleSelection.getSelectableObjects().Count > 1) {
+                    bubbleSelection.enableMenu(controller, trackedObj, bubbleSelection.getSelectableObjects());
+                    bubbleSelection.clearList();
+                } else {
+                    PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
+                }
             }
         }
+    }
 }

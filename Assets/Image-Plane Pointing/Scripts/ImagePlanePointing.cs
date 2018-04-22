@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ImagePlanePointing : MonoBehaviour {
 
@@ -27,6 +28,8 @@ public class ImagePlanePointing : MonoBehaviour {
     private Transform laserTransform;
     private Vector3 hitPoint;
     public GameObject panel;
+    public GameObject cameraHead;
+    public GameObject camera;
 
     private void ShowLaser(RaycastHit hit) {
         laser.SetActive(true);
@@ -42,6 +45,17 @@ public class ImagePlanePointing : MonoBehaviour {
             }
         }
     }*/
+    private GameObject[] allSceneObjects;
+
+    void isVisible() {
+        foreach (GameObject obj in allSceneObjects) {
+            if (obj.GetComponent<Renderer>() != null && obj.GetComponent<Renderer>().isVisible) {
+                print("obj:" + obj.name + " is visible..");
+            } else {
+                print("obj:" + obj.name + " NOT VISIBLE");
+            }
+        }
+    }
 
     void Awake() {
         trackedObj = GetComponent<SteamVR_TrackedObject>();
@@ -50,6 +64,7 @@ public class ImagePlanePointing : MonoBehaviour {
     void Start() {
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
+        allSceneObjects = SceneManager.GetActiveScene().GetRootGameObjects();
     }
 
     //Y -0.4 DOWN | +0.4 UP
@@ -108,6 +123,7 @@ public class ImagePlanePointing : MonoBehaviour {
     void Update() {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         //move2DObject();
+        //isVisible();
         Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         if (controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad)) {
             currentlyModifying = false;
