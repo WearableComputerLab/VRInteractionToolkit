@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ARMLaser : MonoBehaviour {
+public class PRISM : MonoBehaviour {
 
     private SteamVR_TrackedObject trackedObj;
     public GameObject theController;
@@ -10,15 +10,22 @@ public class ARMLaser : MonoBehaviour {
     private GameObject laser;
     private Transform laserTransform;
     private Vector3 hitPoint;
-    private bool ARMOn = false;
+
     private Vector3 lastDirectionPointing;
     private Quaternion lastRotation;
+    private Vector3 lastPosition;
     public GameObject theModel;
+    private bool ARMOn = false;
 
     // Quick solution to highlight on select - maybe find a better way?
     public Material MaterialToHighlightObjects;
     private Material unhighlightedObject;
     private GameObject currentlyPointingAt;
+
+    public float minV = 0.1f;
+    public float scaledMotionVeclocity = 0.2f;
+    public float maxV = 0.4f;
+    public float scaledMotionMultiplier = 0.5f;
 
     // Using the hack from gogo shadow - will have to fix them all once find a better way
     void makeModelChild()
@@ -106,6 +113,7 @@ public class ARMLaser : MonoBehaviour {
 
         lastDirectionPointing = trackedObj.transform.forward;
         lastRotation = trackedObj.transform.rotation;
+        lastPosition = trackedObj.transform.position;
     }
 
     void toggleARM()
@@ -114,6 +122,7 @@ public class ARMLaser : MonoBehaviour {
         {
             lastDirectionPointing = trackedObj.transform.forward;
             lastRotation = trackedObj.transform.rotation;
+            lastPosition = trackedObj.transform.position;
         }
         ARMOn = !ARMOn;
     }
@@ -126,12 +135,13 @@ public class ARMLaser : MonoBehaviour {
         {
 
             // scaled down by factor of 10
-            this.transform.rotation = Quaternion.Lerp(lastRotation, trackedObj.transform.rotation, 0.1f);
-
+            this.transform.rotation = Quaternion.Lerp(lastRotation, trackedObj.transform.rotation, 0.5f);
+            this.transform.position = Vector3.Lerp(lastPosition, trackedObj.transform.position, 0.5f);
             print("On");
         } else
         {
             this.transform.rotation = trackedObj.transform.rotation;
+            this.transform.position = trackedObj.transform.position;
         }
     }
 

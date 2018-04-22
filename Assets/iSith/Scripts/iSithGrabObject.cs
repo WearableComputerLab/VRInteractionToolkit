@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ControllerGrabObject : MonoBehaviour {
+public class iSithGrabObject : MonoBehaviour {
 
     public SteamVR_TrackedObject trackedObj;
     private GameObject collidingObject;
+    private GameObject collidingObjectHighlighted;
     private GameObject objectInHand;
 
     private SteamVR_Controller.Device Controller
@@ -42,6 +43,11 @@ public class ControllerGrabObject : MonoBehaviour {
 
     public void OnTriggerEnter(Collider other)
     {
+        collidingObjectHighlighted = other.transform.gameObject.transform.GetChild(0).gameObject;
+        if (collidingObjectHighlighted != null)
+        {
+            collidingObjectHighlighted.SetActive(true);
+        }
         SetCollidingObject(other);
     }
 
@@ -58,6 +64,13 @@ public class ControllerGrabObject : MonoBehaviour {
         {
             return;
         }
+
+        if (collidingObjectHighlighted != null)
+        {
+            collidingObjectHighlighted.SetActive(false);
+            collidingObjectHighlighted = null;
+        }
+
         collidingObject = null;
     }
 
@@ -74,29 +87,29 @@ public class ControllerGrabObject : MonoBehaviour {
     private FixedJoint AddFixedJoint()
     {
         FixedJoint fx = gameObject.AddComponent<FixedJoint>();
-        fx.breakForce = 20000;
-        fx.breakTorque = 20000;
+        fx.breakForce = Mathf.Infinity;
+        fx.breakTorque = Mathf.Infinity;
         return fx;
     }
 
     private void ReleaseObject()
     {
-
         if (GetComponent<FixedJoint>())
         {
- 
+
             GetComponent<FixedJoint>().connectedBody = null;
             Destroy(GetComponent<FixedJoint>());
-       
+
             objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
             objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }
-  
+
         objectInHand = null;
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
         if (Controller.GetHairTriggerDown())
         {
             if (collidingObject)

@@ -182,12 +182,9 @@ public class FlexiblePointer : MonoBehaviour
             positionOfLastLaserPart = trackedObj1.transform.position;
         }
 
-
         // -1 so can project out the last laser
         for (int i = 0; i < numOfLasers; i++)
         {
-
-
             lasers[i].SetActive(true);
             Vector3 nextPart = getBezierPoint(valueToSearchBezierBy);
             float distBetweenParts = Vector3.Distance(nextPart, positionOfLastLaserPart);
@@ -212,7 +209,6 @@ public class FlexiblePointer : MonoBehaviour
                     {
                         objectHit.OnRayHit();
                     }
-
                 } 
             }
         }
