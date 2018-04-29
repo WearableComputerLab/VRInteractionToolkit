@@ -156,6 +156,7 @@ public class SpindleInteractor : MonoBehaviour {
         collidingObject = null;
 
         var joint = AddFixedJoint();
+        objectInHand.transform.position = this.transform.position;
         joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
     }
 

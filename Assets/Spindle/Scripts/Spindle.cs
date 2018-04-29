@@ -28,24 +28,16 @@ public class Spindle : MonoBehaviour {
         interactionObject.transform.position = midPoint;
 
 
-        // Test forward
-        Vector3 theVector = trackedObj2.transform.forward;
-        Vector3 pose = new Vector3();
 
-        float distance_formula_on_vector = Mathf.Sqrt(theVector.x * theVector.x + theVector.y * theVector.y + theVector.z * theVector.z);
-        // Using formula to find a point which lies at distance on a 3D line from vector and direction
-        pose.x = midPoint.x + (10f / (distance_formula_on_vector)) * theVector.x;
-        pose.y = midPoint.y + (10f / (distance_formula_on_vector)) * theVector.y;
-        pose.z = midPoint.z + (10f / (distance_formula_on_vector)) * theVector.z;
+        Vector3 newRotation = trackedObj2.transform.localEulerAngles;
 
 
+        //interactionObject.transform.forward = trackedObj2.transform.forward;
+        interactionObject.transform.LookAt(trackedObj2.transform);
 
-        Vector3 targetPostition = new Vector3(trackedObj1.transform.position.x,
-                                       trackedObj1.transform.position.y,
-                                       interactionObject.transform.position.z);
-        interactionObject.transform.LookAt(targetPostition);
+        Vector3 rotation = new Vector3(0, 0, interactionObject.transform.eulerAngles.z + trackedObj2.transform.eulerAngles.z);
 
-        
-            
+        interactionObject.transform.Rotate(rotation);
+
     }
 }
