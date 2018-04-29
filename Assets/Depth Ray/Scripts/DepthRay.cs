@@ -131,8 +131,20 @@ public class DepthRay : MonoBehaviour {
     }
 
 
+    public bool controllerRightPicked;
+    public bool controllerLeftPicked;
+
     void Awake() {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
+        GameObject controllerRight = GameObject.Find("Controller (right)");
+        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        if (controllerRightPicked == true) {
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+        } else if (controllerLeftPicked == true) {
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        } else { //TODO: Automatically attempt to detect controller
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
     }
 
     void Start() {
@@ -150,7 +162,9 @@ public class DepthRay : MonoBehaviour {
     }
     float distance = 0f;
     Vector3 forward;
-
+    private GameObject currentClosestObject;
+    public Material outlineMaterial;
+    private Material currentClosestObjectMaterial;
     void Update() {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         moveCubeAssister();
@@ -162,12 +176,23 @@ public class DepthRay : MonoBehaviour {
             raycastObjects = hits;
             int closestVal = ClosestObject();
             if (raycastObjects[closestVal].transform.name == "Mirrored Cube") {
-                print("Could not find object");
+                //print("Could not find object");
             } else {
-                print("My closest value:" + raycastObjects[closestVal].transform.name);
-                Color color = raycastObjects[closestVal].transform.GetComponent<Renderer>().material.color;
-                color.a = 1.0f;
-                raycastObjects[closestVal].transform.GetComponent<Renderer>().material.color = color;
+                //print("My closest value:" + raycastObjects[closestVal].transform.name);
+                if (currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
+                    //print("new closest object");
+                    if (currentClosestObject != null) {
+                        if (currentClosestObjectMaterial != null) {
+                            currentClosestObject.transform.GetComponent<Renderer>().material = currentClosestObjectMaterial;
+                        }
+                        currentClosestObjectMaterial = currentClosestObject.transform.GetComponent<Renderer>().material;
+                    }
+                    currentClosestObject = raycastObjects[closestVal].transform.gameObject;
+                } else {
+                    currentClosestObject.transform.GetComponent<Renderer>().material = outlineMaterial;
+                }
+                //currentClosestObject = raycastObjects[closestVal].transform.gameObject;
+                //raycastObjects[closestVal].transform.GetComponent<Renderer>().material = outlineMaterial;
                 PickupObject(raycastObjects[closestVal].transform.gameObject);
                 //Renderer rend = raycastObjects[closestVal].transform.GetComponent<Renderer>();
                 //rend.material.color = Color.red;

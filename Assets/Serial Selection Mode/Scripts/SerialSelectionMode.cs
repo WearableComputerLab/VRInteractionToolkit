@@ -14,6 +14,7 @@ public class SerialSelectionMode : MonoBehaviour {
     private Vector3 hitPoint;
     private Vector3 hitPoint2D;
     private bool pickUpObjectsActive = false;
+    public Material outlineMaterial;
 
     //Giving a weird get_FrameCount error in the console for some reason?
     /*int rightIndex = SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Rightmost);
@@ -31,8 +32,20 @@ public class SerialSelectionMode : MonoBehaviour {
         mirroredCube.SetActive(true);
     }
 
+    public bool controllerRightPicked;
+    public bool controllerLeftPicked;
+
     void Awake() {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
+        GameObject controllerRight = GameObject.Find("Controller (right)");
+        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        if (controllerRightPicked == true) {
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+        } else if (controllerLeftPicked == true) {
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        } else { //TODO: Automatically attempt to detect controller
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
     }
 
     void Start() {
@@ -54,6 +67,7 @@ public class SerialSelectionMode : MonoBehaviour {
     }
     
     private List<GameObject> selectedObjectsList = new List<GameObject>();
+    private List<Material> rendererMaterialTrackerList = new List<Material>();
 
     void selectObject(GameObject obj) {
         Vector3 controllerPos = trackedObj.transform.forward;
@@ -61,9 +75,14 @@ public class SerialSelectionMode : MonoBehaviour {
             if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger)) {
                 if (obj != null && obj.name != "Mirrored Cube" && !selectedObjectsList.Contains(obj)) {
                     selectedObjectsList.Add(obj);
+                    rendererMaterialTrackerList.Add(obj.transform.GetComponent<Renderer>().material);
+                    obj.transform.GetComponent<Renderer>().material = outlineMaterial;
                     print("selected object:" + obj.name);
                     print("list size:" + selectedObjectsList.Count);
                 } else {
+                    for (int i=0; i<selectedObjectsList.Count; i++) {
+                        selectedObjectsList[i].transform.GetComponent<Renderer>().material = rendererMaterialTrackerList[i];
+                    }
                     selectedObjectsList.Clear();
                     print("Invalid selection, list cleared.");
                 }
@@ -105,7 +124,7 @@ public class SerialSelectionMode : MonoBehaviour {
         ShowLaser();
         Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
-        if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit, 100)) {
+        if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             hitPoint = hit.point;
             //PickupObject(hit.transform.gameObject);
             ShowLaser(hit);

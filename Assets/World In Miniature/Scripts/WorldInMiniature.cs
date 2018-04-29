@@ -12,10 +12,13 @@ public class WorldInMiniature : MonoBehaviour {
 
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
-    public GameObject worldInMinParent;
+
+    public bool controllerRightPicked;
+    public bool controllerLeftPicked;
+
+    private GameObject worldInMinParent;
     GameObject[] allSceneObjects;
-    public GameObject[] ignorableObjects;
-    public GameObject cameraHead;
+    public List<GameObject> ignorableObjects;
     private bool WiMAactive = false;
     private List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light", "background"};
     private float scaleAmount = 20f;
@@ -47,9 +50,7 @@ public class WorldInMiniature : MonoBehaviour {
                     }
                 }
                 //worldInMinParent.transform.SetParent(null);
-                //worldInMinParent.transform.localEulerAngles = new Vector3(0f, cameraHead.transform.localEulerAngles.y-45f, 0f);
                 worldInMinParent.transform.localEulerAngles = new Vector3(0f, trackedObj.transform.localEulerAngles.y - 45f, 0f);
-                //worldInMinParent.transform.localPosition -= new Vector3(0f, worldInMinParent.transform.position.y / 1.25f, 0f);
             } else if (WiMAactive == true) {
                 WiMAactive = false;
                 foreach (Transform child in worldInMinParent.transform) {
@@ -95,12 +96,29 @@ public class WorldInMiniature : MonoBehaviour {
     }
 
     private void Awake() {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
+        GameObject controllerRight = GameObject.Find("Controller (right)");
+        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        worldInMinParent = GameObject.Find("WorldInMinParent");
+        if (controllerRightPicked == true) {
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+        } else if (controllerLeftPicked == true) {
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        } else { //TODO: Automatically attempt to detect controller
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
     }
 
     // Update is called once per frame
     void Update () {
-        controller = SteamVR_Controller.Input((int)trackedObj.index);
+        if (trackedObj != null) {
+            controller = SteamVR_Controller.Input((int)trackedObj.index);
+            print("index:"+ trackedObj.index);
+            print("right:" + SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Rightmost));
+            print("left:" + SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Leftmost));
+            
+        }
+
         createWiM();
         if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && selectedObject == true) {
             selectedObject.transform.SetParent(oldParent);

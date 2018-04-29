@@ -89,8 +89,20 @@ public class FishingReel : MonoBehaviour {
         mirroredCube.transform.rotation = trackedObj.transform.rotation;
     }
 
+    public bool controllerRightPicked;
+    public bool controllerLeftPicked;
+
     void Awake() {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
+        GameObject controllerRight = GameObject.Find("Controller (right)");
+        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        if (controllerRightPicked == true) {
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+        } else if (controllerLeftPicked == true) {
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        } else { //TODO: Automatically attempt to detect controller
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
     }
 
     void Start() {
@@ -99,12 +111,13 @@ public class FishingReel : MonoBehaviour {
     }
 
     void Update() {
+        print(trackedObj.transform.position);
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         mirroredObject();
         ShowLaser();
         Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
-        if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit, 100)) {
+        if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
            //print("hit:" + hit.transform.name);
             hitPoint = hit.point;
             PickupObject(hit.transform.gameObject);
@@ -113,9 +126,6 @@ public class FishingReel : MonoBehaviour {
             }
             ShowLaser(hit);
         }
-        /*} else {
-            laser.SetActive(false);
-        }*/
     }
 
 }

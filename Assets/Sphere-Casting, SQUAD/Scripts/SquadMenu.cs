@@ -17,6 +17,7 @@ public class SquadMenu : MonoBehaviour {
     public GameObject panel;
     public GameObject prefabText;
     public Material quadrantMaterial;
+    public Material outlineMaterial;
     public Material triangleMaterial;
     public GameObject cameraHead;
     private bool quadrantPicked = false;
@@ -90,7 +91,7 @@ public class SquadMenu : MonoBehaviour {
             lastPickedObject = pickedObject;
             print("Final picked object:" + objName);
             oldPickedObjectMaterial = pickedObject.transform.GetComponent<Renderer>().material;
-            pickedObject.transform.GetComponent<Renderer>().material = quadrantMaterial;
+            pickedObject.transform.GetComponent<Renderer>().material = outlineMaterial;
             disableSQUAD();
         }
     }

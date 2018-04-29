@@ -76,7 +76,7 @@ public class HOMER : MonoBehaviour {
         Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         ShowLaser();
         RaycastHit hit;
-        if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit, 100)) {
+        if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             hitPoint = hit.point;
             ShowLaser(hit);
         }
@@ -100,9 +100,24 @@ public class HOMER : MonoBehaviour {
         mirroredCube.SetActive(true);
     }
 
+    public bool controllerRightPicked;
+    public bool controllerLeftPicked;
+
+    void Awake() {
+        GameObject controllerRight = GameObject.Find("Controller (right)");
+        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        if (controllerRightPicked == true) {
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+        } else if (controllerLeftPicked == true) {
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        } else { //TODO: Automatically attempt to detect controller
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
+    }
+
     // Use this for initialization
     void Start() {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
     }
