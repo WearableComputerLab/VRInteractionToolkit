@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class ImagePlanePointing : MonoBehaviour {
 
@@ -61,10 +62,13 @@ public class ImagePlanePointing : MonoBehaviour {
         trackedObj = GetComponent<SteamVR_TrackedObject>();
     }
 
+    private GameObject[] interactableObjects; // In-game objects
+
     void Start() {
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
         allSceneObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+        interactableObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
     }
 
     //Y -0.4 DOWN | +0.4 UP
@@ -103,6 +107,32 @@ public class ImagePlanePointing : MonoBehaviour {
         }
     }
 
+    private float[][] ClosestObject() {
+        float lowestDist = 0;
+        int lowestValue = 0;
+        float[][] allDists = new float[interactableObjects.Length][];
+        for (int i = 0; i < interactableObjects.Length; i++) {
+            allDists[i] = new float[2];
+        }
+        for (int i = 0; i < interactableObjects.Length; i++) {
+            //float dist = Vector3.Distance(new Vector3(trackedObj.transform.position.x, trackedObj.transform.position.y, 0), new Vector3(interactableObjects[i].transform.position.x, interactableObjects[i].transform.position.y, interactableObjects[i].transform.position.z));
+            float dist = Vector2.Distance(trackedObj.transform.position, interactableObjects[i].transform.position);
+            if (i == 0) {
+                lowestDist = dist;
+                lowestValue = 0;
+            } else {
+                if (dist < lowestDist) {
+                    lowestDist = dist;
+                    lowestValue = i;
+                }
+            }
+            allDists[i][0] = dist;
+            allDists[i][1] = i;
+        }
+        float[][] arraytest = allDists.OrderBy(row => row[0]).ToArray();
+        return arraytest;
+    }
+
     private GameObject pickedObj2D = null;
     private GameObject pickedObj = null;
     void generate2DObjects(GameObject pickedObject) {
@@ -120,12 +150,19 @@ public class ImagePlanePointing : MonoBehaviour {
         }
     }
 
+    void printArray(float[][] arraytest) {
+        for (int i = 0; i < arraytest.Length; i++) {
+            print(i+1+" | "+ arraytest[i][0] + " | name: " + interactableObjects[(int)arraytest[i][1]].name);
+        }
+    }
+
     void Update() {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         //move2DObject();
         //isVisible();
+        //float[][] getClosestObject = ClosestObject();
+        //printArray(getClosestObject);
         Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
-        if (controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad)) {
             currentlyModifying = false;
             panel.SetActive(false);
             if (pickedObj2D != null) {
@@ -138,8 +175,5 @@ public class ImagePlanePointing : MonoBehaviour {
                 hitPoint = hit.point;
                 ShowLaser(hit);
             }
-        } else {
-            laser.SetActive(false);
-        }
     }
 }
