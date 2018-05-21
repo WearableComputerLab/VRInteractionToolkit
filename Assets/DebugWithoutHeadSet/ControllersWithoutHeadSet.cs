@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ControllersWithoutHeadSet : MonoBehaviour {
 
+    // aim controller in direction you want camera to face and press on the grip. You will face that way and then can use controllers
+    // looking at the game window without having to put headset on.
+
 	private SteamVR_TrackedObject trackedObj1;
 	private SteamVR_TrackedObject trackedObj2;
 	private SteamVR_Camera camera;
@@ -20,6 +23,8 @@ public class ControllersWithoutHeadSet : MonoBehaviour {
 		// Disables camera to use our camera
 		camera.GetComponent<Camera>().enabled = false;
 		controller = SteamVR_Controller.Input((int)trackedObj1.index);
+        // Enabling prefab camera
+        //gameObject.AddComponent(devCamera);
 	}
 	
 	// Update is called once per frame
@@ -31,8 +36,17 @@ public class ControllersWithoutHeadSet : MonoBehaviour {
 		{
 			Debug.Log(gameObject.name + " Grip Press");
 			Vector3 betweenBothControllers = (trackedObj1.transform.position + trackedObj2.transform.position)/2f;
-			devCamera.transform.LookAt(trackedObj1.transform.position);
-		}
+            devCamera.transform.forward = trackedObj1.transform.forward;
 
+            float distanceCameraBack = 0.002f;
+
+            // Setting camera to be back an estimated arms distance
+            Vector3 directionOfTravel = trackedObj1.transform.forward * -1f; 
+            Vector3 finalDirection = directionOfTravel + directionOfTravel.normalized * distanceCameraBack;
+            Vector3 targetPosition = betweenBothControllers + finalDirection;
+
+            devCamera.transform.position = targetPosition;
+            devCamera.transform.forward = trackedObj1.transform.forward;
+		}
 	}
 }
