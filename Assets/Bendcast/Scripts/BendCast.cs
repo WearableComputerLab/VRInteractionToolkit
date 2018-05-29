@@ -48,6 +48,9 @@ public class BendCast : MonoBehaviour
     void Start()
     {
         // Initalizing all the lasers
+        GameObject laserHolder = new GameObject();
+        laserHolder.name = "LaserRays";
+
         lasers = new GameObject[numOfLasers];
         laserTransform = new Transform[numOfLasers];
         for (int i = 0; i < numOfLasers; i++)
@@ -55,6 +58,7 @@ public class BendCast : MonoBehaviour
             GameObject laserPart = Instantiate(laserPrefab, new Vector3((float)i, 1, 0), Quaternion.identity) as GameObject;
             laserTransform[i] = laserPart.transform;
             lasers[i] = laserPart;
+            laserPart.transform.parent = laserHolder.transform;
         }
     }
     void Awake()
