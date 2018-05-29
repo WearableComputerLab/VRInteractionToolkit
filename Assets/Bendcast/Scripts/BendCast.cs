@@ -41,6 +41,7 @@ public class BendCast : MonoBehaviour
     private Transform[] laserTransform;
     private Vector3 hitPoint;
 
+    private Vector3 p1PointLocation;
 
     public int[] layersOfObjectsToBendTo;
     // Use this for initialization
@@ -80,8 +81,11 @@ public class BendCast : MonoBehaviour
 
         Vector3 p0 = castingBezierFrom;
         Vector3 p2 = currentlyPointingAt.transform.position;
-        Vector3 p1 = p2 - currentlyPointingAt.transform.forward;
-        return Mathf.Pow(1f - t, 2f) * p0 + 2f * (1f - t) * t * p1 + Mathf.Pow(t, 2) * p2;
+
+        // p1 is the closest point on the forward vector line coming out of the remote to the object
+        //Vector3 p1 = p2 - currentlyPointingAt.transform.forward;
+
+        return Mathf.Pow(1f - t, 2f) * p0 + 2f * (1f - t) * t * p1PointLocation + Mathf.Pow(t, 2) * p2;
     }
 
     float distBetweenVectors(Vector3 one, Vector3 two)
@@ -153,6 +157,7 @@ public class BendCast : MonoBehaviour
                     {
                         shortestDistance = distanceBetweenRayAndPoint;
                         objectWithShortestDistance = allObjects[i];
+                        p1PointLocation = newPoint;
                     }
                 }
             }
