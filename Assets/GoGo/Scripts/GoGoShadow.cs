@@ -68,13 +68,17 @@ public class GoGoShadow : MonoBehaviour {
             chestPosition = Camera.main.transform.position - relativeChestPos;
             float distChestPos = Vector3.Distance(trackedObj.transform.position, chestPosition);
 
-            float k = 1f / 6f;
+            float k = 6f;  // Important for how far can extend
 
-            float D = (2f / 3f) * armLength; // 2/3 of users arm length
+            float D = (2f * armLength) / 3f; // 2/3 of users arm length
+            
             //D = 0;
             if (distChestPos >= D)
             {
-                return distChestPos + k * (float)Math.Pow(distChestPos - D, 2);
+                float extensionDistance = distChestPos + (k * (float)Math.Pow(distChestPos - D, 2));
+                // Dont need both here as we only want the distance to extend by not the full distance
+                // but we want to keep the above formula matching the original papers formula so will then calculate just the distance to extend below
+                return extensionDistance - distChestPos;
             }
         }
         
@@ -153,6 +157,7 @@ public class GoGoShadow : MonoBehaviour {
 
         if(distanceToExtend != 0)
         {
+            print("here");
             // Using formula to find a point which lies at distance on a 3D line from vector and direction
             pose.x = pose.x + (distanceToExtend / (distance_formula_on_vector)) * theVector.x;
             pose.y = pose.y + (distanceToExtend / (distance_formula_on_vector)) * theVector.y;
@@ -161,6 +166,8 @@ public class GoGoShadow : MonoBehaviour {
 
         transform.position = pose;
         transform.rotation = rot;
+        print("Actual control pos: " + trackedObj.transform.position.x);
+        print("New control pos: " + pose.x);
     }
 
     
