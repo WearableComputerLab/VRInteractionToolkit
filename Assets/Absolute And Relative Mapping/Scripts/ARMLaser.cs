@@ -13,6 +13,7 @@ public class ARMLaser : MonoBehaviour {
     private bool ARMOn = false;
     private Vector3 lastDirectionPointing;
     private Quaternion lastRotation;
+    private Vector3 lastPosition;
     public GameObject theModel;
 
     // Quick solution to highlight on select - maybe find a better way?
@@ -106,6 +107,7 @@ public class ARMLaser : MonoBehaviour {
 
         lastDirectionPointing = trackedObj.transform.forward;
         lastRotation = trackedObj.transform.rotation;
+        lastPosition = trackedObj.transform.position;
     }
 
     void toggleARM()
@@ -114,6 +116,7 @@ public class ARMLaser : MonoBehaviour {
         {
             lastDirectionPointing = trackedObj.transform.forward;
             lastRotation = trackedObj.transform.rotation;
+            lastPosition = trackedObj.transform.position;
         }
         ARMOn = !ARMOn;
     }
@@ -127,11 +130,12 @@ public class ARMLaser : MonoBehaviour {
 
             // scaled down by factor of 10
             this.transform.rotation = Quaternion.Lerp(lastRotation, trackedObj.transform.rotation, 0.1f);
-
+            this.transform.position = Vector3.Lerp(lastPosition, trackedObj.transform.position, 0.1f);
             print("On");
         } else
         {
             this.transform.rotation = trackedObj.transform.rotation;
+            this.transform.position = trackedObj.transform.position;
         }
     }
 
