@@ -41,12 +41,16 @@ public class BendCast : MonoBehaviour
     private Transform[] laserTransform;
     private Vector3 hitPoint;
 
+    private Vector3 p1PointLocation;
 
     public int[] layersOfObjectsToBendTo;
     // Use this for initialization
     void Start()
     {
         // Initalizing all the lasers
+        GameObject laserHolder = new GameObject();
+        laserHolder.name = "LaserRays";
+
         lasers = new GameObject[numOfLasers];
         laserTransform = new Transform[numOfLasers];
         for (int i = 0; i < numOfLasers; i++)
@@ -54,6 +58,7 @@ public class BendCast : MonoBehaviour
             GameObject laserPart = Instantiate(laserPrefab, new Vector3((float)i, 1, 0), Quaternion.identity) as GameObject;
             laserTransform[i] = laserPart.transform;
             lasers[i] = laserPart;
+            laserPart.transform.parent = laserHolder.transform;
         }
     }
     void Awake()
@@ -80,8 +85,8 @@ public class BendCast : MonoBehaviour
 
         Vector3 p0 = castingBezierFrom;
         Vector3 p2 = currentlyPointingAt.transform.position;
-        Vector3 p1 = p2 - currentlyPointingAt.transform.forward;
-        return Mathf.Pow(1f - t, 2f) * p0 + 2f * (1f - t) * t * p1 + Mathf.Pow(t, 2) * p2;
+
+        return Mathf.Pow(1f - t, 2f) * p0 + 2f * (1f - t) * t * p1PointLocation + Mathf.Pow(t, 2) * p2;
     }
 
     float distBetweenVectors(Vector3 one, Vector3 two)
@@ -153,6 +158,7 @@ public class BendCast : MonoBehaviour
                     {
                         shortestDistance = distanceBetweenRayAndPoint;
                         objectWithShortestDistance = allObjects[i];
+                        p1PointLocation = newPoint;
                     }
                 }
             }
