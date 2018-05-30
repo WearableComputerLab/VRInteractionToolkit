@@ -68,7 +68,7 @@ public class GoGoShadow : MonoBehaviour {
             chestPosition = Camera.main.transform.position - relativeChestPos;
             float distChestPos = Vector3.Distance(trackedObj.transform.position, chestPosition);
 
-            float k = 6f;  // Important for how far can extend
+            float k = 10f;  // Important for how far can extend
 
             float D = (2f * armLength) / 3f; // 2/3 of users arm length
             
