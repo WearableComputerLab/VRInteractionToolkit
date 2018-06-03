@@ -1,35 +1,12 @@
-﻿/*
- *  GoGo Shadow Controller - Core of the GoGo VR interaction technique
- *  Allows a copy of the controller and its model to extend out as described
- *  for the gogo with the HTC Vive.
- *  
- *  Copyright(C) 2018  Ian Hanan
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- * 
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.If not, see<http://www.gnu.org/licenses/>.
- *  
- *  Study technique is based on: http://www.ivanpoupyrev.com/e-library/1998_1996/uist96.pdf
- *  
- */
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
 
-public class GoGoShadow : MonoBehaviour {
+public class GoGoShadowTest : MonoBehaviour
+{
 
     public GameObject theController;
 
@@ -48,32 +25,34 @@ public class GoGoShadow : MonoBehaviour {
     bool calibrated = false;
     Vector3 chestPosition;
     Vector3 relativeChestPos;
+    Vector3 trueRelativeChestPos;
     float armLength;
+
+    public GameObject testObject;
 
     // TODO: THIS IS A HACK. NEED TO FIND A METHOD THAT JUST WAITS UNTIL THE MODEL IS INITALIZED INSTEAD OF CALLING OVER AND OVER
     void makeModelChild()
     {
-        if(theModel.transform.childCount > 0)
+        if (theModel.transform.childCount > 0)
         {
             theModel.transform.parent = this.transform;
         }
-        
+
     }
 
     // Might have to have a manuel calibration for best use
     float getDistanceToExtend()
     {
-        if(calibrated) // will only work if has been calibrated
-        {
+        if (calibrated) // will only work if has been calibrated
+        {         
             chestPosition = Camera.main.transform.position - relativeChestPos;
-            //chestPosition = Camera.main.transform.TransformPoint(relativeChestPos);
 
             float distChestPos = Vector3.Distance(trackedObj.transform.position, chestPosition);
 
             float k = 10f;  // Important for how far can extend
 
             float D = (2f * armLength) / 3f; // 2/3 of users arm length
-            
+
             //D = 0;
             if (distChestPos >= D)
             {
@@ -83,34 +62,34 @@ public class GoGoShadow : MonoBehaviour {
                 return extensionDistance - distChestPos;
             }
         }
-        
+
         return 0; // dont extend
     }
 
+    /*
     void calibrateChestInformationForGogo()
     {
         // Must be pointing controller out like a raycast parallel to arm for calibration (backwards towards user)
-        Vector3 armVector = trackedObj.transform.forward*-1;
+        Vector3 armVector = trackedObj.transform.forward * -1;
         Vector3 controller = trackedObj.transform.position;
         Vector3 headPos = Camera.main.transform.position;
         Vector3 headVector = Camera.main.transform.up * -1;
 
-        // Shoulder
-        
         // Uses skew lines formula
         Vector3 n = Vector3.Cross(headVector, Vector3.Cross(armVector, headVector));
         chestPosition = controller + ((Vector3.Dot((headPos - controller), n)) / (Vector3.Dot(armVector, n))) * armVector;
 
-
-        relativeChestPos = headPos - chestPosition; // need to get the position of chest relative to head so moves with user when he moves
-        //relativeChestPos = Camera.main.transform.InverseTransformPoint(chestPosition);
+        //relativeChestPos = headPos - chestPosition; // need to get the position of chest relative to head so moves with user when he moves
+        relativeChestPos = Camera.main.transform.InverseTransformPoint(chestPosition);
 
         armLength = Vector3.Distance(trackedObj.transform.position, chestPosition);
         calibrated = true;
     }
+    */
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         //trackedObj = this.GetComponent<SteamVR_TrackedObject>();
         CopySpecialComponents(theController, this.gameObject);
 
@@ -135,7 +114,13 @@ public class GoGoShadow : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
+        // TEST DELETE LATER
+        if (testObject != null && chestPosition != null)
+        {
+            testObject.transform.position = chestPosition;
+        }
 
         makeModelChild();
         //this.GetComponentInChildren<SteamVR_RenderModel>().gameObject.SetActive(false);
@@ -147,10 +132,10 @@ public class GoGoShadow : MonoBehaviour {
                 renderer.enabled = true;
             }
         }
-          checkForAction();
-          moveControllerForward();
+        checkForAction();
+        moveControllerForward();
 
-        
+
     }
 
     void moveControllerForward()
@@ -167,7 +152,7 @@ public class GoGoShadow : MonoBehaviour {
 
         float distanceToExtend = getDistanceToExtend();
 
-        if(distanceToExtend != 0)
+        if (distanceToExtend != 0)
         {
             print("here");
             // Using formula to find a point which lies at distance on a 3D line from vector and direction
@@ -182,13 +167,28 @@ public class GoGoShadow : MonoBehaviour {
         print("New control pos: " + pose.x);
     }
 
-    
+
     void checkForAction()
     {
         device = SteamVR_Controller.Input((int)trackedObj.index);
         if (device.GetPressDown(SteamVR_Controller.ButtonMask.Axis0)) // top side of touchpad and pushing down
         {
-            calibrateChestInformationForGogo();
+            // 0.12f
+            // Want the center of the chest so have to move the location back as the VR googles are extruding from the vive
+            //Vector3 centerOfHead = Camera.main.transform.position + (Camera.main.transform.forward.normalized * -0.08f);
+            // 0.3 down to chest
+            Vector3 downToChest = Camera.main.transform.position + (Vector3.down * 0.2f);
+
+            chestPosition = downToChest;
+
+            relativeChestPos = Camera.main.transform.position - chestPosition; // need to get the position of chest relative to head so moves with user when he moves
+            
+        }
+        if(device.GetPressUp(SteamVR_Controller.ButtonMask.Axis0))
+        {
+
+            armLength = Vector3.Distance(trackedObj.transform.position, chestPosition);
+            calibrated = true;
         }
     }
 }
