@@ -110,6 +110,7 @@ public class SphereCasting : MonoBehaviour {
                 pickupObjs.PickupObject(controller, trackedObj, pickupObjs.getSelectableObjects());
                 pickupObjs.clearList();
             } else if (squadEnabled == true && menu.isActive() == false && menu.quadrantIsPicked() == false) {
+                print("selectable objects:"+menu.getSelectableObjects().Count);
                 menu.enableSQUAD(controller, trackedObj, menu.getSelectableObjects());
                 menu.clearList();
             } else if (squadEnabled == true && menu.quadrantIsPicked() == true && menu.isActive() == true) {

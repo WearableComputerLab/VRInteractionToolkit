@@ -56,10 +56,10 @@ public class BubbleCursor : MonoBehaviour {
         controllerRight = cameraRig.transform.Find("Controller (right)").gameObject;
         controllerLeft = GameObject.Find("Controller (left)");
         cameraHead = GameObject.Find("Camera (head)");*/
-        SetParent();
+        SetCursorParent();
     }
 
-    void SetParent() {
+    void SetCursorParent() {
         if (controllerRightPicked == true) {
             cursor.transform.SetParent(controllerRight.transform);
         } else if (controllerLeftPicked == true) {
@@ -75,7 +75,7 @@ public class BubbleCursor : MonoBehaviour {
     /// Using Linq 2D array is sorted based on closest distances
     /// </summary>
     /// <returns>2D Array which contains order of objects with the closest distances & their allocated index</returns>
-	private float[][] ClosestObject() {
+	private float[][] FindClosestObjects() {
 		float[] lowestDists = new float[4];
 		lowestDists[0] = 0; // 1ST Lowest Distance
 		lowestDists[1] = 0; // 2ND Lowest Distance
@@ -118,7 +118,7 @@ public class BubbleCursor : MonoBehaviour {
             //print(controller.GetAxis().y);
             //cursor.transform.position += new Vector3(0f, 0f, controller.GetAxis().y/20);
             extendDistance += controller.GetAxis().y / cursorSpeed;
-            moveCursor();
+            moveCursorPosition();
         }
     }
 
@@ -153,7 +153,7 @@ public class BubbleCursor : MonoBehaviour {
         }
     }
 
-    void moveCursor() {
+    void moveCursorPosition() {
         getControllerPosition();
         Vector3 pose = new Vector3(0, 0, 0); ;
         if (controllerRightPicked == true) {
@@ -187,7 +187,7 @@ public class BubbleCursor : MonoBehaviour {
             PadScrolling();
         }
 
-        float[][] lowestDistances = ClosestObject();
+        float[][] lowestDistances = FindClosestObjects();
         //float ClosestCircleRadius = lowestDistances[0][0] + interactableObjects[(int)lowestDistances[0][1]].GetComponent<SphereCollider>().radius;
         //float SecondClosestCircleRadius = lowestDistances[1][0] - interactableObjects[(int)lowestDistances[1][1]].GetComponent<SphereCollider>().radius;
         float ClosestCircleRadius = 0f;

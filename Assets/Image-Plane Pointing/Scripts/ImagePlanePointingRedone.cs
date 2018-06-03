@@ -21,6 +21,7 @@ public class ImagePlanePointingRedone : MonoBehaviour {
         laser.SetActive(true);
         laserTransform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
+        laserTransform.localEulerAngles = new Vector3(laserTransform.localEulerAngles.x + 45f , laserTransform.localEulerAngles.y + 45f , laserTransform.localEulerAngles.z);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
     }
 

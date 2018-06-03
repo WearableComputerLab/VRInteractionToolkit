@@ -16,6 +16,10 @@ public class FishingReel : MonoBehaviour {
     private Vector3 hitPoint;
     public GameObject mirroredCube;
 
+    public enum InteractionType {Selection, Manipulation_Movement, Manipulation_Full};
+    public InteractionType interacionType;
+    internal bool objectSelected = false;
+
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
         laser.SetActive(true);
@@ -30,21 +34,27 @@ public class FishingReel : MonoBehaviour {
     }
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
-    private GameObject tempObjectStored;
+    public GameObject tempObjectStored;
     void PickupObject(GameObject obj) {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
             if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
-                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
-                obj.transform.SetParent(trackedObj.transform);
-                extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
-                tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
-                pickedUpObject = true;
+
+                if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+                    obj.transform.SetParent(trackedObj.transform);
+                    extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
+                    tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
+                    pickedUpObject = true;
+                }
+                tempObjectStored = obj;
+                objectSelected = true;
             }
             if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
-                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
-                tempObjectStored.transform.SetParent(null);
-                pickedUpObject = false;
+                if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+                    tempObjectStored.transform.SetParent(null);
+                    pickedUpObject = false;
+                }
+                objectSelected = false;
             }
         }
     }
@@ -111,7 +121,6 @@ public class FishingReel : MonoBehaviour {
     }
 
     void Update() {
-        print(trackedObj.transform.position);
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         mirroredObject();
         ShowLaser();
@@ -120,10 +129,15 @@ public class FishingReel : MonoBehaviour {
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
            //print("hit:" + hit.transform.name);
             hitPoint = hit.point;
-            PickupObject(hit.transform.gameObject);
-            if (pickedUpObject == true) {
-                PadScrolling(hit.transform.gameObject);
-            }
+            //if (interacionType == InteractionType.Manipulation_Movement && tempObjectStored != hit.transform.gameObject) {
+            //    tempObjectStored = hit.transform.gameObject;
+             //   objectSelected = true;
+            //if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+                PickupObject(hit.transform.gameObject);
+                if (pickedUpObject == true) {
+                    PadScrolling(hit.transform.gameObject);
+                }
+            //}
             ShowLaser(hit);
         }
     }
