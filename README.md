@@ -1,5 +1,8 @@
 # VRInteractionToolkit
 
+# Check out our current Wiki-Page
+https://github.com/WearableComputerLab/VRInteractionToolkit/wiki
+
 # List of Techniques (Updated Weekly)
 https://docs.google.com/document/d/1z1cqlON__YbIfm96woaRHOlqhPY0gTIAuAptGbjNyoI
 
