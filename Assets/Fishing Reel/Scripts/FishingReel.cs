@@ -14,10 +14,14 @@ public class FishingReel : MonoBehaviour {
     private GameObject laser;
     private Transform laserTransform;
     private Vector3 hitPoint;
-    public GameObject mirroredCube;
+    private GameObject mirroredCube;
 
     public enum InteractionType {Selection, Manipulation_Movement, Manipulation_Full};
     public InteractionType interacionType;
+
+    public enum ControllerPicked { Left_Controller, Right_Controller };
+    public ControllerPicked controllerPicked;
+
     internal bool objectSelected = false;
 
     private void ShowLaser(RaycastHit hit) {
@@ -33,13 +37,14 @@ public class FishingReel : MonoBehaviour {
         mirroredCube.SetActive(true);
     }
 
+    private Valve.VR.EVRButtonId trigger = Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger;
+
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
-    public GameObject tempObjectStored;
+    internal GameObject tempObjectStored;
     void PickupObject(GameObject obj) {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
-            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
-
+            if (controller.GetTouchDown(trigger) && pickedUpObject == false) {
                 if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
                     obj.transform.SetParent(trackedObj.transform);
                     extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
@@ -49,7 +54,7 @@ public class FishingReel : MonoBehaviour {
                 tempObjectStored = obj;
                 objectSelected = true;
             }
-            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
+            if (controller.GetTouchUp(trigger) && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
                     tempObjectStored.transform.SetParent(null);
                     pickedUpObject = false;
@@ -99,23 +104,22 @@ public class FishingReel : MonoBehaviour {
         mirroredCube.transform.rotation = trackedObj.transform.rotation;
     }
 
-    public bool controllerRightPicked;
-    public bool controllerLeftPicked;
-
     void Awake() {
         GameObject controllerRight = GameObject.Find("Controller (right)");
         GameObject controllerLeft = GameObject.Find("Controller (left)");
-        if (controllerRightPicked == true) {
+        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        if (controllerPicked == ControllerPicked.Right_Controller) {
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
-        } else if (controllerLeftPicked == true) {
+        } else if (controllerPicked == ControllerPicked.Left_Controller) {
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
-        } else { //TODO: Automatically attempt to detect controller
+        } else {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }
     }
 
     void Start() {
+        //print("joystick names:" + Valve.VR.iN);
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
     }

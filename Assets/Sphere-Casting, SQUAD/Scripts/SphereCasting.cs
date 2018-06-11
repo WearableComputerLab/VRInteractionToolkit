@@ -11,17 +11,23 @@ public class SphereCasting : MonoBehaviour {
 
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
-    public PickupObjects pickupObjs;
-    public SquadMenu menu;
+    private PickupObjects pickupObjs;
+    private SquadMenu menu;
     public static bool inMenu = false;
 
     public GameObject laserPrefab;
     private GameObject laser;
     private Transform laserTransform;
     private Vector3 hitPoint;
-    public GameObject mirroredCube;
-    public GameObject sphereObject;
+    private GameObject mirroredCube;
+    private GameObject sphereObject;
     public bool squadEnabled = true;
+
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public InteractionType interacionType;
+
+    public enum ControllerPicked { Left_Controller, Right_Controller };
+    public ControllerPicked controllerPicked;
 
     private void ShowLaser(RaycastHit hit) {
         //print("object hit:" + hit.transform.gameObject.name);
@@ -61,7 +67,18 @@ public class SphereCasting : MonoBehaviour {
     }
 
     void Awake() {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
+        GameObject controllerRight = GameObject.Find("Controller (right)");
+        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        sphereObject = this.transform.Find("SphereTooltip").gameObject;
+        if (controllerPicked == ControllerPicked.Right_Controller) {
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+        } else if (controllerPicked == ControllerPicked.Left_Controller) {
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        } else {
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
     }
 
     void Start() {
@@ -102,7 +119,7 @@ public class SphereCasting : MonoBehaviour {
         ShowLaser();
         Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
-        if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit, 100)) {
+        if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             //print("hit:" + hit.transform.name);
             hitPoint = hit.point;
             ShowLaser(hit);

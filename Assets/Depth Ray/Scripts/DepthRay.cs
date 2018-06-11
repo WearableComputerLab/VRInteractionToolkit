@@ -12,19 +12,23 @@ public class DepthRay : MonoBehaviour {
 
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
-    public GameObject mirroredCube;
+    private GameObject mirroredCube;
     private RaycastHit[] raycastObjects;
 
     public GameObject laserPrefab;
     private GameObject laser;
     private Transform laserTransform;
-    public GameObject cubeAssister;
+    private GameObject cubeAssister;
     private Vector3 hitPoint;
     private Vector3 hitPoint2D;
 
-    //Giving a weird get_FrameCount error in the console for some reason?
-    /*int rightIndex = SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Rightmost);
-    /int leftIndex = SteamVR_Controller.GetDeviceIndex(SteamVR_Controller.DeviceRelation.Leftmost);*/
+    internal bool objectSelected = false;
+
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public InteractionType interacionType;
+
+    public enum ControllerPicked { Left_Controller, Right_Controller };
+    public ControllerPicked controllerPicked;
 
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
@@ -65,20 +69,28 @@ public class DepthRay : MonoBehaviour {
     }
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
-    private GameObject tempObjectStored;
+    internal GameObject tempObjectStored;
     void PickupObject(GameObject obj) {
         if (trackedObj != null) {
             if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
-                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
-                obj.transform.SetParent(trackedObj.transform);
-                tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
-                pickedUpObject = true;
+                if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+                    obj.transform.SetParent(trackedObj.transform);
+                    tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
+                    pickedUpObject = true;
+                } else if (interacionType == InteractionType.Selection) {
+                    tempObjectStored = obj;
+                    objectSelected = true;
+                    print("Selected object in pure selection mode:" + tempObjectStored.name);
+                }
             }
             if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
-                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
-                tempObjectStored.transform.SetParent(null);
-                pickedUpObject = false;
-            }
+                if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+                    tempObjectStored.transform.SetParent(null);
+                    pickedUpObject = false;
+                } else if (interacionType == InteractionType.Selection) {
+                    objectSelected = false;
+                }
+                }
         }
     }
 
@@ -131,17 +143,16 @@ public class DepthRay : MonoBehaviour {
     }
 
 
-    public bool controllerRightPicked;
-    public bool controllerLeftPicked;
-
     void Awake() {
         GameObject controllerRight = GameObject.Find("Controller (right)");
         GameObject controllerLeft = GameObject.Find("Controller (left)");
-        if (controllerRightPicked == true) {
+        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        cubeAssister = this.transform.Find("Cube Assister").gameObject;
+        if (controllerPicked == ControllerPicked.Right_Controller) {
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
-        } else if (controllerLeftPicked == true) {
+        } else if (controllerPicked == ControllerPicked.Left_Controller) {
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
-        } else { //TODO: Automatically attempt to detect controller
+        } else {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }

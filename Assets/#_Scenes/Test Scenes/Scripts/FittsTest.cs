@@ -33,13 +33,15 @@ public class FittsTest : MonoBehaviour {
     }
 
     void objectSelected() {
+        
+        script.GetComponent<FishingReel>();
         int randomObject = UnityEngine.Random.Range(0, interactableObjects.Length);
         if (chosenObject != null) {
             chosenObject.transform.GetComponent<Renderer>().material = oldMaterial;
         }
         chosenObject = interactableObjects[randomObject];
-        print("Chosen object:" + chosenObject.name);
-        print("Time taken:" + timer);
+        //print("Chosen object:" + chosenObject.name);
+        //print("Time taken:" + timer);
         if (timer != 0) { //Ignore the selection onload
             timeStorage.Add(timer);
         }

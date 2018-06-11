@@ -14,11 +14,17 @@ public class HOMER : MonoBehaviour {
     SteamVR_TrackedObject trackedObj;
     SteamVR_Controller.Device controller;
 
-    public GameObject mirroredCube;
+    private GameObject mirroredCube;
     public GameObject laserPrefab;
     private GameObject laser;
     private Transform laserTransform;
     private Vector3 hitPoint;
+
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public InteractionType interacionType;
+
+    public enum ControllerPicked { Left_Controller, Right_Controller };
+    public ControllerPicked controllerPicked;
 
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
@@ -32,7 +38,7 @@ public class HOMER : MonoBehaviour {
     float Disth = 0f;
     float Disto = 0f;
     bool objSelected = false;
-    public GameObject cameraHead; // t
+    private GameObject cameraHead; // t
     private GameObject virtualHand;
     private GameObject selectedObject;
     public GameObject handPrefab;
@@ -100,17 +106,16 @@ public class HOMER : MonoBehaviour {
         mirroredCube.SetActive(true);
     }
 
-    public bool controllerRightPicked;
-    public bool controllerLeftPicked;
-
     void Awake() {
         GameObject controllerRight = GameObject.Find("Controller (right)");
         GameObject controllerLeft = GameObject.Find("Controller (left)");
-        if (controllerRightPicked == true) {
+        cameraHead = GameObject.Find("Camera (eye)");
+        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        if (controllerPicked == ControllerPicked.Right_Controller) {
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
-        } else if (controllerLeftPicked == true) {
+        } else if (controllerPicked == ControllerPicked.Left_Controller) {
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
-        } else { //TODO: Automatically attempt to detect controller
+        } else {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }

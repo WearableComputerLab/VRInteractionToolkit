@@ -11,14 +11,21 @@ public class ScaledWorldGrab : MonoBehaviour {
      *      - The initial selection technique used in this implementation is ray-casting
      * */
 
-    SteamVR_TrackedObject trackedObj;
-    SteamVR_Controller.Device controller;
+    internal SteamVR_TrackedObject trackedObj;
+    internal SteamVR_Controller.Device controller;
 
-    public GameObject mirroredCube;
+    private GameObject mirroredCube;
     public GameObject laserPrefab;
     private GameObject laser;
     private Transform laserTransform;
     private Vector3 hitPoint;
+
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public InteractionType interacionType;
+    internal GameObject tempObjectStored;
+
+    public enum ControllerPicked { Left_Controller, Right_Controller };
+    public ControllerPicked controllerPicked;
 
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
@@ -30,9 +37,9 @@ public class ScaledWorldGrab : MonoBehaviour {
     }
 
 
-    bool objSelected = false;
-    public GameObject cameraHead;
-    public GameObject cameraRig;
+    internal bool objSelected = false;
+    private GameObject cameraHead;
+    private GameObject cameraRig;
     //private GameObject virtualHand;
     private GameObject selectedObject;
     private Transform oldParent;
@@ -85,8 +92,21 @@ public class ScaledWorldGrab : MonoBehaviour {
         }
     }
 
-    bool objectGrabbed = false;
+    internal bool objectGrabbed = false;
 
+    /*void SelectedObject(GameObject obj) {
+        if (objSelected == true) {
+            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger)) {
+                obj.transform.SetParent(trackedObj.gameObject.transform);
+                objectGrabbed = true;
+            }
+            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && objectGrabbed == true) {
+                obj.transform.SetParent(null);
+                objectGrabbed = false;
+                resetProperties();
+            }
+        }
+    }*/
     private void OnTriggerStay(Collider col) {
         if (objSelected == true) {
             if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger)) {
@@ -101,7 +121,7 @@ public class ScaledWorldGrab : MonoBehaviour {
         }
     }
 
-    void resetProperties() {
+    internal void resetProperties() {
         objSelected = false;
         selectedObject.transform.SetParent(oldParent);
         cameraHead.transform.localScale = new Vector3(1f, 1f, 1f);
@@ -131,24 +151,25 @@ public class ScaledWorldGrab : MonoBehaviour {
     }
 
     private void castRay() {
-        Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
+        mirroredObject();
         ShowLaser();
+        Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
-        if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit, 100)) {
+        if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             hitPoint = hit.point;
             ShowLaser(hit);
         }
     }
 
-    void moveMirroredCube() {
-        //getControllerPosition();
-        Vector3 mirroredPos = trackedObj.transform.position;
+    void mirroredObject() {
         Vector3 controllerPos = trackedObj.transform.forward;
         float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
+        Vector3 mirroredPos = trackedObj.transform.position;
 
         mirroredPos.x = mirroredPos.x + (100f / (distance_formula_on_vector)) * controllerPos.x;
         mirroredPos.y = mirroredPos.y + (100f / (distance_formula_on_vector)) * controllerPos.y;
         mirroredPos.z = mirroredPos.z + (100f / (distance_formula_on_vector)) * controllerPos.z;
+
         mirroredCube.transform.position = mirroredPos;
         mirroredCube.transform.rotation = trackedObj.transform.rotation;
     }
@@ -158,9 +179,24 @@ public class ScaledWorldGrab : MonoBehaviour {
         mirroredCube.SetActive(true);
     }
 
+    void Awake() {
+        GameObject controllerRight = GameObject.Find("Controller (right)");
+        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        cameraHead = GameObject.Find("Camera (eye)");
+        cameraRig = GameObject.Find("[CameraRig]");
+        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        if (controllerPicked == ControllerPicked.Right_Controller) {
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+        } else if (controllerPicked == ControllerPicked.Left_Controller) {
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        } else {
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
+    }
+
     // Use this for initialization
     void Start() {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
     }
@@ -169,7 +205,6 @@ public class ScaledWorldGrab : MonoBehaviour {
     void Update() {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         if (objSelected == false) {
-            moveMirroredCube();
             castRay();
         } else if (objSelected == true) {
             WorldGrab();
