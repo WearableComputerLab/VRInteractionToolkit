@@ -202,12 +202,7 @@ public class DepthRay : MonoBehaviour {
                 } else {
                     currentClosestObject.transform.GetComponent<Renderer>().material = outlineMaterial;
                 }
-                //currentClosestObject = raycastObjects[closestVal].transform.gameObject;
-                //raycastObjects[closestVal].transform.GetComponent<Renderer>().material = outlineMaterial;
                 PickupObject(raycastObjects[closestVal].transform.gameObject);
-                //Renderer rend = raycastObjects[closestVal].transform.GetComponent<Renderer>();
-                //rend.material.color = Color.red;
-                //raycastObjects[closestVal].transform.GetComponent<Renderer>().material.color = Color.clear;
             }
         }
         //raycastObjects[closestVal].transform.GetComponent<Renderer>().material.color = Color.white;
@@ -220,30 +215,4 @@ public class DepthRay : MonoBehaviour {
             ShowLaser(hit);
         }
     }
-        // Update is called once per frame
-        /*void Update() {
-        controller = SteamVR_Controller.Input((int)trackedObj.index);
-        RaycastHit hit;
-        forward = trackedObj.transform.TransformDirection(Vector3.forward) * 10;
-        //ShowLaser();
-        if (Physics.Raycast(trackedObj.transform.position, forward, out hit)) {
-            distance = hit.distance;
-            hitPoint = hit.point;
-            print(distance + " | "+hit.collider.gameObject.name);
-            ShowLaser(hit);
-        }*/
-        /*Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
-        if (controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad)) {
-            RaycastHit hit;
-            if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit, 100)) {
-                print("hit:" + hit.transform.name);
-                hitPoint = hit.point;
-                ShowLaser(hit);
-            } else {
-                hitPoint = ray.GetPoint(10);
-                ShowLaser();
-            }
-        } else {
-            laser.SetActive(false);
-        }*/
 }
