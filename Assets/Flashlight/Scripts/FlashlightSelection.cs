@@ -32,8 +32,13 @@ public class FlashlightSelection : MonoBehaviour {
     public SteamVR_TrackedObject theController;
 
     private GameObject trackedObj;
-    private GameObject collidingObject;
+    private List<GameObject> collidingObjects;
+
     private GameObject objectInHand;
+
+    public int[] layersOfObjectsToBendTo;
+
+
 
     private SteamVR_Controller.Device Controller
     {
@@ -48,6 +53,7 @@ public class FlashlightSelection : MonoBehaviour {
 
     void OnEnable()
     {
+        collidingObjects = new List<GameObject>();
         trackedObj = this.transform.gameObject;
         var render = SteamVR_Render.instance;
         if (render == null)
@@ -64,13 +70,11 @@ public class FlashlightSelection : MonoBehaviour {
 
     private void SetCollidingObject(Collider col)
     {
-
-        if (collidingObject || !col.GetComponent<Rigidbody>())
+        if (collidingObjects.Contains(col.gameObject) || !col.GetComponent<Rigidbody>())
         {
             return;
         }
-
-        collidingObject = col.gameObject;
+        collidingObjects.Add(col.gameObject);
     }
 
 
@@ -88,29 +92,81 @@ public class FlashlightSelection : MonoBehaviour {
 
     public void OnTriggerExit(Collider other)
     {
-        if (!collidingObject)
+        if (!collidingObjects.Contains(other.gameObject))
         {
             return;
         }
 
-        collidingObject = null;
+        collidingObjects.Remove(other.gameObject);
+    }
+
+    private GameObject getObjectHoveringOver()
+    {
+        List<double> distancesFromCenterOfCone = new List<double>();
+
+        Vector3 forwardVectorFromRemote = trackedObj.transform.forward;
+        Vector3 positionOfRemote = trackedObj.transform.position;
+
+        foreach (GameObject potentialObject in collidingObjects)
+        {
+            // Only doing if the object is on a layer where the object can be picked up
+            for (int i = 0; i < layersOfObjectsToBendTo.Length; i++)
+            {
+                // dont have to worry about executing twice as an object can only be on one layer
+                if (potentialObject.layer == layersOfObjectsToBendTo[i])
+                {
+                    // Object can only have one layer so can do calculation for object here
+                    Vector3 objectPosition = potentialObject.transform.position;
+
+                    // Finding closest to ray by creating a perpendicular plane using the formula that uses the point and then finds the distance between
+                    // that point and where a plane created from the vector intersects the laser
+                    float tValueFromFormulaExplained = (forwardVectorFromRemote.x * objectPosition.x + forwardVectorFromRemote.x * objectPosition.y
+                        + forwardVectorFromRemote.z * objectPosition.z - forwardVectorFromRemote.x * positionOfRemote.x - forwardVectorFromRemote.y * positionOfRemote.y
+                        - forwardVectorFromRemote.z * positionOfRemote.z) / (Mathf.Pow(forwardVectorFromRemote.x, 2) + Mathf.Pow(forwardVectorFromRemote.y, 2) + Mathf.Pow(forwardVectorFromRemote.z, 2));
+
+                    Vector3 newPoint = new Vector3(forwardVectorFromRemote.x * tValueFromFormulaExplained + positionOfRemote.x, forwardVectorFromRemote.y * tValueFromFormulaExplained + positionOfRemote.y
+                        , forwardVectorFromRemote.z * tValueFromFormulaExplained + positionOfRemote.z);
+
+                    double distanceBetweenRayAndPoint = Mathf.Sqrt(Mathf.Pow(newPoint.x - objectPosition.x, 2) + Mathf.Pow(newPoint.y - objectPosition.y, 2) + Mathf.Pow(newPoint.z - objectPosition.z, 2));
+                    distancesFromCenterOfCone.Add(distanceBetweenRayAndPoint);
+                }
+            }
+        }
+
+        if(collidingObjects.Count > 0 && distancesFromCenterOfCone.Count > 0)
+        {
+            // Find the smallest object by distance
+            int indexOfSmallest = 0;
+            double smallest = distancesFromCenterOfCone[0];
+            for (int index = 0; index < distancesFromCenterOfCone.Count; index++)
+            {
+                if (distancesFromCenterOfCone[index] < smallest)
+                {
+                    indexOfSmallest = index;
+                    smallest = distancesFromCenterOfCone[index];
+                }
+            }
+            return collidingObjects[indexOfSmallest];
+        }
+        return null;
     }
 
     private void GrabObject()
     {
+        objectInHand = getObjectHoveringOver();
 
-        objectInHand = collidingObject;
-        collidingObject = null;
+        collidingObjects.Remove(objectInHand);
 
         var joint = AddFixedJoint();
         joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
+  
     }
 
     private FixedJoint AddFixedJoint()
     {
         FixedJoint fx = gameObject.AddComponent<FixedJoint>();
-        fx.breakForce = 20000;
-        fx.breakTorque = 20000;
+        fx.breakForce = Mathf.Infinity;
+        fx.breakTorque = Mathf.Infinity;
         return fx;
     }
 
@@ -128,7 +184,9 @@ public class FlashlightSelection : MonoBehaviour {
             //objectInHand.GetComponent<Rigidbody>().velocity = GetComponent<Rigidbody>().velocity;
             //objectInHand.GetComponent<Rigidbody>().angularVelocity = GetComponent<Rigidbody>().angularVelocity;
 
-            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
+            float objectDistanceFromController = Vector3.Distance(Controller.transform.pos, objectInHand.transform.position);
+
+            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity * objectDistanceFromController;
             objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }
 
@@ -138,9 +196,10 @@ public class FlashlightSelection : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        print(collidingObjects.Count);
         if (Controller.GetHairTriggerDown())
         {
-            if (collidingObject)
+            if (collidingObjects.Count > 0)
             {
                 GrabObject();
             }

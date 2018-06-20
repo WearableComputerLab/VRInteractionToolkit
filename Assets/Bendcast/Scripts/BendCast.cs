@@ -89,11 +89,6 @@ public class BendCast : MonoBehaviour
         return Mathf.Pow(1f - t, 2f) * p0 + 2f * (1f - t) * t * p1PointLocation + Mathf.Pow(t, 2) * p2;
     }
 
-    float distBetweenVectors(Vector3 one, Vector3 two)
-    {
-        return Mathf.Sqrt(Mathf.Pow(one.x - two.x, 2) + Mathf.Pow(one.y - two.y, 2) + Mathf.Pow(one.z - two.z, 2));
-    }
-
     void castLaserCurve()
     {
         float valueToSearchBezierBy = 0f;
@@ -106,7 +101,7 @@ public class BendCast : MonoBehaviour
             lasers[i].SetActive(true);
             Vector3 pointOnBezier = GetBezierPosition(valueToSearchBezierBy);
             Vector3 nextPart = new Vector3(pointOnBezier.x, pointOnBezier.y, pointOnBezier.z);
-            float distBetweenParts = distBetweenVectors(nextPart, positionOfLastLaserPart);
+            float distBetweenParts = Vector3.Distance(nextPart, positionOfLastLaserPart);
 
             laserTransform[i].position = Vector3.Lerp(positionOfLastLaserPart, nextPart, .5f);
             laserTransform[i].LookAt(nextPart);
@@ -139,6 +134,7 @@ public class BendCast : MonoBehaviour
         {
             for (int j = 0; j < layersOfObjectsToBendTo.Length; j++)
             {
+                // dont have to worry about executing twice as an object can only be on one layer
                 if (allObjects[i].layer == layersOfObjectsToBendTo[j])
                 {
                     // Object can only have one layer so can do calculation for object here
