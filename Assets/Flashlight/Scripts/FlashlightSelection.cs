@@ -34,11 +34,14 @@ public class FlashlightSelection : MonoBehaviour {
     private GameObject trackedObj;
     private List<GameObject> collidingObjects;
 
+    public Material highlightMaterial;
+    private ObjectHighlighter highlighter;
+
     private GameObject objectInHand;
 
-    public int[] layersOfObjectsToBendTo;
+    public int[] layersOfObjectsToSelect;
 
-
+    private GameObject objectHoveredOver;
 
     private SteamVR_Controller.Device Controller
     {
@@ -53,6 +56,7 @@ public class FlashlightSelection : MonoBehaviour {
 
     void OnEnable()
     {
+        highlighter = new ObjectHighlighter(highlightMaterial);
         collidingObjects = new List<GameObject>();
         trackedObj = this.transform.gameObject;
         var render = SteamVR_Render.instance;
@@ -96,7 +100,7 @@ public class FlashlightSelection : MonoBehaviour {
         {
             return;
         }
-
+        highlighter.deHighlighobject(other.gameObject);
         collidingObjects.Remove(other.gameObject);
     }
 
@@ -110,10 +114,10 @@ public class FlashlightSelection : MonoBehaviour {
         foreach (GameObject potentialObject in collidingObjects)
         {
             // Only doing if the object is on a layer where the object can be picked up
-            for (int i = 0; i < layersOfObjectsToBendTo.Length; i++)
+            for (int i = 0; i < layersOfObjectsToSelect.Length; i++)
             {
                 // dont have to worry about executing twice as an object can only be on one layer
-                if (potentialObject.layer == layersOfObjectsToBendTo[i])
+                if (potentialObject.layer == layersOfObjectsToSelect[i])
                 {
                     // Object can only have one layer so can do calculation for object here
                     Vector3 objectPosition = potentialObject.transform.position;
@@ -146,6 +150,12 @@ public class FlashlightSelection : MonoBehaviour {
                     smallest = distancesFromCenterOfCone[index];
                 }
             }
+
+            // highlighting object
+            if(objectInHand == null) {
+                highlighter.highlightObject(collidingObjects[indexOfSmallest]);
+            }
+
             return collidingObjects[indexOfSmallest];
         }
         return null;
@@ -153,13 +163,14 @@ public class FlashlightSelection : MonoBehaviour {
 
     private void GrabObject()
     {
-        objectInHand = getObjectHoveringOver();
+        objectInHand = objectHoveredOver;
 
-        collidingObjects.Remove(objectInHand);
+        if(objectHoveredOver != null) {
+            collidingObjects.Remove(objectInHand);
 
-        var joint = AddFixedJoint();
-        joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
-  
+            var joint = AddFixedJoint();
+            joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
+        }
     }
 
     private FixedJoint AddFixedJoint()
@@ -184,9 +195,8 @@ public class FlashlightSelection : MonoBehaviour {
             //objectInHand.GetComponent<Rigidbody>().velocity = GetComponent<Rigidbody>().velocity;
             //objectInHand.GetComponent<Rigidbody>().angularVelocity = GetComponent<Rigidbody>().angularVelocity;
 
-            float objectDistanceFromController = Vector3.Distance(Controller.transform.pos, objectInHand.transform.position);
-
-            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity * objectDistanceFromController;
+            
+            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
             objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }
 
@@ -196,6 +206,10 @@ public class FlashlightSelection : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+
+        objectHoveredOver = getObjectHoveringOver();
+        
+        
         print(collidingObjects.Count);
         if (Controller.GetHairTriggerDown())
         {

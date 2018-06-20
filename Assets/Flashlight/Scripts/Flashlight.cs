@@ -45,6 +45,9 @@ public class Flashlight : MonoBehaviour
         trackedObj = this.GetComponentInParent<SteamVR_TrackedObject>();
         device = SteamVR_Controller.Input((int)trackedObj.index);
 
+        // Translates the cone so that whatever size it is as long as it is at position 0,0,0 if contoller it will jump to the origin point for flashlight
+        translateConeDistanceAlongForward(this.GetComponent<Renderer>().bounds.size.z/2f);
+
         //GameObject flashLightModel = this.transform.GetChild(0).gameObject;
         //flashLightModel.GetComponent<MeshRenderer>().material.color = new Color(theColor.r, theColor.b, theColor.g, transparency);
 
@@ -56,10 +59,14 @@ public class Flashlight : MonoBehaviour
     {
         checkForInput();
 
-        this.transform.position = objectAttachedTo.transform.position;
+        //this.transform.position = objectAttachedTo.transform.position;
         Quaternion rot = objectAttachedTo.transform.rotation;
         //this.transform.rotation = controller.transform.rotation;
         //this.transform.rotation = Quaternion.LookRotation(objectAttachedTo.transform.forward * -1); // Might be able to fix this with initial rotation of cone being changed
+    }
+
+    void translateConeDistanceAlongForward(float theDistance) {
+        this.transform.position = this.transform.position+trackedObj.transform.forward*theDistance;
     }
 
     void checkForInput()
@@ -75,6 +82,7 @@ public class Flashlight : MonoBehaviour
             if (touchpad.y > 0.7f) // Touchpad up
             {
                 this.transform.localScale += new Vector3(0f, 0f, resizeSpeed);
+                translateConeDistanceAlongForward(resizeSpeed);  // Move to match the resize of cone so that it stays locked to origin position
             }
 
             else if (touchpad.y < -0.7f) // Touchpad down
@@ -82,18 +90,21 @@ public class Flashlight : MonoBehaviour
                 if (this.transform.localScale.z > 0f)
                 {
                     this.transform.localScale -= new Vector3(0f, 0f, resizeSpeed);
+                    translateConeDistanceAlongForward(resizeSpeed*-1);// Move to match the resize of cone so that it stays locked to origin position
                 }
             }
             
             else if (touchpad.x > 0.7f) // Touchpad right 
             {
                     this.transform.localScale += new Vector3(resizeSpeed, resizeSpeed, 0f);
+                    //this.transform.localPosition = anchorPoint;
             }
             else if (touchpad.x < -0.7f) // Touchpad left
             {
                 if (this.transform.localScale.x > 0f && this.transform.localScale.y > 0f)
                 {
                     this.transform.localScale -= new Vector3(resizeSpeed, resizeSpeed, 0f);
+                    //this.transform.localPosition = anchorPoint;
                 }     
             }
         }
