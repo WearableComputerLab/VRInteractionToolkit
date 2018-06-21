@@ -14,7 +14,7 @@ public class AperatureSelection : MonoBehaviour {
 
 	public SteamVR_TrackedObject controllerTrackedObj;
 
-	private SteamVR_TrackedObject headsetTrackedObj;
+	public SteamVR_TrackedObject headsetTrackedObj;
 	
 	private float minimumDistanceOfIntersection = 2f;
 
@@ -22,6 +22,19 @@ public class AperatureSelection : MonoBehaviour {
 
 
 	void OnEnable() {
+		     
+	}
+
+	void translateConeDistanceAlongForward(float theDistance) {
+        aperatureVolume.transform.position = headsetTrackedObj.transform.position+headsetTrackedObj.transform.forward*theDistance;
+    }
+
+	// Use this for initialization
+	void Start () {
+		laser = Instantiate(laserPrefab);
+        laserTransform = laser.transform;
+
+		/* 
 		SteamVR_TrackedObject[] objects = this.GetComponentsInChildren<SteamVR_TrackedObject>();
 		// Finding headset
 		foreach(SteamVR_TrackedObject obj in objects) {
@@ -30,28 +43,23 @@ public class AperatureSelection : MonoBehaviour {
 				headsetTrackedObj = obj;
 			}
 		}
+		*/
+		if(headsetTrackedObj == null) {
+			print("y");
+		}
 		// setting up the volume
-		aperatureVolume.transform.parent = headsetTrackedObj.transform;
+		//aperatureVolume.transform.parent = headsetTrackedObj.transform;
 
 		// Translates the cone so that whatever size it is as long as it is at position 0,0,0 if contoller it will jump to the origin point for flashlight
 		if(aperatureVolume.GetComponent<Renderer>().bounds.size.z != 0) {
 			translateConeDistanceAlongForward(aperatureVolume.GetComponent<Renderer>().bounds.size.z/2f);
-		}       
-	}
-
-	void translateConeDistanceAlongForward(float theDistance) {
-        aperatureVolume.transform.position = aperatureVolume.transform.position+headsetTrackedObj.transform.forward*theDistance;
-    }
-
-	// Use this for initialization
-	void Start () {
-		laser = Instantiate(laserPrefab);
-        laserTransform = laser.transform;
+		}  
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		ShowLaser();
+		getIntersectionLocation();
 	}
 
 	Vector3 getIntersectionLocation() {
@@ -78,16 +86,16 @@ public class AperatureSelection : MonoBehaviour {
 
         float distanceBetweenPoints = Vector3.Distance(localPoint1, localPoint2);
 
-
+		float lengthOfCone = Vector3.Distance(headsetTrackedObj.transform.position, localPoint2);
 		// Has to be within 2
         if (distanceBetweenPoints < minimumDistanceOfIntersection)
         {
-            testObjectToSeeIfIntersectionWorking.transform.position = localPoint2;
+            testObjectToSeeIfIntersectionWorking.transform.position = localPoint2*2;
         }
 
 		// Reszing the volume to match the location
-		aperatureVolume.transform.localScale = new Vector3(0f, 0f, distanceBetweenPoints);
-		translateConeDistanceAlongForward(distanceBetweenPoints);
+		aperatureVolume.transform.localScale = new Vector3(aperatureVolume.transform.localScale.x, aperatureVolume.transform.localScale.y, lengthOfCone*100);
+		translateConeDistanceAlongForward(lengthOfCone+0.1f);
 
 		return localPoint2;
 	}
@@ -95,8 +103,8 @@ public class AperatureSelection : MonoBehaviour {
 	private void ShowLaser()
     {
         // This is to make it extend infinite. There is DEFINATELY an easier way to do this. Find it later!
-        Vector3 theVector = this.transform.forward;
-        hitPoint = this.transform.position;
+        Vector3 theVector = controllerTrackedObj.transform.forward;
+        hitPoint = controllerTrackedObj.transform.position;
         float distance_formula_on_vector = Mathf.Sqrt(theVector.x * theVector.x + theVector.y * theVector.y + theVector.z * theVector.z);
         // Using formula to find a point which lies at distance on a 3D line from vector and direction
         hitPoint.x = hitPoint.x + (100 / (distance_formula_on_vector)) * theVector.x;
@@ -104,7 +112,7 @@ public class AperatureSelection : MonoBehaviour {
         hitPoint.z = hitPoint.z + (100 / (distance_formula_on_vector)) * theVector.z;
 
         laser.SetActive(true);
-        laserTransform.position = Vector3.Lerp(this.transform.position, hitPoint, .5f);
+        laserTransform.position = Vector3.Lerp(controllerTrackedObj.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y,
            100);
