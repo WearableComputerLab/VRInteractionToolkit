@@ -10,6 +10,8 @@ public class AperatureSelection : MonoBehaviour {
 	private Transform laserTransform;
 	private Vector3 hitPoint;
 
+	public GameObject aperatureVolume;
+
 	public SteamVR_TrackedObject controllerTrackedObj;
 
 	private SteamVR_TrackedObject headsetTrackedObj;
@@ -28,7 +30,19 @@ public class AperatureSelection : MonoBehaviour {
 				headsetTrackedObj = obj;
 			}
 		}
+		// setting up the volume
+		aperatureVolume.transform.parent = headsetTrackedObj.transform;
+
+		// Translates the cone so that whatever size it is as long as it is at position 0,0,0 if contoller it will jump to the origin point for flashlight
+		if(aperatureVolume.GetComponent<Renderer>().bounds.size.z != 0) {
+			translateConeDistanceAlongForward(aperatureVolume.GetComponent<Renderer>().bounds.size.z/2f);
+		}       
 	}
+
+	void translateConeDistanceAlongForward(float theDistance) {
+        aperatureVolume.transform.position = aperatureVolume.transform.position+headsetTrackedObj.transform.forward*theDistance;
+    }
+
 	// Use this for initialization
 	void Start () {
 		laser = Instantiate(laserPrefab);
@@ -70,7 +84,11 @@ public class AperatureSelection : MonoBehaviour {
         {
             testObjectToSeeIfIntersectionWorking.transform.position = localPoint2;
         }
-		
+
+		// Reszing the volume to match the location
+		aperatureVolume.transform.localScale = new Vector3(0f, 0f, distanceBetweenPoints);
+		translateConeDistanceAlongForward(distanceBetweenPoints);
+
 		return localPoint2;
 	}
 
