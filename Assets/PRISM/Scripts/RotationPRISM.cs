@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class RotationPRISM : MonoBehaviour {
-
-	
-
 	private SteamVR_TrackedObject trackedObj;
 	public GameObject theController;
 
@@ -87,8 +84,7 @@ public class RotationPRISM : MonoBehaviour {
 
 	// Need to change this one
 	private void pickUpObject()
-    {
-        
+    {        
         objectInHand = collidingObject;
         collidingObject = null;
 

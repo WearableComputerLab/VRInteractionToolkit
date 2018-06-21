@@ -9,9 +9,7 @@ public class NewPRISIM : MonoBehaviour {
 
 	private GameObject collidingObject;
 	private GameObject objectInHand;
-
 	
-
 	private SteamVR_Controller.Device Controller
 	{
 		get { return SteamVR_Controller.Input((int)trackedObj.index); }
