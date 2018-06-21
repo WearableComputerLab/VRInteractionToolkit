@@ -10,17 +10,23 @@ public class NewPRISIM : MonoBehaviour {
 	private GameObject collidingObject;
 	private GameObject objectInHand;
 
-	// Track last position of controller to get the direction it is moving
-	private Vector3 lastPosition;
+	
 
 	private SteamVR_Controller.Device Controller
 	{
 		get { return SteamVR_Controller.Input((int)trackedObj.index); }
 	}
 
-	public float minV = 0.1f;
-	public float scaledMotionVeclocity = 0.2f;
-	public float maxV = 0.4f;
+	// Track last position of controller to get the direction it is moving
+	private Vector3 lastPosition;
+	// keeping track of time passed resets every 500ms
+	private float timePassedTracker;
+	private float millisecondsDelayTime = 500;
+	private float actualTimePassedOnLastPosition;
+
+	public float minS = 0.1f;
+	public float scaledConstant = 0.2f;
+	public float maxS = 0.4f;
 	public float scaledMotionMultiplier = 0.5f;
 
 	private void SetCollidingObject(Collider col)
@@ -39,12 +45,10 @@ public class NewPRISIM : MonoBehaviour {
         SetCollidingObject(other);
     }
 
-
     public void OnTriggerStay(Collider other)
     {
         SetCollidingObject(other);
     }
-
 
     public void OnTriggerExit(Collider other)
     {
@@ -76,8 +80,54 @@ public class NewPRISIM : MonoBehaviour {
 		lastPosition = this.transform.position;
 	}
 	
+	// Only updates if millisecondDelayTime (500ms) has passed
 	private void updateLastPosition() {
-		lastPosition = this.transform.position;
+		if(timePassedTracker >= millisecondsDelayTime) {
+			moveObjectInHand();
+			lastPosition = this.transform.position;
+			actualTimePassedOnLastPosition = timePassedTracker;
+			timePassedTracker = 0;
+		}
+		timePassedTracker = timePassedTracker += Time.deltaTime*1000f;		
+	}
+
+	private void moveObjectInHand() {
+		if(objectInHand != null && lastPosition != null) {
+			Vector3 currentPosOfObjInHand = objectInHand.transform.position;
+			Vector3 directionMoving = getDirectionControllerMoving();
+			
+			float xDirection = directionMoving.x;
+			float yDirection = directionMoving.y;
+			float zDirection = directionMoving.z;
+
+			float xMovement = distanceToMoveControllerObject(getDistanceTraveledX(), handSpeedOverTimePassed(getDistanceTraveledX()));
+			float yMovement = distanceToMoveControllerObject(getDistanceTraveledY(), handSpeedOverTimePassed(getDistanceTraveledY()));
+			float zMovement = distanceToMoveControllerObject(getDistanceTraveledZ(), handSpeedOverTimePassed(getDistanceTraveledZ()));
+
+			// Moving object
+			objectInHand.transform.position = new Vector3(objectInHand.transform.position.x + xMovement*xDirection, 
+				objectInHand.transform.position.y + yMovement*yDirection, objectInHand.transform.position.z + zMovement*zDirection);
+		}
+	}
+
+	private float distanceToMoveControllerObject(float distanceHandMoved, float handSpeedOverTimePassed) {
+		float k = 0;
+		if(handSpeedOverTimePassed >= scaledConstant) {
+			k = 1;
+		} else if (minS < handSpeedOverTimePassed && handSpeedOverTimePassed < scaledConstant) {
+			k = handSpeedOverTimePassed / scaledConstant;
+		} else if (handSpeedOverTimePassed <= minS) {
+			k = 0;
+		}
+		return k*distanceHandMoved;
+	}
+
+	private float millisecondsSinceLastUpdate() {
+		return Time.deltaTime*1000f;
+	}
+
+	private float handSpeedOverTimePassed(float distanceTraveled) {
+		return distanceTraveled / actualTimePassedOnLastPosition;
 	}
 
 	private Vector3 getDirectionControllerMoving() {
@@ -118,12 +168,5 @@ public class NewPRISIM : MonoBehaviour {
                 ReleaseObject();
             }
         }
-
-		if(objectInHand != null) {
-			float distanceTraveled = getDistanceTraveledSinceLastPosition();
-			Vector3 directionTraveled = getDirectionControllerMoving();
-			// Move objectInHandWithHand
-		}
-		updateLastPosition();
 	}
 }
