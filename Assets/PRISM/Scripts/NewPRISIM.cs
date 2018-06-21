@@ -19,12 +19,11 @@ public class NewPRISIM : MonoBehaviour {
 	private Vector3 lastPosition;
 	// keeping track of time passed resets every 500ms
 	private float timePassedTracker;
-	private float millisecondsDelayTime = 100;
-	private float actualTimePassedOnLastPosition;
+	private float millisecondsDelayTime = 0;
 
-	public float minS = 0.02f;
-	public float scaledConstant = 1f;
-	public float maxS = 20f;
+	public float minS = 0.001f;
+	public float scaledConstant = 0.5f;
+	public float maxS = 2f;
 
 	// OFFSET RECOVERY VARIABLES
 	private float offset = 0;
@@ -101,7 +100,6 @@ public class NewPRISIM : MonoBehaviour {
         
         objectInHand = collidingObject;
         collidingObject = null;
-		print("hey");
 		// Set objectsPosition to hand
 		//objectInHand.transform.position = this.transform.position;
 	}
@@ -121,7 +119,7 @@ public class NewPRISIM : MonoBehaviour {
 		if(timePassedTracker >= millisecondsDelayTime) {
 			moveObjectInHand();
 			lastPosition = this.transform.position;
-			actualTimePassedOnLastPosition = timePassedTracker;
+
 			timePassedTracker = 0;
 		}
 		timePassedTracker = timePassedTracker += millisecondsSinceLastUpdate();		
@@ -143,7 +141,7 @@ public class NewPRISIM : MonoBehaviour {
 			float xMovement = distanceToMoveControllerObject(getDistanceTraveledX(), handSpeedOverTimePassed(getDistanceTraveledX()));
 			float yMovement = distanceToMoveControllerObject(getDistanceTraveledY(), handSpeedOverTimePassed(getDistanceTraveledY()));
 			float zMovement = distanceToMoveControllerObject(getDistanceTraveledZ(), handSpeedOverTimePassed(getDistanceTraveledZ()));
-			print(handSpeedOverTimePassed(getDistanceTraveledX()));
+			//print(handSpeedOverTimePassed(getDistanceTraveledX()));
 			// Moving object
 			objectInHand.transform.position = new Vector3(objectInHand.transform.position.x + xMovement*xDirection, 
 				objectInHand.transform.position.y + yMovement*yDirection, objectInHand.transform.position.z + zMovement*zDirection);
@@ -151,15 +149,20 @@ public class NewPRISIM : MonoBehaviour {
 			// calculating offset
 			offset = Vector3.Distance(objectInHand.transform.position, trackedObj.transform.position);
 			
+			float speed = handSpeedOverTimePassed(getDistanceTraveledSinceLastPosition());
+
+			print(speed);
+			print("Max S: " + maxS + ", Speed: " + speed);
 			// recover offset if it exists
-			if(handSpeedOverTimePassed(getDistanceTraveledSinceLastPosition()) > maxS) {
+			if(maxS < speed) {
+				print("here");
 				offsetRecovery();
 			}
 		}
 	}
 
 	private float distanceToMoveControllerObject(float distanceHandMoved, float handSpeedOverTimePassed) {
-		print(distanceHandMoved);
+		//print(distanceHandMoved);
 		float k = 0;
 		if(handSpeedOverTimePassed >= scaledConstant) {
 			k = 1;
@@ -180,7 +183,7 @@ public class NewPRISIM : MonoBehaviour {
 	}
 
 	private float handSpeedOverTimePassed(float distanceTraveled) {
-		return distanceTraveled / (actualTimePassedOnLastPosition/1000);
+		return distanceTraveled / (timePassedTracker/1000);
 	}
 
 	private Vector3 getDirectionControllerMoving() {
