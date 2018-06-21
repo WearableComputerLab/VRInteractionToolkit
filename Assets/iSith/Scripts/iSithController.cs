@@ -52,9 +52,6 @@ public class iSithController : MonoBehaviour {
         {
             interactionObject.transform.position = (p1 + p2) / 2f;
         }
-
-        
-
     }
 
 
