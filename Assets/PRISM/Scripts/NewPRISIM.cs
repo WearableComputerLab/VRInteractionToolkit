@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class NewPRISIM : MonoBehaviour {
 
-	private SteamVR_TrackedObject trackedObj;
-	public GameObject theController;
+	public SteamVR_TrackedObject trackedObj;
+	//public GameObject theController;
 
 	private GameObject collidingObject;
 	private GameObject objectInHand;
@@ -19,22 +19,60 @@ public class NewPRISIM : MonoBehaviour {
 	private Vector3 lastPosition;
 	// keeping track of time passed resets every 500ms
 	private float timePassedTracker;
-	private float millisecondsDelayTime = 500;
+	private float millisecondsDelayTime = 100;
 	private float actualTimePassedOnLastPosition;
 
-	public float minS = 0.1f;
-	public float scaledConstant = 0.2f;
-	public float maxS = 0.4f;
-	public float scaledMotionMultiplier = 0.5f;
+	public float minS = 0.02f;
+	public float scaledConstant = 1f;
+	public float maxS = 20f;
+
+	// OFFSET RECOVERY VARIABLES
+	private float offset = 0;
+	private float totalTimePassedWhenMaxThresholdExceeded = 0;
+
+
+
+	// Offset recovery as specified by paper Time.time is in seconds
+	private void offsetRecovery() {
+		if(offset == 0) {
+			// no offset so no need to recover
+			return;
+		}
+
+		if(totalTimePassedWhenMaxThresholdExceeded == 0) {
+			totalTimePassedWhenMaxThresholdExceeded = Time.time;
+			return; // Just started recovery on next call will recover
+		}
+
+		float currentTime = Time.time;
+
+		float distanceToMoveObjectTowardsController = 0;
+		
+		if(totalTimePassedWhenMaxThresholdExceeded < currentTime && currentTime < (totalTimePassedWhenMaxThresholdExceeded + 0.05f)) {
+			// will recover offset by making offset 80% of itself
+			distanceToMoveObjectTowardsController = offset * 0.2f;
+		} else if ((totalTimePassedWhenMaxThresholdExceeded + 0.5) < currentTime && currentTime < (totalTimePassedWhenMaxThresholdExceeded + 1f)) {
+			// will recover offset by making offset 50% of itself
+			distanceToMoveObjectTowardsController = offset * 0.5f;
+
+		} else if (currentTime > (totalTimePassedWhenMaxThresholdExceeded + 1f)) {
+			// will completely recover offset making it 0
+			distanceToMoveObjectTowardsController = offset;
+			totalTimePassedWhenMaxThresholdExceeded = 0;
+		}
+
+		Vector3 direction = trackedObj.transform.position - objectInHand.transform.position;
+		objectInHand.transform.position = objectInHand.transform.position + (direction.normalized * distanceToMoveObjectTowardsController);		
+	}
+
 
 	private void SetCollidingObject(Collider col)
     {
-
+		
         if (collidingObject || !col.GetComponent<Rigidbody>())
         {
             return;
         }
-
         collidingObject = col.gameObject;
     }
 
@@ -63,9 +101,9 @@ public class NewPRISIM : MonoBehaviour {
         
         objectInHand = collidingObject;
         collidingObject = null;
-
+		print("hey");
 		// Set objectsPosition to hand
-		objectInHand.transform.position = this.transform.position;
+		//objectInHand.transform.position = this.transform.position;
 	}
 
 	private void ReleaseObject()
@@ -98,25 +136,42 @@ public class NewPRISIM : MonoBehaviour {
 			float yDirection = directionMoving.y;
 			float zDirection = directionMoving.z;
 
+			xDirection = xDirection/Mathf.Abs(xDirection);
+			yDirection = yDirection/Mathf.Abs(yDirection);
+			zDirection = zDirection/Mathf.Abs(zDirection);
+
 			float xMovement = distanceToMoveControllerObject(getDistanceTraveledX(), handSpeedOverTimePassed(getDistanceTraveledX()));
 			float yMovement = distanceToMoveControllerObject(getDistanceTraveledY(), handSpeedOverTimePassed(getDistanceTraveledY()));
 			float zMovement = distanceToMoveControllerObject(getDistanceTraveledZ(), handSpeedOverTimePassed(getDistanceTraveledZ()));
-
+			print(handSpeedOverTimePassed(getDistanceTraveledX()));
 			// Moving object
 			objectInHand.transform.position = new Vector3(objectInHand.transform.position.x + xMovement*xDirection, 
 				objectInHand.transform.position.y + yMovement*yDirection, objectInHand.transform.position.z + zMovement*zDirection);
+			
+			// calculating offset
+			offset = Vector3.Distance(objectInHand.transform.position, trackedObj.transform.position);
+			
+			// recover offset if it exists
+			if(handSpeedOverTimePassed(getDistanceTraveledSinceLastPosition()) > maxS) {
+				offsetRecovery();
+			}
 		}
 	}
 
 	private float distanceToMoveControllerObject(float distanceHandMoved, float handSpeedOverTimePassed) {
+		print(distanceHandMoved);
 		float k = 0;
 		if(handSpeedOverTimePassed >= scaledConstant) {
 			k = 1;
+			//print(1);
 		} else if (minS < handSpeedOverTimePassed && handSpeedOverTimePassed < scaledConstant) {
 			k = handSpeedOverTimePassed / scaledConstant;
+			//print("Here and k is: " + k);
 		} else if (handSpeedOverTimePassed <= minS) {
 			k = 0;
+			//print("zero");
 		}
+
 		return k*distanceHandMoved;
 	}
 
@@ -125,7 +180,7 @@ public class NewPRISIM : MonoBehaviour {
 	}
 
 	private float handSpeedOverTimePassed(float distanceTraveled) {
-		return distanceTraveled / actualTimePassedOnLastPosition;
+		return distanceTraveled / (actualTimePassedOnLastPosition/1000);
 	}
 
 	private Vector3 getDirectionControllerMoving() {
@@ -137,21 +192,21 @@ public class NewPRISIM : MonoBehaviour {
 	}
 
 	private float getDistanceTraveledX() {
-		return this.transform.position.x - lastPosition.x;
+		return Mathf.Abs(this.transform.position.x - lastPosition.x);
 	}
 
 	private float getDistanceTraveledY() {
-		return this.transform.position.y - lastPosition.y;
+		return Mathf.Abs(this.transform.position.y - lastPosition.y);
 	}
 
 	private float getDistanceTraveledZ() {
-		return this.transform.position.z - lastPosition.z;
+		return Mathf.Abs(this.transform.position.z - lastPosition.z);
 	}
 
 	// Update is called once per frame
 	void Update () {
 		if (Controller.GetHairTriggerDown())
-        {
+        {	
             if (collidingObject)
             {
                 pickUpObject();
