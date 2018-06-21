@@ -88,7 +88,7 @@ public class NewPRISIM : MonoBehaviour {
 			actualTimePassedOnLastPosition = timePassedTracker;
 			timePassedTracker = 0;
 		}
-		timePassedTracker = timePassedTracker += Time.deltaTime*1000f;		
+		timePassedTracker = timePassedTracker += millisecondsSinceLastUpdate();		
 	}
 
 	private void moveObjectInHand() {
@@ -168,5 +168,6 @@ public class NewPRISIM : MonoBehaviour {
                 ReleaseObject();
             }
         }
+		updateLastPosition();
 	}
 }

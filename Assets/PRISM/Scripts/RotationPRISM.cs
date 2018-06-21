@@ -24,6 +24,37 @@ public class RotationPRISM : MonoBehaviour {
 	private float millisecondsDelayTime = 200;
 	private float actualTimePassedOnLastPosition;
 
+	private float rotationMinS;
+	private float rotationScalingConstant;
+	private float rotationMaxS;
+
+	
+	// Use this for initialization
+	void Start () {
+		lastHandRotation = this.transform.rotation;
+	}
+
+	// Update is called once per frame
+	void Update () {
+		if (Controller.GetHairTriggerDown())
+        {
+            if (collidingObject)
+            {
+                pickUpObject();
+            }
+        }
+
+
+        if (Controller.GetHairTriggerUp())
+        {
+            if (objectInHand)
+            {
+                ReleaseObject();
+            }
+        }
+		updateLastRotation();
+	}
+
 	private void SetCollidingObject(Collider col)
     {
 
@@ -69,11 +100,6 @@ public class RotationPRISM : MonoBehaviour {
     {  
         objectInHand = null;
     }
-	
-	// Use this for initialization
-	void Start () {
-		lastHandRotation = this.transform.rotation;
-	}
 
 	// Only updates if millisecondDelayTime (500ms) has passed
 	private void updateLastRotation() {
@@ -83,13 +109,17 @@ public class RotationPRISM : MonoBehaviour {
 			actualTimePassedOnLastPosition = timePassedTracker;
 			timePassedTracker = 0;
 		}
-		timePassedTracker = timePassedTracker += Time.deltaTime*1000f;		
+		timePassedTracker = timePassedTracker += millisecondsSinceLastUpdate();		
 	}
 
 	private void rotateObjectInHand() {
 		if(objectInHand != null && lastHandRotation != null) {
-
+			objectInHand.transform.rotation = getNewOrientation();
 		}
+	}
+	
+	private float millisecondsSinceLastUpdate() {
+		return Time.deltaTime*1000f;
 	}
 
 	/** 
@@ -115,54 +145,40 @@ public class RotationPRISM : MonoBehaviour {
 	// Calculates the rotational difference between the current(Qt) and
 	// last orientation (Qt−1) of the hand, in the form of Qdiff. Note, to find the quaternion
 	// needed to rotate from q1 to q2, q2 is divided by q1
-	private void getQdiff() {
-
+	private Quaternion getQdiff() {
+		return trackedObj.transform.rotation*Quaternion.Inverse(lastHandRotation);
 	}
 
 	// Converts the angle represented by Qdiff from radians to degrees and Eq.
-	private void getAngleRotatedInTimePassed() {
-
+	// (We just used unity's built in angle calculator)
+	private float getAngleRotatedInTimePassed() {
+		return Quaternion.Angle(trackedObj.transform.rotation, lastHandRotation);
 	}
 
 	// Simply divides the angle by 200 ms (the time between Qt and Qt−1) to obtain the rotational
 	// speed of the hand
-	private void getRotationSpeed() {
-
+	private float getRotationSpeed() {
+		return getAngleRotatedInTimePassed() / 0.20f;  // IS IN SECONDS CHECK IF NEED TO CHANGE FORMAT
 	}
 
 	// Is used to determine the control display ratio to
 	// be used. The inverse of the control display ratio, k, is used to scale rotation
-	private void getK() {
-
+	private float getK() {
+		if(getRotationSpeed() >= rotationScalingConstant) {
+			return 1;
+		} else if (rotationMinS < getRotationSpeed() && getRotationSpeed() < rotationScalingConstant){
+			return getRotationSpeed() / rotationScalingConstant;
+		} else if (getRotationSpeed() <= rotationMinS){
+			return 0;
+		}
+		return 0; // CHECK IF THATS RIGHT
 	}
 
 	// The quaternion representation of the angle the hand has rotated (Qdiff)
 	// is scaled by raising it to the power k, where k is a real number between 0 and 1.
-	private void getNewOrientation() {
-
-	}
-
-	private float millisecondsSinceLastUpdate() {
-		return Time.deltaTime*1000f;
-	}
-
-	// Update is called once per frame
-	void Update () {
-		if (Controller.GetHairTriggerDown())
-        {
-            if (collidingObject)
-            {
-                pickUpObject();
-            }
-        }
-
-
-        if (Controller.GetHairTriggerUp())
-        {
-            if (objectInHand)
-            {
-                ReleaseObject();
-            }
-        }
+	private Quaternion getNewOrientation() {
+		// My interpetation of the description of algorithm but using unity methods
+		return Quaternion.RotateTowards(objectInHand.transform.rotation, getQdiff(), getK());
+		// TODO check if works
 	}
 }
