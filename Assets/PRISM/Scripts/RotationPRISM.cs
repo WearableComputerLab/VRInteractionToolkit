@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class RotationPRISM : MonoBehaviour {
-	private SteamVR_TrackedObject trackedObj;
-	public GameObject theController;
+	public SteamVR_TrackedObject trackedObj;
 
 	private GameObject collidingObject;
 	private GameObject objectInHand;
@@ -18,16 +17,16 @@ public class RotationPRISM : MonoBehaviour {
 
 	// keeping track of time passed resets every 500ms
 	private float timePassedTracker;
-	private float millisecondsDelayTime = 200;
-	private float actualTimePassedOnLastPosition;
+	private float millisecondsDelayTime = 0;
 
-	private float rotationMinS;
-	private float rotationScalingConstant;
-	private float rotationMaxS;
+	public float rotationMinS = 0.015f;
+	public float rotationScalingConstant = 0.5f;
+	public float rotationMaxS = 2f;
 
 	
 	// Use this for initialization
 	void Start () {
+		
 		lastHandRotation = this.transform.rotation;
 	}
 
@@ -50,6 +49,12 @@ public class RotationPRISM : MonoBehaviour {
             }
         }
 		updateLastRotation();
+
+		/* 
+		if(objectInHand) {
+			objectInHand.transform.position = trackedObj.transform.position;
+		}
+		*/
 	}
 
 	private void SetCollidingObject(Collider col)
@@ -89,7 +94,7 @@ public class RotationPRISM : MonoBehaviour {
         collidingObject = null;
 
 		// Set objectsPosition to hand
-		objectInHand.transform.position = this.transform.position;
+		//objectInHand.transform.position = this.transform.position;
 	}
 
 	private void ReleaseObject()
@@ -102,7 +107,6 @@ public class RotationPRISM : MonoBehaviour {
 		if(timePassedTracker >= millisecondsDelayTime) {
 			rotateObjectInHand();
 			lastHandRotation = this.transform.rotation;
-			actualTimePassedOnLastPosition = timePassedTracker;
 			timePassedTracker = 0;
 		}
 		timePassedTracker = timePassedTracker += millisecondsSinceLastUpdate();		
@@ -110,7 +114,10 @@ public class RotationPRISM : MonoBehaviour {
 
 	private void rotateObjectInHand() {
 		if(objectInHand != null && lastHandRotation != null) {
-			objectInHand.transform.rotation = getNewOrientation();
+			Quaternion rotationToMoveTo = getNewOrientation();
+			print("Old rotation: (" + objectInHand.transform.rotation.x + ", " + objectInHand.transform.rotation.y + ", " + objectInHand.transform.rotation.z + ")");
+			print("New rotation: (" + rotationToMoveTo.x + ", " + rotationToMoveTo.y + ", " + rotationToMoveTo.z + ")");
+			objectInHand.transform.eulerAngles = rotationToMoveTo.eulerAngles;
 		}
 	}
 	
@@ -151,20 +158,25 @@ public class RotationPRISM : MonoBehaviour {
 		return Quaternion.Angle(trackedObj.transform.rotation, lastHandRotation);
 	}
 
-	// Simply divides the angle by 200 ms (the time between Qt and Qt−1) to obtain the rotational
+	// Simply divides the angle by 200 ms (we are using our actual time passed converted to seconds)  (the time between Qt and Qt−1) to obtain the rotational
 	// speed of the hand
 	private float getRotationSpeed() {
-		return getAngleRotatedInTimePassed() / 0.20f;  // IS IN SECONDS CHECK IF NEED TO CHANGE FORMAT
+		float speed = getAngleRotatedInTimePassed() / (timePassedTracker);
+		return getAngleRotatedInTimePassed() / (timePassedTracker);  // IS IN SECONDS CHECK IF NEED TO CHANGE FORMAT
 	}
 
 	// Is used to determine the control display ratio to
 	// be used. The inverse of the control display ratio, k, is used to scale rotation
 	private float getK() {
 		if(getRotationSpeed() >= rotationScalingConstant) {
+			print(1);
 			return 1;
 		} else if (rotationMinS < getRotationSpeed() && getRotationSpeed() < rotationScalingConstant){
+			float scaledK = getRotationSpeed() / rotationScalingConstant;
+			print("scaledk: " + scaledK);
 			return getRotationSpeed() / rotationScalingConstant;
 		} else if (getRotationSpeed() <= rotationMinS){
+			print(0);
 			return 0;
 		}
 		return 0; // CHECK IF THATS RIGHT
@@ -174,7 +186,44 @@ public class RotationPRISM : MonoBehaviour {
 	// is scaled by raising it to the power k, where k is a real number between 0 and 1.
 	private Quaternion getNewOrientation() {
 		// My interpetation of the description of algorithm but using unity methods
-		return Quaternion.RotateTowards(objectInHand.transform.rotation, getQdiff(), getK());
-		// TODO check if works
+		float kValue = getK();
+		if(kValue == 0) {
+			// In the paper if the k value is 0 it relys on that causing the below equation to have an infinite (broken result)
+			// making the change nothing. However because our equation is different to theirs due to our implementation
+			// our result will give the same 1-1 mapping as if k value was 1. Therefore we must manuelly give a result
+			// for if k value is 0
+			return objectInHand.transform.rotation;
+		}
+		//return Quaternion.RotateTowards(objectInHand.transform.rotation, trackedObj.transform.rotation, kValue*Time.deltaTime);
+		return powered(trackedObj.transform.rotation*Quaternion.Inverse(lastHandRotation), kValue) * objectInHand.transform.rotation;
+	}
+
+	private Quaternion powered(Quaternion theQuaternion, float power) {
+		// TODO: Clean up this powered function
+
+		Quaternion ln = theQuaternion;
+		float r = (float) Mathf.Sqrt(ln.x*ln.x+ln.y*ln.y+ln.z*ln.z);
+		float t  = r>0.00001f? (float)System.Math.Atan2(r,ln.w)/r: 0f;
+		ln.w=0.5f*(float)Mathf.Log(ln.w*ln.w+ln.x*ln.x+ln.y*ln.y+ln.z*ln.z);
+		ln.x*=t;
+    	ln.y*=t;
+    	ln.z*=t;
+
+		Quaternion scale = ln;
+		scale.w*=power;
+    	scale.x*=power;
+    	scale.y*=power;
+    	scale.z*=power;
+
+		Quaternion exp = scale;
+		r  = (float) Mathf.Sqrt(exp.x*exp.x+exp.y*exp.y+exp.z*exp.z);
+    	float et = (float) Mathf.Exp(exp.w);
+    	float s  = r>=0.00001f? et*(float)Mathf.Sin(r)/r: 0f;
+		exp.w=et*(float)Mathf.Cos(r);
+    	exp.x*=s;
+    	exp.y*=s;
+    	exp.z*=s;
+
+		return exp;
 	}
 }
