@@ -131,17 +131,11 @@ public class FishingReel : MonoBehaviour {
         Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
-           //print("hit:" + hit.transform.name);
             hitPoint = hit.point;
-            //if (interacionType == InteractionType.Manipulation_Movement && tempObjectStored != hit.transform.gameObject) {
-            //    tempObjectStored = hit.transform.gameObject;
-             //   objectSelected = true;
-            //if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
                 PickupObject(hit.transform.gameObject);
                 if (pickedUpObject == true) {
                     PadScrolling(hit.transform.gameObject);
                 }
-            //}
             ShowLaser(hit);
         }
     }

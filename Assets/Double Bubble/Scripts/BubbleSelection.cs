@@ -247,7 +247,8 @@ public class BubbleSelection : MonoBehaviour {
                     cursor2D.GetComponent<SphereCollider>().radius = finalVal;
                     radiusBubble2D.transform.localScale = new Vector3(finalVal * 2, finalVal * 2, 1f);
                     objectBubble2D.transform.localScale = new Vector3(0f, 0f, 0f);
-                    bubbleCursor.objectBubble.transform.localScale = new Vector3(0f, 0f, 0f);
+                    //Usually it works with the objectBubble disappearing when the object is fully encapsulated, but it's alot more user-friendly commenting out this part for the 2D selection
+                    //bubbleCursor.objectBubble.transform.localScale = new Vector3(0f, 0f, 0f);
                 } else {
                     float finalVal = ((closestValue + SecondClosestCircleRadius) * 10) / 2;
                     cursor2D.GetComponent<SphereCollider>().radius = finalVal;

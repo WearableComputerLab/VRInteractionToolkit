@@ -43,7 +43,6 @@ public class ExpandMenu : MonoBehaviour {
             pickedObj2D.transform.SetParent(panel.transform, false);
             pickedObj2D.gameObject.AddComponent<Rigidbody>();
             pickedObj2D.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
-            //pickedObj2D.transform.localScale = new Vector3(0.0625f, 0.0625f, 0f);
             pickedObj2D.transform.localScale = new Vector3(pickedObject[i].transform.localScale.x / scaleAmount, pickedObject[i].transform.localScale.y / scaleAmount, pickedObject[i].transform.localScale.z / scaleAmount);
             pickedObj2D.transform.localRotation = Quaternion.identity;
 
@@ -68,9 +67,7 @@ public class ExpandMenu : MonoBehaviour {
     public Material selectedMaterial;
 
     public void selectObject(SteamVR_Controller.Device controller, GameObject obj) {
-        //print("picked object:" + pickedObject);
         if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedObject == null && obj.transform.parent == panel.transform && obj.name != "TriangleQuadObject") {
-            //pickedObject = obj;
             string objName = obj.name.Substring(0, obj.name.Length - 7);
             //print("obj picked:" + objName);
             pickedObject = GameObject.Find(objName);
@@ -85,7 +82,6 @@ public class ExpandMenu : MonoBehaviour {
     public void enableEXPAND(SteamVR_Controller.Device controller, SteamVR_TrackedObject trackedObj, List<GameObject> obj) {
         if (trackedObj != null) {
             if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
-                //cameraHead.GetComponent<Camera>().fieldOfView = 20;
                 SphereCastingExp.inMenu = true;
                 panel.SetActive(true);
                 generate2DObjects(obj);
@@ -109,7 +105,6 @@ public class ExpandMenu : MonoBehaviour {
         SphereCastingExp.inMenu = false;
         pickedObject = null;
         destroyChildGameObjects();
-        //cameraHead.GetComponent<Camera>().fieldOfView = 60;
         print("Expand disabled..");
 
     }
