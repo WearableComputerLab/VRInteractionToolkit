@@ -53,7 +53,12 @@ public class FishingReel : MonoBehaviour {
                 } else if (interacionType == InteractionType.Manipulation_Full) {
                     tempObjectStored = obj;
                     objectSelected = true;
-                    this.GetComponent<ColorPicker>().selectedObj = obj;
+                    //canvasIcons
+                    //RectTransform CanvasRect = canvasIcons.GetComponent<RectTransform>();
+                    //Vector3 viewportPos = Camera.main.WorldToScreenPoint(obj.transform.position);
+                    //print("Pos:" + viewportPos.ToString());
+                    //CanvasRect.anchoredPosition3D = viewportPos;
+                    //this.GetComponent<ColorPicker>().selectedObj = obj;
 
 
                 } else if (interacionType == InteractionType.Selection) {
@@ -111,6 +116,8 @@ public class FishingReel : MonoBehaviour {
         mirroredCube.transform.rotation = trackedObj.transform.rotation;
     }
 
+    private GameObject canvasIcons;
+
     void Awake() {
         GameObject controllerRight = GameObject.Find("Controller (right)");
         GameObject controllerLeft = GameObject.Find("Controller (left)");
@@ -127,6 +134,7 @@ public class FishingReel : MonoBehaviour {
         if (interacionType == InteractionType.Manipulation_Full) {
             this.gameObject.AddComponent<ColorPicker>();
             this.GetComponent<ColorPicker>().trackedObj = trackedObj;
+            canvasIcons = GameObject.Find("Canvas_Icons");
         }
 
     }
