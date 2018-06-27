@@ -6,10 +6,11 @@ using System.Linq;
 
 public class FittsTest : MonoBehaviour {
     private GameObject[] interactableObjects; // In-game objects
+    private GameObject ObjParents;
     public GameObject script;
     public Material outlineMaterial;
     private Material oldMaterial;
-    public GameObject chosenObject;
+    private GameObject chosenObject;
 
     //Statistics
     private int selectedCount = -1;
@@ -17,7 +18,9 @@ public class FittsTest : MonoBehaviour {
     private List<float> timeStorage = new List<float>();
 
     private void Awake() {
+        generateObjects();
         interactableObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
+        ObjParents = GameObject.Find("GameObjectParent");
     }
 
     private void OnApplicationQuit() {
@@ -26,6 +29,13 @@ public class FittsTest : MonoBehaviour {
         print("Average time:" + timeStorage.Average() + " milliseconds");
         print("Worst time:" + timeStorage.Max() + " milliseconds");
         print("Best time:" + timeStorage.Min() + " milliseconds");
+    }
+
+    private void generateObjects() {
+        print("Spawned parent");
+        GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        obj.transform.SetParent(ObjParents.transform);
+
     }
 
     void Start () {

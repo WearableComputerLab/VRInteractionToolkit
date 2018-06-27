@@ -45,14 +45,21 @@ public class FishingReel : MonoBehaviour {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
             if (controller.GetTouchDown(trigger) && pickedUpObject == false) {
-                if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+                if (interacionType == InteractionType.Manipulation_Movement) {
                     obj.transform.SetParent(trackedObj.transform);
                     extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
                     tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
                     pickedUpObject = true;
+                } else if (interacionType == InteractionType.Manipulation_Full) {
+                    tempObjectStored = obj;
+                    objectSelected = true;
+                    this.GetComponent<ColorPicker>().selectedObj = obj;
+
+
+                } else if (interacionType == InteractionType.Selection) {
+                    tempObjectStored = obj;
+                    objectSelected = true;
                 }
-                tempObjectStored = obj;
-                objectSelected = true;
             }
             if (controller.GetTouchUp(trigger) && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
@@ -116,6 +123,12 @@ public class FishingReel : MonoBehaviour {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }
+
+        if (interacionType == InteractionType.Manipulation_Full) {
+            this.gameObject.AddComponent<ColorPicker>();
+            this.GetComponent<ColorPicker>().trackedObj = trackedObj;
+        }
+
     }
 
     void Start() {
