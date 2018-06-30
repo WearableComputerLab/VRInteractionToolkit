@@ -53,13 +53,10 @@ public class FishingReel : MonoBehaviour {
                 } else if (interacionType == InteractionType.Manipulation_Full) {
                     tempObjectStored = obj;
                     objectSelected = true;
-                    //canvasIcons
-                    //RectTransform CanvasRect = canvasIcons.GetComponent<RectTransform>();
-                    //Vector3 viewportPos = Camera.main.WorldToScreenPoint(obj.transform.position);
-                    //print("Pos:" + viewportPos.ToString());
-                    //CanvasRect.anchoredPosition3D = viewportPos;
-                    //this.GetComponent<ColorPicker>().selectedObj = obj;
-
+                    print("Real world pos:" + obj.transform.position);
+                    print("Local world pos:" + obj.transform.localPosition);
+                    manipulationIcons.transform.position = new Vector3(obj.transform.position.x, obj.transform.position.y*2.2f, obj.transform.position.z);
+                    manipulationIcons.transform.localEulerAngles = Camera.main.transform.localEulerAngles;
 
                 } else if (interacionType == InteractionType.Selection) {
                     tempObjectStored = obj;
@@ -116,7 +113,7 @@ public class FishingReel : MonoBehaviour {
         mirroredCube.transform.rotation = trackedObj.transform.rotation;
     }
 
-    private GameObject canvasIcons;
+    private GameObject manipulationIcons;
 
     void Awake() {
         GameObject controllerRight = GameObject.Find("Controller (right)");
@@ -132,9 +129,13 @@ public class FishingReel : MonoBehaviour {
         }
 
         if (interacionType == InteractionType.Manipulation_Full) {
-            this.gameObject.AddComponent<ColorPicker>();
-            this.GetComponent<ColorPicker>().trackedObj = trackedObj;
-            canvasIcons = GameObject.Find("Canvas_Icons");
+
+            //this.gameObject.AddComponent<ColorPicker>();
+            //this.GetComponent<ColorPicker>().trackedObj = trackedObj;
+            this.gameObject.AddComponent<SelectionManipulation>();
+            this.GetComponent<SelectionManipulation>().trackedObj = trackedObj;
+            manipulationIcons = GameObject.Find("Manipulation_Icons");
+            this.GetComponent<SelectionManipulation>().manipulationIcons = manipulationIcons;
         }
 
     }
