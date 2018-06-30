@@ -65,11 +65,30 @@ public class ColorPicker : MonoBehaviour {
             selectedObj.GetComponent<Renderer>().material.color = color;
         }
     }
-	
+
+    void pickColour() {
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+            print("Colour has been chosen.");
+            canvasHolder.SetActive(false);
+            //this.GetComponent<SelectionManipulation>().inManipulationMode = false;
+            this.GetComponent<SelectionManipulation>().colourPickerEnabled = false;
+            //this.GetComponent<SelectionManipulation>().manipulationIcons.SetActive(false);
+            this.GetComponent<SelectionManipulation>().iconHighlighter.transform.localPosition = new Vector3(-1f, 0f, 0f);
+            this.GetComponent<SelectionManipulation>().index = 0;
+        }
+    }
+
 	// Update is called once per frame
 	void Update () {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
-        PadScrolling();
+        if (this.GetComponent<SelectionManipulation>().colourPickerEnabled == true) {
+            if (canvasHolder.activeInHierarchy == false) {
+                canvasHolder.SetActive(true);
+            } else {
+                PadScrolling();
+                pickColour();
+            }
+        }
 
     }
 }

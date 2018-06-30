@@ -41,30 +41,26 @@ public class FishingReel : MonoBehaviour {
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     internal GameObject tempObjectStored;
-    void PickupObject(GameObject obj) {
+    public void PickupObject(GameObject obj) {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
             if (controller.GetTouchDown(trigger) && pickedUpObject == false) {
-                if (interacionType == InteractionType.Manipulation_Movement) {
+                if (interacionType == InteractionType.Manipulation_Movement || this.GetComponent<SelectionManipulation>().manipulationMovementEnabled == true) {
                     obj.transform.SetParent(trackedObj.transform);
                     extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
                     tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
                     pickedUpObject = true;
-                } else if (interacionType == InteractionType.Manipulation_Full) {
+                } else if (interacionType == InteractionType.Manipulation_Full && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
                     tempObjectStored = obj;
                     objectSelected = true;
-                    print("Real world pos:" + obj.transform.position);
-                    print("Local world pos:" + obj.transform.localPosition);
-                    manipulationIcons.transform.position = new Vector3(obj.transform.position.x, obj.transform.position.y*2.2f, obj.transform.position.z);
-                    manipulationIcons.transform.localEulerAngles = Camera.main.transform.localEulerAngles;
-
+                    this.GetComponent<SelectionManipulation>().selectedObject = obj;
                 } else if (interacionType == InteractionType.Selection) {
                     tempObjectStored = obj;
                     objectSelected = true;
                 }
             }
-            if (controller.GetTouchUp(trigger) && pickedUpObject == true) {
-                if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+            if (controller.GetTouchUp(trigger) && pickedUpObject == true || this.GetComponent<SelectionManipulation>().manipulationMovementEnabled == true) {
+                if (interacionType == InteractionType.Manipulation_Movement) {
                     tempObjectStored.transform.SetParent(null);
                     pickedUpObject = false;
                 }
