@@ -26,11 +26,12 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     private Transform oldParent;
 
     private void ShowLaser(RaycastHit hit) {
+        float controllerDist = Vector3.Distance(trackedObjL.transform.position, trackedObjR.transform.position);
         mirroredCube.SetActive(false);
         laser.SetActive(true);
         laserTransform.position = Vector3.Lerp(pointOfInteraction.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
-        laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
+        laserTransform.localScale = new Vector3(controllerDist, controllerDist, hit.distance);
         InstantiateObject(hit.transform.gameObject);
     }
 
@@ -40,9 +41,18 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     public static Vector3 leftLaser = new Vector3(0, 0, 0);
     public static Vector3 rightLaser = new Vector3(0, 0, 0);
 
+    void createOffSet(GameObject obj) {
+        Vector3 controllerPos = pointOfInteraction.transform.forward;
+        Vector3 pos = pointOfInteraction.transform.position;
+        float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
+        pos.x += (extendDistance / (distance_formula_on_vector)) * controllerPos.x;
+        pos.y += (extendDistance / (distance_formula_on_vector)) * controllerPos.y;
+        pos.z += (extendDistance / (distance_formula_on_vector)) * controllerPos.z;
+        obj.transform.position = pos;
+    }
+
     private void interactionPosition() {
         Vector3 crossed = Vector3.Lerp(trackedObjL.transform.position, trackedObjR.transform.position, 0.5f);
-        print("crossedval:" + crossed);
         pointOfInteraction.transform.localPosition = crossed;
         pointOfInteraction.transform.localRotation = Quaternion.RotateTowards(trackedObjR.transform.rotation, trackedObjL.transform.rotation, 0);
         pointOfInteraction.transform.localRotation *= Quaternion.Euler(75, 0, 0);
@@ -68,7 +78,7 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     float Disteh;
     float Disteo;
     float scaleAmount;
-
+    //Scale camera down attempt
     Vector3 oldHeadScale;
     Vector3 oldCameraRigScale;
     private void InstantiateObject(GameObject obj) {
@@ -76,7 +86,24 @@ public class ImagePlane_FramingHands : MonoBehaviour {
             if (objSelected == false && obj.transform.name != "Mirrored Cube") {
                 selectedObject = obj;
                 oldParent = selectedObject.transform.parent;
+                float dist = Vector3.Distance(pointOfInteraction.transform.position, selectedObject.transform.position);
                 selectedObject.transform.SetParent(pointOfInteraction.transform);
+                selectedObject.transform.localPosition = new Vector3(0f, 0f, 0f);
+
+                Vector3 controllerPos = pointOfInteraction.transform.forward;
+                Vector3 pos = pointOfInteraction.transform.position;
+                float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
+                float distextended = 0.25f;
+                pos.x += (distextended / (distance_formula_on_vector)) * controllerPos.x;
+                pos.y += (distextended / (distance_formula_on_vector)) * controllerPos.y;
+                pos.z += (distextended / (distance_formula_on_vector)) * controllerPos.z;
+                obj.transform.position = pos;
+
+                selectedObject.transform.localScale = new Vector3(selectedObject.transform.localScale.x / dist, selectedObject.transform.localScale.y / dist, selectedObject.transform.localScale.z / dist);
+                print("Scaled to:"+selectedObject.transform.localScale.x);
+                //float dist = Vector3.Distance(pointOfInteraction.transform.position, selectedObject.transform.position);
+                print(dist);
+
                 objSelected = true;
                 laser.SetActive(false);
 
@@ -90,15 +117,11 @@ public class ImagePlane_FramingHands : MonoBehaviour {
                 print("scale amount:" + scaleAmount);
                 oldHeadScale = cameraHead.transform.localScale;
                 oldCameraRigScale = cameraRig.transform.localScale;
-                //cameraHead.transform.localScale = new Vector3(2f, 2f, 2f);
                 ScaleAround(cameraRig.transform, cameraHead.transform, new Vector3(scaleAmount, scaleAmount, scaleAmount));
-                //ScaleAround(trackedObjL.transform, trackedObjL.transform, new Vector3(scaleAmount, scaleAmount, scaleAmount));
-                //ScaleAround(trackedObjR.transform, trackedObjR.transform, new Vector3(scaleAmount, scaleAmount, scaleAmount));
+                //selectedObject.transform.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
                 Vector3 eyeProportion = cameraHead.transform.localScale / scaleAmount;
                 //Keep eye distance proportionate to original position
                 cameraHead.transform.localScale = eyeProportion;
-                //trackedObjL.transform.localScale = trackedObjL.transform.localScale / scaleAmount;
-                //trackedObjR.transform.localScale = trackedObjR.transform.localScale / scaleAmount;
             } else if (objSelected == true) {
                 resetProperties();
             }
@@ -127,7 +150,7 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     private float cursorSpeed = 20f; // Decrease to make faster, Increase to make slower
 
     void mirroredObject() {
-        Vector3 controllerPos = pointOfInteraction.transform.forward;
+        Vector3 controllerPos = cameraHead.transform.forward;
         float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
         Vector3 mirroredPos = pointOfInteraction.transform.position;
 
@@ -160,7 +183,7 @@ public class ImagePlane_FramingHands : MonoBehaviour {
         ShowLaser();
         Ray ray = Camera.main.ScreenPointToRay(pointOfInteraction.transform.position);
         RaycastHit hit;
-        if (Physics.Raycast(pointOfInteraction.transform.position, pointOfInteraction.transform.forward, out hit, 100)) {
+        if (Physics.Raycast(pointOfInteraction.transform.position, cameraHead.transform.forward, out hit, 100)) {
             hitPoint = hit.point;
             ShowLaser(hit);
         }

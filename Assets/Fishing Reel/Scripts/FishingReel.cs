@@ -59,7 +59,7 @@ public class FishingReel : MonoBehaviour {
                     objectSelected = true;
                 }
             }
-            if (controller.GetTouchUp(trigger) && pickedUpObject == true || this.GetComponent<SelectionManipulation>().manipulationMovementEnabled == true) {
+            if (controller.GetTouchUp(trigger) && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement) {
                     tempObjectStored.transform.SetParent(null);
                     pickedUpObject = false;
