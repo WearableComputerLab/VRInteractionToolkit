@@ -5,16 +5,16 @@ using System.Linq;
 
 public class BubbleSelection : MonoBehaviour {
 
-    public List<GameObject> selectableObjects = new List<GameObject>();
+    internal List<GameObject> selectableObjects = new List<GameObject>();
     //private List<GameObject> pickedObjects = new List<GameObject>();
 
     private GameObject[] pickedObjects;
-    public BubbleCursor3D bubbleCursor;
-    public GameObject panel;
-    public GameObject cursor2D;
-    public GameObject radiusBubble2D;
-    public GameObject objectBubble2D;
-    public bool inBubbleSelection = false;
+    private BubbleCursor3D bubbleCursor;
+    private GameObject panel;
+    private GameObject cursor2D;
+    private GameObject objectBubble2D;
+    private GameObject cameraHead;
+    internal bool inBubbleSelection = false;
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     private GameObject tempObjectStored;
@@ -59,16 +59,16 @@ public class BubbleSelection : MonoBehaviour {
     }
 
     private SteamVR_TrackedObject trackedObj;
-    public GameObject controllerRight;
-    public GameObject controllerLeft;
-    public GameObject cameraHead;
-    public bool controllerRightPicked;
-    public bool controllerLeftPicked;
-    public bool cameraHeadPicked;
+
 
 
     void Awake() {
-        //getTrackedObject();
+        panel = GameObject.Find("2DBubbleCursor_Panel");
+        objectBubble2D = panel.transform.Find("ObjectBubble2D").gameObject;
+        cursor2D = panel.transform.Find("Cursor2D").gameObject;
+        cameraHead = GameObject.Find("Camera (eye)");
+        panel.transform.SetParent(cameraHead.transform);
+
     }
 
     private float[][] ClosestObject() {
@@ -245,14 +245,14 @@ public class BubbleSelection : MonoBehaviour {
                 if (ClosestCircleRadius < SecondClosestCircleRadius) {
                     float finalVal = ((closestValue + ClosestCircleRadius) * 10) / 2;
                     cursor2D.GetComponent<SphereCollider>().radius = finalVal;
-                    radiusBubble2D.transform.localScale = new Vector3(finalVal * 2, finalVal * 2, 1f);
+                    this.transform.localScale = new Vector3(finalVal * 2, finalVal * 2, 1f);
                     objectBubble2D.transform.localScale = new Vector3(0f, 0f, 0f);
                     //Usually it works with the objectBubble disappearing when the object is fully encapsulated, but it's alot more user-friendly commenting out this part for the 2D selection
                     //bubbleCursor.objectBubble.transform.localScale = new Vector3(0f, 0f, 0f);
                 } else {
                     float finalVal = ((closestValue + SecondClosestCircleRadius) * 10) / 2;
                     cursor2D.GetComponent<SphereCollider>().radius = finalVal;
-                    radiusBubble2D.transform.localScale = new Vector3(finalVal * 2, finalVal * 2, 1f);
+                    this.transform.localScale = new Vector3(finalVal * 2, finalVal * 2, 1f);
                     string objName = pickedObjects[(int)lowestDistances[0][1]].transform.name.Substring(0, pickedObjects[(int)lowestDistances[0][1]].transform.name.Length);
                    // print("objName" + objName);
                     Transform findOriginalObject = GameObject.Find(objName).transform;
