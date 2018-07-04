@@ -14,6 +14,7 @@ public class SelectionManipulation : MonoBehaviour {
     internal bool decreaseSizeEnabled;
     private SteamVR_Controller.Device controller;
     private GameObject oldSelectedObject;
+    internal Transform startParent;
     float[] posX = { -1, 0, 1, 2, 3 };
     Transform[] iconChildren;
     internal Transform iconHighlighter;
@@ -26,6 +27,7 @@ public class SelectionManipulation : MonoBehaviour {
         inManipulationMode = false;
         colourPickerEnabled = false;
         manipulationMovementEnabled = false;
+        startParent = this.transform;
         iconChildren = new Transform[5];
         int count = 0;
         foreach (Transform child in manipulationIcons.transform) {
@@ -39,10 +41,22 @@ public class SelectionManipulation : MonoBehaviour {
         manipulationIcons.SetActive(false);
 	}
 
+    private void resetManipulationMenu() {
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu) && inManipulationMode == true) {
+            inManipulationMode = false;
+            colourPickerEnabled = false;
+            increaseSizeEnabled = false;
+            decreaseSizeEnabled = false;
+            manipulationIcons.transform.SetParent(startParent);
+            manipulationIcons.SetActive(false);
+            iconHighlighter.transform.localPosition = new Vector3(-1f, 0f, 0f);
+            index = 0;
+        }
+    }
+
     float tempLocalScale = 0f;
     void selectIcon() {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && inManipulationMode == true) {
-            print("Made it in here..");
             if (index == 0) { // Regular movement
                 print("Moving object");
                 //manipulationMovementEnabled = true;
@@ -58,6 +72,7 @@ public class SelectionManipulation : MonoBehaviour {
                 colourPickerEnabled = false;
                 increaseSizeEnabled = false;
                 decreaseSizeEnabled = false;
+                manipulationIcons.transform.SetParent(startParent);
                 manipulationIcons.SetActive(false);
                 iconHighlighter.transform.localPosition = new Vector3(-1f, 0f, 0f);
                 index = 0;
@@ -128,6 +143,7 @@ public class SelectionManipulation : MonoBehaviour {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         navigateOptions();
         selectIcon();
+        resetManipulationMenu();
         if (increaseSizeEnabled == true) {
             increaseSize();
             confirmSize();
@@ -139,6 +155,7 @@ public class SelectionManipulation : MonoBehaviour {
             manipulationIcons.transform.localEulerAngles = Camera.main.transform.localEulerAngles;
             inManipulationMode = true;
             manipulationIcons.SetActive(true);
+            manipulationIcons.transform.SetParent(selectedObject.transform);
             System.Threading.Thread.Sleep(150); // Mini-delay to fix synchronization issues.. Gotta find a better way to do this
         }
     }
