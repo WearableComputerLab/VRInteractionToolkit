@@ -10,6 +10,8 @@ public class SelectionManipulation : MonoBehaviour {
     internal bool inManipulationMode;
     internal bool colourPickerEnabled;
     internal bool manipulationMovementEnabled;
+    internal bool increaseSizeEnabled;
+    internal bool decreaseSizeEnabled;
     private SteamVR_Controller.Device controller;
     private GameObject oldSelectedObject;
     float[] posX = { -1, 0, 1, 2, 3 };
@@ -37,6 +39,7 @@ public class SelectionManipulation : MonoBehaviour {
         manipulationIcons.SetActive(false);
 	}
 
+    float tempLocalScale = 0f;
     void selectIcon() {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && inManipulationMode == true) {
             print("Made it in here..");
@@ -44,6 +47,8 @@ public class SelectionManipulation : MonoBehaviour {
                 print("Moving object");
                 //manipulationMovementEnabled = true;
                 colourPickerEnabled = false;
+                increaseSizeEnabled = false;
+                decreaseSizeEnabled = false;
                 //inManipulationMode = false;
                 //manipulationIcons.SetActive(false);
             } else if (index == 1) { // Delete the object
@@ -51,31 +56,64 @@ public class SelectionManipulation : MonoBehaviour {
                 Destroy(selectedObject);
                 inManipulationMode = false;
                 colourPickerEnabled = false;
+                increaseSizeEnabled = false;
+                decreaseSizeEnabled = false;
                 manipulationIcons.SetActive(false);
                 iconHighlighter.transform.localPosition = new Vector3(-1f, 0f, 0f);
                 index = 0;
             } else if (index == 2) { // Change colour
                 colourPickerEnabled = true;
+                decreaseSizeEnabled = false;
+                increaseSizeEnabled = false;
             } else if (index == 3) { // Increase size
+                //print("Increasing size..");
+                if (increaseSizeEnabled == false) {
+                    tempLocalScale = selectedObject.transform.localScale.x;
+                }
+                increaseSizeEnabled = true;
                 colourPickerEnabled = false;
+                decreaseSizeEnabled = false;
             } else if (index == 4) { // Decrease size
                 colourPickerEnabled = false;
+                increaseSizeEnabled = false;
+                decreaseSizeEnabled = true;
             }
         }
     }
 
+    private float sizeIncrease = 0f;
+    private float cursorSpeed = 5000f; // Decrease to make faster, Increase to make slower
+
+    private void confirmSize() {
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && increaseSizeEnabled == true && tempLocalScale != selectedObject.transform.localScale.x) {
+            print("Size has been chosen.");
+            increaseSizeEnabled = false;
+            iconHighlighter.transform.localPosition = new Vector3(-1f, 0f, 0f);
+            index = 0;
+        }
+    }
+
+    private void increaseSize() {
+        Vector3 controllerPos = trackedObj.transform.forward;
+        if (controller.GetAxis().y != 0) {
+            sizeIncrease += controller.GetAxis().y / cursorSpeed;
+            print("Size increase" + sizeIncrease);
+            selectedObject.transform.localScale = new Vector3(selectedObject.transform.localScale.x + sizeIncrease, selectedObject.transform.localScale.y + sizeIncrease, selectedObject.transform.localScale.z + sizeIncrease);
+        }
+    }
+
     void navigateOptions() {
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad)) {
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad) && inManipulationMode == true) {
             Vector2 touchpad = (controller.GetAxis(Valve.VR.EVRButtonId.k_EButton_Axis0));
-            if (colourPickerEnabled == false) {
+            if (colourPickerEnabled == false && increaseSizeEnabled == false && decreaseSizeEnabled == false) {
                 if (touchpad.x > 0.7f) {
-                    print("Moved right..");
+                    //print("Moved right..");
                     if (index < 4) {
                         iconHighlighter.transform.localPosition += new Vector3(1f, 0f, 0f);
                         index += 1;
                     }
                 } else if (touchpad.x < -0.7f) {
-                    print("Moved left..");
+                    //print("Moved left..");
                     if (index > 0) {
                         index -= 1;
                         iconHighlighter.transform.localPosition -= new Vector3(1f, 0f, 0f);
@@ -90,6 +128,10 @@ public class SelectionManipulation : MonoBehaviour {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         navigateOptions();
         selectIcon();
+        if (increaseSizeEnabled == true) {
+            increaseSize();
+            confirmSize();
+        }
         if (selectedObject != null && selectedObject != oldSelectedObject && inManipulationMode == false) {
             oldSelectedObject = selectedObject;
             this.GetComponent<ColorPicker>().selectedObj = selectedObject;

@@ -18,56 +18,55 @@ public class BubbleCursor : MonoBehaviour {
      * */
 
     private GameObject[] interactableObjects; // In-game objects
-    public GameObject cursor;
+    private GameObject cursor;
     private float startRadius = 0f;
-    public GameObject radiusBubble;
-    public GameObject objectBubble;
+    private GameObject radiusBubble;
+    private GameObject objectBubble;
 
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
 
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public InteractionType interacionType;
 
-    public GameObject controllerRight;
-    public GameObject controllerLeft;
-    public GameObject cameraHead;
-    public bool controllerRightPicked;
-    public bool controllerLeftPicked;
-    public bool cameraHeadPicked;
+    public enum ControllerPicked { Left_Controller, Right_Controller, Head };
+    public ControllerPicked controllerPicked;
+
 
     private readonly float bubbleOffset = 0.6f;
 
     void Awake() {
-        if (controllerRightPicked == true) {
-            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
-        } else if (controllerLeftPicked == true) {
-            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
-        } else if (cameraHeadPicked == true) {
-            trackedObj = cameraHead.GetComponent<SteamVR_TrackedObject>();
-        }
-   }
+        GameObject controllerRight = GameObject.Find("Controller (right)");
+        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        GameObject cameraHead = GameObject.Find("Camera (eye)");
+        cursor = this.transform.Find("BubbleCursor").gameObject;
+        radiusBubble = cursor.transform.Find("RadiusBubble").gameObject;
+        objectBubble = this.transform.Find("ObjectBubble").gameObject;
 
-    // Use this for initialization
+        if (controllerPicked == ControllerPicked.Right_Controller) {
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+        } else if (controllerPicked == ControllerPicked.Left_Controller) {
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        } else if (controllerPicked == ControllerPicked.Head) {
+            trackedObj = cameraHead.GetComponent<SteamVR_TrackedObject>();
+        } else {
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
+    }
+
+        // Use this for initialization
     void Start () {
         interactableObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
         startRadius = cursor.GetComponent<SphereCollider>().radius;
-        getControllerPosition();
-        extendDistance = Vector3.Distance(controllerPos, cursor.transform.position);
-        /*cameraRig = GameObject.Find("[CameraRig]");
-        controllerRight = cameraRig.transform.Find("Controller (right)").gameObject;
-        controllerLeft = GameObject.Find("Controller (left)");
-        cameraHead = GameObject.Find("Camera (head)");*/
+        extendDistance = Vector3.Distance(trackedObj.transform.position, cursor.transform.position);
         SetCursorParent();
     }
 
     void SetCursorParent() {
-        if (controllerRightPicked == true) {
-            cursor.transform.SetParent(controllerRight.transform);
-        } else if (controllerLeftPicked == true) {
-            cursor.transform.SetParent(controllerLeft.transform);
-        } else if (cameraHeadPicked == true) {
-            cursor.transform.SetParent(cameraHead.transform);
-        }
+        cursor.transform.SetParent(trackedObj.transform);
     }
+
 
     /// <summary>
     /// Loops through interactable gameObjects within the scene & stores them in a 2D array.
@@ -148,7 +147,7 @@ public class BubbleCursor : MonoBehaviour {
     /// -Currently needs alot of work, only modifies the Z axis.
     /// </summary>
     private float extendDistance = 0f;
-    private float cursorSpeed = 20f; // Decrease to make faster, Increase to make slower
+    public float cursorSpeed = 20f; // Decrease to make faster, Increase to make slower
 
     private void PadScrolling() {
         if (controller.GetAxis().y != 0) {
@@ -177,30 +176,9 @@ public class BubbleCursor : MonoBehaviour {
         }
     }
 
-    private Vector3 controllerPos = new Vector3(0, 0, 0);
-
-    void getControllerPosition() {
-        // Using the origin and the forward vector of the remote the extended positon of the remote can be calculated
-        if (controllerRightPicked == true) {
-            controllerPos = controllerRight.transform.forward;
-        } else if (controllerLeftPicked == true) {
-            controllerPos = controllerLeft.transform.forward;
-        } else if (cameraHeadPicked == true) {
-            controllerPos = cameraHead.transform.forward;
-        }
-    }
-
     void moveCursorPosition() {
-        getControllerPosition();
-        Vector3 pose = new Vector3(0, 0, 0); ;
-        if (controllerRightPicked == true) {
-            pose = controllerRight.transform.position;
-        } else if (controllerLeftPicked == true) {
-            pose = controllerLeft.transform.position;
-        } else if (cameraHeadPicked == true) {
-            pose = cameraHead.transform.position;
-        }
-
+        Vector3 controllerPos = trackedObj.transform.forward;
+        Vector3 pose = trackedObj.transform.position;
         float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
         // Using formula to find a point which lies at distance on a 3D line from vector and direction
         pose.x = pose.x + (extendDistance / (distance_formula_on_vector)) * controllerPos.x;
@@ -208,13 +186,7 @@ public class BubbleCursor : MonoBehaviour {
         pose.z = pose.z + (extendDistance / (distance_formula_on_vector)) * controllerPos.z;
 
         cursor.transform.position = pose;
-        if (controllerRightPicked == true) {
-            cursor.transform.rotation = controllerRight.transform.rotation;
-        } else if (controllerLeftPicked == true) {
-            cursor.transform.rotation = controllerLeft.transform.rotation;
-        } else if (cameraHeadPicked == true) {
-            cursor.transform.rotation = cameraHead.transform.rotation;
-        }
+        cursor.transform.rotation = trackedObj.transform.rotation;
     }
     private GameObject selectedObject;
     // Update is called once per frame
