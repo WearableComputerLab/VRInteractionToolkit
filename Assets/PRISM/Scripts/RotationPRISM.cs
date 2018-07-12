@@ -9,6 +9,10 @@ public class RotationPRISM : MonoBehaviour {
 	private GameObject objectInHand;
 
 	private Quaternion lastHandRotation;
+	private Quaternion currentRotation;
+
+	public GameObject test1;
+	public GameObject test2;
 
 	private SteamVR_Controller.Device Controller
 	{
@@ -32,6 +36,8 @@ public class RotationPRISM : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		currentRotation = trackedObj.transform.rotation;
+
 		if (Controller.GetHairTriggerDown())
         {
             if (collidingObject)
@@ -115,9 +121,23 @@ public class RotationPRISM : MonoBehaviour {
 	private void rotateObjectInHand() {
 		if(objectInHand != null && lastHandRotation != null) {
 			Quaternion rotationToMoveTo = getNewOrientation();
-			print("Old rotation: (" + objectInHand.transform.rotation.x + ", " + objectInHand.transform.rotation.y + ", " + objectInHand.transform.rotation.z + ")");
-			print("New rotation: (" + rotationToMoveTo.x + ", " + rotationToMoveTo.y + ", " + rotationToMoveTo.z + ")");
-			objectInHand.transform.eulerAngles = rotationToMoveTo.eulerAngles;
+			// TODO: Make sure 360 is correct for step? It's meant to be instant is that making it instant?
+
+			Quaternion objHandRot = objectInHand.transform.rotation;
+			Quaternion newRot = rotationToMoveTo;
+			Quaternion trackedRot = trackedObj.transform.rotation;
+
+			test1.transform.rotation = objHandRot;
+			test2.transform.rotation = trackedRot;
+
+			print("");
+			print("Old rotation: (" + objHandRot.x + ", " + objHandRot.y + ", " + objHandRot.z + ")");
+			print("New rotation: (" + newRot.x + ", " + newRot.y + ", " + newRot.z + ")");
+			print("Track rotation: (" + objHandRot.x + ", " + objHandRot.y + ", " + objHandRot.z + ")");
+
+
+
+			objectInHand.transform.rotation = Quaternion.RotateTowards(objectInHand.transform.rotation, rotationToMoveTo, 360);
 		}
 	}
 	
@@ -149,34 +169,32 @@ public class RotationPRISM : MonoBehaviour {
 	// last orientation (Qt−1) of the hand, in the form of Qdiff. Note, to find the quaternion
 	// needed to rotate from q1 to q2, q2 is divided by q1
 	private Quaternion getQdiff() {
-		return trackedObj.transform.rotation*Quaternion.Inverse(lastHandRotation);
+		return currentRotation*Quaternion.Inverse(lastHandRotation);
 	}
 
 	// Converts the angle represented by Qdiff from radians to degrees and Eq.
 	// (We just used unity's built in angle calculator)
 	private float getAngleRotatedInTimePassed() {
-		return Quaternion.Angle(trackedObj.transform.rotation, lastHandRotation);
+		return Quaternion.Angle(currentRotation, lastHandRotation);
 	}
 
 	// Simply divides the angle by 200 ms (we are using our actual time passed converted to seconds)  (the time between Qt and Qt−1) to obtain the rotational
 	// speed of the hand
 	private float getRotationSpeed() {
-		float speed = getAngleRotatedInTimePassed() / (timePassedTracker);
-		return getAngleRotatedInTimePassed() / (timePassedTracker);  // IS IN SECONDS CHECK IF NEED TO CHANGE FORMAT
+		return getAngleRotatedInTimePassed() / (timePassedTracker/1000f);  // IS IN SECONDS CHECK IF NEED TO CHANGE FORMAT
 	}
 
 	// Is used to determine the control display ratio to
 	// be used. The inverse of the control display ratio, k, is used to scale rotation
 	private float getK() {
-		if(getRotationSpeed() >= rotationScalingConstant) {
-			print(1);
+		float speed = getRotationSpeed();
+		if(speed >= rotationScalingConstant) {
 			return 1;
-		} else if (rotationMinS < getRotationSpeed() && getRotationSpeed() < rotationScalingConstant){
-			float scaledK = getRotationSpeed() / rotationScalingConstant;
-			print("scaledk: " + scaledK);
-			return getRotationSpeed() / rotationScalingConstant;
-		} else if (getRotationSpeed() <= rotationMinS){
-			print(0);
+		} else if (rotationMinS < speed && speed < rotationScalingConstant){
+			float scaledK = speed / rotationScalingConstant;
+			return speed / rotationScalingConstant;
+		} else if (speed <= rotationMinS){
+			return 1;
 			return 0;
 		}
 		return 0; // CHECK IF THATS RIGHT
@@ -186,16 +204,17 @@ public class RotationPRISM : MonoBehaviour {
 	// is scaled by raising it to the power k, where k is a real number between 0 and 1.
 	private Quaternion getNewOrientation() {
 		// My interpetation of the description of algorithm but using unity methods
-		float kValue = getK();
+		float kValue = getK();;
 		if(kValue == 0) {
 			// In the paper if the k value is 0 it relys on that causing the below equation to have an infinite (broken result)
 			// making the change nothing. However because our equation is different to theirs due to our implementation
 			// our result will give the same 1-1 mapping as if k value was 1. Therefore we must manuelly give a result
 			// for if k value is 0
-			return objectInHand.transform.rotation;
+			return currentRotation;
 		}
-		//return Quaternion.RotateTowards(objectInHand.transform.rotation, trackedObj.transform.rotation, kValue*Time.deltaTime);
-		return powered(trackedObj.transform.rotation*Quaternion.Inverse(lastHandRotation), kValue) * objectInHand.transform.rotation;
+		//return Quaternion.RotateTowards(objectInHand.transform.rotation, currentRotation, kValue*Time.deltaTime);
+		
+		return powered(currentRotation*Quaternion.Inverse(lastHandRotation), kValue) * objectInHand.transform.rotation;
 	}
 
 	private Quaternion powered(Quaternion theQuaternion, float power) {
