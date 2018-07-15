@@ -90,9 +90,10 @@ public class WorldInMiniature : MonoBehaviour {
     }
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find("Controller (right)");
-        GameObject controllerLeft = GameObject.Find("Controller (left)");
-        cameraHead = GameObject.Find("Camera (eye)");
+        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
+        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
+        cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
+
         worldInMinParent = this.transform.Find("WorldInMinParent").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();

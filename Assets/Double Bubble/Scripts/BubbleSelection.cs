@@ -66,7 +66,7 @@ public class BubbleSelection : MonoBehaviour {
         panel = GameObject.Find("2DBubbleCursor_Panel");
         objectBubble2D = panel.transform.Find("ObjectBubble2D").gameObject;
         cursor2D = panel.transform.Find("Cursor2D").gameObject;
-        cameraHead = GameObject.Find("Camera (eye)");
+        cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
         panel.transform.SetParent(cameraHead.transform);
 
     }
