@@ -180,10 +180,10 @@ public class ScaledWorldGrab : MonoBehaviour {
     }
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
-        cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
-        cameraRig = GameObject.Find(CONSTANTS.cameraRig);
+        GameObject controllerRight = GameObject.Find("Controller (right)");
+        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        cameraHead = GameObject.Find("Camera (eye)");
+        cameraRig = GameObject.Find("[CameraRig]");
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();

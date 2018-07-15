@@ -34,9 +34,9 @@ public class BubbleCursor3D : MonoBehaviour {
 
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
-        GameObject cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
+        GameObject controllerRight = GameObject.Find("Controller (right)");
+        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        GameObject cameraHead = GameObject.Find("Camera (eye)");
         cursor = this.transform.Find("BubbleCursor").gameObject;
         radiusBubble = cursor.transform.Find("RadiusBubble").gameObject;
         objectBubble = this.transform.Find("ObjectBubble").gameObject;
