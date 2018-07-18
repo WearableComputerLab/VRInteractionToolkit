@@ -228,7 +228,7 @@ GameObject:
   - component: {fileID: 187878920}
   m_Layer: 5
   m_Name: SphereObject 2
-  m_TagString: circleObject
+  m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -312,7 +312,7 @@ GameObject:
   - component: {fileID: 443469959}
   m_Layer: 5
   m_Name: Cube (5)
-  m_TagString: Untagged
+  m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -383,39 +383,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 443469957}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!21 &536302173
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1001 &628537710
 Prefab:
   m_ObjectHideFlags: 0
@@ -471,7 +438,7 @@ Transform:
   m_PrefabParentObject: {fileID: 4776635326271746, guid: 2b61bc4b01b426d4ba196c21fd73ed31,
     type: 2}
   m_PrefabInternal: {fileID: 628537710}
---- !u!43 &784977106
+--- !u!43 &713221441
 Mesh:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -698,7 +665,7 @@ GameObject:
   - component: {fileID: 1047250992}
   m_Layer: 5
   m_Name: Cube (3)
-  m_TagString: Untagged
+  m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -782,7 +749,7 @@ GameObject:
   - component: {fileID: 1087596192}
   m_Layer: 5
   m_Name: SphereObject 1
-  m_TagString: circleObject
+  m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1022,7 +989,7 @@ GameObject:
   - component: {fileID: 1169511062}
   m_Layer: 5
   m_Name: Cube (2)
-  m_TagString: Untagged
+  m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1106,7 +1073,7 @@ GameObject:
   - component: {fileID: 1195253566}
   m_Layer: 5
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1248,12 +1215,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 527c235617063904eb043b69db8ec46d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactableObject: []
   laserPrefab: {fileID: 1159488217044914, guid: aa39209a076fe1041bdd5666839efc44,
     type: 2}
-  interacionType: 0
+  interacionType: 1
+  selectionType: 0
   controllerPicked: 1
   thickness: 0.002
   outlineMaterial: {fileID: 2100000, guid: 3d938759d8b7a414988ec3261fb5265d, type: 2}
+  defaultMat: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!4 &1366013244
 Transform:
   m_ObjectHideFlags: 0
@@ -1282,7 +1252,7 @@ GameObject:
   - component: {fileID: 1374315013}
   m_Layer: 5
   m_Name: Cube (1)
-  m_TagString: Untagged
+  m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1426,7 +1396,7 @@ GameObject:
   - component: {fileID: 1575213298}
   m_Layer: 5
   m_Name: Capsule
-  m_TagString: Untagged
+  m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1551,7 +1521,7 @@ MeshFilter:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1701461982}
-  m_Mesh: {fileID: 784977106}
+  m_Mesh: {fileID: 713221441}
 --- !u!23 &1701461985
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1567,7 +1537,7 @@ MeshRenderer:
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_Materials:
-  - {fileID: 536302173}
+  - {fileID: 2040436137}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1632,7 +1602,7 @@ GameObject:
   - component: {fileID: 1725919620}
   m_Layer: 5
   m_Name: SphereObject 1 (1)
-  m_TagString: circleObject
+  m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1868,7 +1838,7 @@ GameObject:
   - component: {fileID: 1874296779}
   m_Layer: 5
   m_Name: Cube (4)
-  m_TagString: Untagged
+  m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2129,6 +2099,39 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!21 &2040436137
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &2124412850
 GameObject:
   m_ObjectHideFlags: 0

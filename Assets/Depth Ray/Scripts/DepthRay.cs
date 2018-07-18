@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class DepthRay : MonoBehaviour {
 
@@ -10,6 +11,8 @@ public class DepthRay : MonoBehaviour {
      * -Refactor Code
      * */
 
+    //private GameObject[] interactableObject;
+    public List<GameObject> interactableObject;
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
     private GameObject mirroredCube;
@@ -21,11 +24,16 @@ public class DepthRay : MonoBehaviour {
     private GameObject cubeAssister;
     private Vector3 hitPoint;
     private Vector3 hitPoint2D;
+    private RaycastHit[] oldHits;
 
     internal bool objectSelected = false;
 
     public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public enum SelectionAssister { Hide_Closest_Only, Hide_All_But_Closest };
+
+    
     public InteractionType interacionType;
+    public SelectionAssister selectionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
@@ -142,6 +150,28 @@ public class DepthRay : MonoBehaviour {
             return lowestValue;
     }
 
+    private void ResetAllMaterials() {
+        if (oldHits != null) {
+            foreach (RaycastHit hit in oldHits) {
+                hit.transform.gameObject.GetComponent<Renderer>().material = defaultMat;
+            }
+        }
+    }
+
+    private bool Contains(GameObject obj, RaycastHit[] hits) {
+        if (hits.Length >= 1) {
+            foreach (RaycastHit hit in hits) {
+                if (hit.transform.gameObject == obj) {
+                    return true;
+                }
+            }
+        }
+        //print(interactableObject.Count);
+        //obj.GetComponent<Renderer>().material = interactableObject.Find(d => d == obj).transform.GetComponent<Renderer>().material;
+        obj.GetComponent<Renderer>().material = defaultMat;
+        return false;
+    }
+
 
     void Awake() {
         GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
@@ -159,6 +189,8 @@ public class DepthRay : MonoBehaviour {
     }
 
     void Start() {
+        GameObject[] interactObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
+        interactableObject = new List<GameObject>(interactObjects);
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
         cubeAssister.transform.position = trackedObj.transform.position;
@@ -175,6 +207,7 @@ public class DepthRay : MonoBehaviour {
     Vector3 forward;
     private GameObject currentClosestObject;
     public Material outlineMaterial;
+    public Material defaultMat;
     private Material currentClosestObjectMaterial;
     void Update() {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
@@ -186,33 +219,58 @@ public class DepthRay : MonoBehaviour {
         if (hits.Length >= 1) {
             raycastObjects = hits;
             int closestVal = ClosestObject();
-            if (raycastObjects[closestVal].transform.name == "Mirrored Cube") {
-                //print("Could not find object");
-            } else {
-                //print("My closest value:" + raycastObjects[closestVal].transform.name);
-                if (currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
-                    //print("new closest object");
-                    if (currentClosestObject != null) {
-                        if (currentClosestObjectMaterial != null) {
-                            currentClosestObject.transform.GetComponent<Renderer>().material = currentClosestObjectMaterial;
-                        }
-                        currentClosestObjectMaterial = currentClosestObject.transform.GetComponent<Renderer>().material;
+            if (raycastObjects[closestVal].transform.name != "Mirrored Cube") {
+                if (selectionType == SelectionAssister.Hide_All_But_Closest) {
+                    if (currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
+                        currentClosestObject = raycastObjects[closestVal].transform.gameObject;
+                        PickupObject(raycastObjects[closestVal].transform.gameObject);
                     }
-                    currentClosestObject = raycastObjects[closestVal].transform.gameObject;
-                } else {
-                    currentClosestObject.transform.GetComponent<Renderer>().material = outlineMaterial;
+                } else if (selectionType == SelectionAssister.Hide_Closest_Only) {
+                    if (currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
+                        //print("new closest object");
+                        if (currentClosestObject != null) {
+                            if (currentClosestObjectMaterial != null) {
+                                currentClosestObject.transform.GetComponent<Renderer>().material = currentClosestObjectMaterial;
+                            }
+                            currentClosestObjectMaterial = currentClosestObject.transform.GetComponent<Renderer>().material;
+                        }
+                        currentClosestObject = raycastObjects[closestVal].transform.gameObject;
+                    } else {
+                        currentClosestObject.transform.GetComponent<Renderer>().material = outlineMaterial;
+                    }
+                    PickupObject(raycastObjects[closestVal].transform.gameObject);
                 }
-                PickupObject(raycastObjects[closestVal].transform.gameObject);
             }
         }
-        //raycastObjects[closestVal].transform.GetComponent<Renderer>().material.color = Color.white;
+
+        //print("hit length:" + hits.Length);
         for (int i = 0; i < hits.Length; i++) {
             RaycastHit hit = hits[i];
-            //print("hit:" + hit.transform.name + " index:"+i);
+            if (selectionType == SelectionAssister.Hide_All_But_Closest) {
+                if (oldHits != null) {
+                    if (hit.transform.gameObject != mirroredCube && hits.Length != 1) {
+                        if (Contains(oldHits[i].transform.gameObject, hits) == true) {
+                            if (hit.transform.gameObject != currentClosestObject) {
+                                hit.transform.gameObject.transform.GetComponent<Renderer>().material = outlineMaterial;
+                                print(hits[0].transform.gameObject.name);
+                            }
+                        }
+                    } else if (hits.Length == 1) {
+                        ResetAllMaterials();
+                    }
+                }
+            } else if (selectionType == SelectionAssister.Hide_Closest_Only) {
+
+            }
+
+                //print("hit:" + hit.transform.name + " index:"+i);
             distance = hit.distance;
             hitPoint = hit.point;
             //hit.transform.gameObject.GetComponent<Renderer>().material.color = new Color(1, 1, 1, 0.5f);
             ShowLaser(hit);
+        }
+        if (hits.Length > 1) {
+            oldHits = hits;
         }
     }
 }
