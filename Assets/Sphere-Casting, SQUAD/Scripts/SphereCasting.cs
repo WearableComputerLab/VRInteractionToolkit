@@ -84,9 +84,8 @@ public class SphereCasting : MonoBehaviour {
     void Start() {
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
-        if (squadEnabled == false) {
-            pickupObjs = sphereObject.GetComponent<PickupObjects>();
-        } else if (squadEnabled == true) {
+        pickupObjs = sphereObject.AddComponent<PickupObjects>();
+        if (squadEnabled == true) {
             menu = sphereObject.GetComponent<SquadMenu>();
         }
     }
@@ -128,8 +127,13 @@ public class SphereCasting : MonoBehaviour {
                 pickupObjs.clearList();
             } else if (squadEnabled == true && menu.isActive() == false && menu.quadrantIsPicked() == false) {
                 print("selectable objects:"+menu.getSelectableObjects().Count);
-                menu.enableSQUAD(controller, trackedObj, menu.getSelectableObjects());
-                menu.clearList();
+                if (menu.getSelectableObjects().Count > 1) {
+                    menu.enableSQUAD(controller, trackedObj, menu.getSelectableObjects());
+                    menu.clearList();
+                } else if (menu.getSelectableObjects().Count == 1) {
+                    pickupObjs.PickupObject(controller, trackedObj, pickupObjs.getSelectableObjects());
+                    pickupObjs.clearList();
+                }
             } else if (squadEnabled == true && menu.quadrantIsPicked() == true && menu.isActive() == true) {
                 //print("object selected:" + hit.transform.gameObject.name);
                 //todo check if obj is child of createtriangles panel

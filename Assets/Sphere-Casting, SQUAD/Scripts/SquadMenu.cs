@@ -245,7 +245,7 @@ public class SquadMenu : MonoBehaviour {
     }
 
     private void OnTriggerStay(Collider collider) {
-        if (collider.gameObject.layer != LayerMask.NameToLayer("Ignore Raycast")) {
+        if (collider.gameObject.layer != LayerMask.NameToLayer("Ignore Raycast") && !selectableObjects.Contains(collider.gameObject)) {
             selectableObjects.Add(collider.gameObject);
         }
     }
