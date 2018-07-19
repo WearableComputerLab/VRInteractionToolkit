@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 
-public class FittsTest : MonoBehaviour {
+public class FittsTestv2 : MonoBehaviour {
     private GameObject[] interactableObjects; // In-game objects
     public GameObject script;
     public Material outlineMaterial;
@@ -21,6 +21,25 @@ public class FittsTest : MonoBehaviour {
         interactableObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
     }
 
+    //ID = Log2 (2D/W) (D = Distance from hand to center of target, W = width of target)
+    //Gets the difficulty of selection
+    private double getIndexDifficulty(float D, float W) {
+        return Math.Log(2f) * (2D/W);
+    }
+
+    //Gets the IP (Index Performance) to measure the human performance.
+    //ID = Index Difficulty, MT = Avg time to complete movement
+    private double getIndexPerformance(double ID, double MT) {
+        return (ID / MT);
+    }
+
+    //MT = Average time to complete movement
+    //a and b are constants (Not 100% sure on what to do with these)
+    private readonly double a = 0;
+    private readonly double b = 0;
+    private double getAverageTime(double ID) {
+        return a + b * ID;
+    }
 
     private void OnApplicationQuit() {
         print("Application ended after " + Time.time + " seconds");

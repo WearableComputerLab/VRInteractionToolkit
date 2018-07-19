@@ -111,7 +111,9 @@ public class SelectionManipulation : MonoBehaviour {
     private void increaseSize() {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (controller.GetAxis().y != 0) {
-            sizeIncrease += controller.GetAxis().y / cursorSpeed;
+            print("controller axis:"+controller.GetAxis().y);
+            sizeIncrease -= controller.GetAxis().y / cursorSpeed;
+            //controller.GetAxis().y / cursorSpeed;
             print("Size increase" + sizeIncrease);
             selectedObject.transform.localScale = new Vector3(selectedObject.transform.localScale.x + sizeIncrease, selectedObject.transform.localScale.y + sizeIncrease, selectedObject.transform.localScale.z + sizeIncrease);
         }
