@@ -29,6 +29,12 @@ using UnityEngine;
 */
 public class FlashlightSelection : MonoBehaviour {
 
+
+    // Allows to choose if the script purley selects or has full manipulation
+    public enum InteractionType { Selection, Manipulation };
+    public InteractionType interactionType;
+    public GameObject selection; // holds the selected object
+
     public SteamVR_TrackedObject theController;
 
     private GameObject trackedObj;
@@ -215,7 +221,14 @@ public class FlashlightSelection : MonoBehaviour {
         {
             if (collidingObjects.Count > 0)
             {
-                GrabObject();
+                if(interactionType == InteractionType.Selection) {
+                    // Pure selection
+                    print("selected " + objectHoveredOver);
+                    selection = objectHoveredOver;
+                } else if(interactionType == InteractionType.Manipulation) {
+                    //Manipulation
+                    GrabObject();
+                }             
             }
         }
 

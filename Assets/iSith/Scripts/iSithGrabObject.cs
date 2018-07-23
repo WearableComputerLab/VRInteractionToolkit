@@ -113,8 +113,9 @@ public class iSithGrabObject : MonoBehaviour {
         if (Controller.GetHairTriggerDown())
         {
             if (collidingObject)
-            {
-                GrabObject();
+            {   
+                // Manipulation
+                GrabObject();         
             }
         }
 

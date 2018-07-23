@@ -27,6 +27,11 @@ using Valve.VR.InteractionSystem;
 public class BendCast : MonoBehaviour
 {
 
+    // Allows to choose if the script purley selects or has full manipulation
+    public enum InteractionType { Selection, Manipulation };
+    public InteractionType interactionType;
+    public GameObject selection; // holds the selected object
+
     public Material MaterialToHighlightObjects;
     private Material unhighlightedObject;
 
@@ -44,6 +49,12 @@ public class BendCast : MonoBehaviour
     private Vector3 p1PointLocation;
 
     public int[] layersOfObjectsToBendTo;
+
+    private SteamVR_Controller.Device Controller
+    {
+        get { return SteamVR_Controller.Input((int)trackedObj.index); }
+    }
+
     // Use this for initialization
     void Start()
     {
@@ -71,6 +82,15 @@ public class BendCast : MonoBehaviour
     {
         checkSurroundingObjects();
         castLaserCurve();
+
+        if(Controller.GetHairTriggerDown() && currentlyPointingAt != null) {
+            if(interactionType == InteractionType.Selection) {
+                // Pure Selection
+                print("selected" + currentlyPointingAt);
+            } else if(interactionType == InteractionType.Manipulation) {
+                // Currently no manipulation
+            }
+        }
     }
 
     // Using a bezier! Idea from doing flexible pointer

@@ -7,7 +7,6 @@ using Valve.VR.InteractionSystem;
 
 public class GoGoShadowTest : MonoBehaviour
 {
-
     public GameObject theController;
 
     public SteamVR_TrackedObject trackedObj;
@@ -154,7 +153,7 @@ public class GoGoShadowTest : MonoBehaviour
 
         if (distanceToExtend != 0)
         {
-            print("here");
+            //print("here");
             // Using formula to find a point which lies at distance on a 3D line from vector and direction
             pose.x = pose.x + (distanceToExtend / (distance_formula_on_vector)) * theVector.x;
             pose.y = pose.y + (distanceToExtend / (distance_formula_on_vector)) * theVector.y;
@@ -163,8 +162,8 @@ public class GoGoShadowTest : MonoBehaviour
 
         transform.position = pose;
         transform.rotation = rot;
-        print("Actual control pos: " + trackedObj.transform.position.x);
-        print("New control pos: " + pose.x);
+        //print("Actual control pos: " + trackedObj.transform.position.x);
+        //print("New control pos: " + pose.x);
     }
 
 

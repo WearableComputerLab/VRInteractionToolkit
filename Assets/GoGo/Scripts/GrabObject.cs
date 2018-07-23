@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class GrabObject : MonoBehaviour {
 
+     // Allows to choose if the script purley selects or has full manipulation
+    public enum InteractionType { Selection, Manipulation };
+    public InteractionType interactionType;
+    public GameObject selection; // holds the selected object
+
     public SteamVR_TrackedObject trackedObj;
     private GameObject collidingObject;
     private GameObject objectInHand;
@@ -120,7 +125,15 @@ public class GrabObject : MonoBehaviour {
         {
             if (collidingObject)
             {
-                pickUpObject();
+                if(interactionType == InteractionType.Selection) {
+                    // Pure selection
+                    print("selected " + collidingObject);
+                    selection = collidingObject;
+                } else {
+                    // Manipulation
+                    pickUpObject();
+                }
+                
             }
         }
 

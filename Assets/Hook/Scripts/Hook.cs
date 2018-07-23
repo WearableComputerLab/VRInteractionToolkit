@@ -8,6 +8,11 @@ using System.Linq;
 
 public class Hook : MonoBehaviour {
 
+    // Allows to choose if the script purley selects or has full manipulation
+    public enum InteractionType { Selection, Manipulation };
+    public InteractionType interactionType;
+    public GameObject selection; // holds the selected object
+
     //  Used lists instead of arrays incase we want future optimization where it dynamically changes
     //  Instead of looping through every object in the scene
     List<HookObject> nearbyObjects;
@@ -84,11 +89,19 @@ public class Hook : MonoBehaviour {
     {
         if(nearbyObjects.Count > 0)
         {
-            objectInHand = nearbyObjects.ElementAt<HookObject>(0).ContainingObject;
-            objectInHand.transform.position = trackedObj.transform.position;
+            GameObject objectToSelect = nearbyObjects.ElementAt<HookObject>(0).ContainingObject;
+            if(interactionType == InteractionType.Selection) {
+                // Pure selection
+                print("selected " + objectToSelect);
+                selection = objectToSelect;
+            } else {
+                // Manipulation
+                objectInHand = objectToSelect;
+                objectInHand.transform.position = trackedObj.transform.position;
 
-            var joint = AddFixedJoint();
-            joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
+                var joint = AddFixedJoint();
+                joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
+            }           
         }
     }
 

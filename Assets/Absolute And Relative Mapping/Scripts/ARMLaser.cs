@@ -16,6 +16,11 @@ public class ARMLaser : MonoBehaviour {
     private Vector3 lastPosition;
     public GameObject theModel;
 
+    public enum InteractionType { Selection, Manipulation };
+
+    public InteractionType interactionType = InteractionType.Selection;
+    public GameObject selection; // holds the selected object
+
     // Quick solution to highlight on select - maybe find a better way?
     public Material MaterialToHighlightObjects;
     private Material unhighlightedObject;
@@ -28,7 +33,6 @@ public class ARMLaser : MonoBehaviour {
         {
             theModel.transform.parent = this.transform;
         }
-
     }
 
     private void ShowLaser(RaycastHit hit)
@@ -158,6 +162,19 @@ public class ARMLaser : MonoBehaviour {
         if (Controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
         {
             toggleARM();
+        }
+
+        // If remote trigger pulled
+        if(Controller.GetHairTriggerDown()) {
+            if(currentlyPointingAt != null) { // If pointing at an object
+                if(interactionType == InteractionType.Selection) 
+                {
+                    selection = currentlyPointingAt;
+                } else if (interactionType == InteractionType.Manipulation) 
+                {
+                    // No manipualtion implemented for this currently
+                }
+            }
         }
         
     }
