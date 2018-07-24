@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4984491003446334}
   - component: {fileID: 114374207137877912}
   m_Layer: 0
-  m_Name: BendCast
+  m_Name: BendCast_Technique
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
