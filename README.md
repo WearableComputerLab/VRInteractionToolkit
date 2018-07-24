@@ -3,6 +3,9 @@
 # Check out our current Wiki-Page
 https://github.com/WearableComputerLab/VRInteractionToolkit/wiki
 
+# Experimental user-testing notes
+https://docs.google.com/document/d/1k7izoVzxvIplMprO6Qyx0WdaG2XJE-3ktmCyfQcRUh4/edit?usp=sharing
+
 # List of Techniques (Updated Weekly)
 https://docs.google.com/document/d/1z1cqlON__YbIfm96woaRHOlqhPY0gTIAuAptGbjNyoI
 
