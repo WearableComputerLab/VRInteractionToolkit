@@ -26,6 +26,9 @@ using Valve.VR.InteractionSystem;
 
 public class BendCast : MonoBehaviour
 {
+    // Set by the bendcast controller
+    public string controllerName;
+    public SteamVR_TrackedObject trackedObj;  
 
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
@@ -35,7 +38,7 @@ public class BendCast : MonoBehaviour
     public Material MaterialToHighlightObjects;
     private Material unhighlightedObject;
 
-    private SteamVR_TrackedObject trackedObj;
+    
     private GameObject currentlyPointingAt;
     private Vector3 castingBezierFrom;
 
@@ -61,7 +64,6 @@ public class BendCast : MonoBehaviour
         // Initalizing all the lasers
         GameObject laserHolder = new GameObject();
         laserHolder.name = "LaserRays";
-
         lasers = new GameObject[numOfLasers];
         laserTransform = new Transform[numOfLasers];
         for (int i = 0; i < numOfLasers; i++)
@@ -74,7 +76,7 @@ public class BendCast : MonoBehaviour
     }
     void Awake()
     {
-        trackedObj = GetComponent<SteamVR_TrackedObject>();
+
     }
 
     // Update is called once per frame

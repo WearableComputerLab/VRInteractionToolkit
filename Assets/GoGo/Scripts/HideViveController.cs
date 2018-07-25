@@ -1,5 +1,5 @@
 ﻿/*
- *  GoGo script to be attatched to a HTC Vive controller to hide it for a
+ *  Script to be attatched to a HTC Vive controller to hide it for a
  *  shadow controller. 
  *  
  *  Copyright(C) 2018  Ian Hanan
