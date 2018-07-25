@@ -28,6 +28,13 @@ public class ARMController : MonoBehaviour {
 
     void Awake()
     {
+
+        // Controller only ever needs to be setup once
+        ARMLaser test = GetComponent<ARMLaser>();
+        if(test != null) {
+            return;
+        }
+
         // Need:
         // Controller
         // Controller model to shadow

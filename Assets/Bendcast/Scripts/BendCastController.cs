@@ -37,6 +37,12 @@ public class BendCastController : MonoBehaviour {
     // Method runs on drag and drop.
     void Awake()
     {
+        // Controller only ever needs to be setup once
+        BendCast test = GetComponent<BendCast>();
+        if(test != null) {
+            return;
+        }
+
         // Locates the camera rig and its child controllers
         SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
         GameObject leftController = CameraRigObject.left;
@@ -58,7 +64,7 @@ public class BendCastController : MonoBehaviour {
         {
             // Creates right component
             BendCast componentRight = gameObject.AddComponent<BendCast>() as BendCast;
-            attatchComponents(componentRight, leftController, "Left");
+            attatchComponents(componentRight, rightController, "Left");
         }
         else
         {
