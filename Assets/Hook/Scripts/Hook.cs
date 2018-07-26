@@ -8,6 +8,9 @@ using System.Linq;
 
 public class Hook : MonoBehaviour {
 
+    // User can specify layers of objects that the hook will be able to select
+    public int[] layersOfObjectsToSelect;
+
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
     public InteractionType interactionType;
@@ -78,7 +81,8 @@ public class Hook : MonoBehaviour {
         var allObjects = FindObjectsOfType<GameObject>();
         foreach (GameObject each in allObjects)
         {
-            if(each.layer == 8) // 8 is a pickupable object
+            
+            if (layersOfObjectsToSelect.Contains(each.layer)) //only works on selectable objects.
             {
                 nearbyObjects.Add(new HookObject(each));
             }
