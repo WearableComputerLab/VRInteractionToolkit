@@ -2,20 +2,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class iSithController : MonoBehaviour {
 
-    public iSithLaser laser1;
-    public iSithLaser laser2;
+    public GameObject laserPrefab;
+    public iSithLaser laserL = null;
+    public iSithLaser laserR = null;
     public GameObject interactionObject;
+
+    void Awake() {
+        print("here");
+        if(laserL == null || laserR == null) {
+            // lasers not set up yet so will try to run auto attach
+            // Locates the camera rig and its child controllers
+            SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
+            GameObject leftController = CameraRigObject.left;
+            GameObject rightController = CameraRigObject.right;
+
+            if(leftController != null && laserL == null) {
+                laserL = leftController.AddComponent<iSithLaser>() as iSithLaser;
+                laserL.laserPrefab = laserPrefab;
+            }
+            if(rightController != null && laserR == null) {
+                laserR = rightController.AddComponent<iSithLaser>() as iSithLaser;
+                laserR.laserPrefab = laserPrefab;
+            }
+        }       
+    }
 
     void setCubeLocation()
     {
         // assuming 1 is pointing controller for test
-        Vector3 d1 = laser1.transform.forward;
-        Vector3 d2 = laser2.transform.forward;
+        Vector3 d1 = laserL.transform.forward;
+        Vector3 d2 = laserR.transform.forward;
 
-        Vector3 p1 = laser1.transform.position;
-        Vector3 p2 = laser2.transform.position;
+        Vector3 p1 = laserL.transform.position;
+        Vector3 p2 = laserR.transform.position;
 
         // as these two vectors will probably create skew lines (on different planes) have to calculate the points on the lines that are
         // closest to eachother and then getting the midpoint between them giving a fake 'intersection'
@@ -81,7 +103,11 @@ public class iSithController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        setCubeLocation();
+        // Is this the best way? Check later.
+        if(Application.isPlaying) {
+            setCubeLocation();
+        }
+        
         //Vector3.Lerp(interactionObject.transform.position, getInteractionPoint(), 0.5f);
 	}
 }
