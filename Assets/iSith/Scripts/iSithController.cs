@@ -10,6 +10,13 @@ public class iSithController : MonoBehaviour {
     public iSithLaser laserR = null;
     public GameObject interactionObject;
 
+    private enum SelectionController {
+        LeftController,
+        RightController
+    } 
+
+    SelectionController selectionController = SelectionController.RightController;
+
     void Awake() {
         print("here");
         if(laserL == null || laserR == null) {
@@ -19,13 +26,20 @@ public class iSithController : MonoBehaviour {
             GameObject leftController = CameraRigObject.left;
             GameObject rightController = CameraRigObject.right;
 
-            if(leftController != null && laserL == null) {
-                laserL = leftController.AddComponent<iSithLaser>() as iSithLaser;
-                laserL.laserPrefab = laserPrefab;
+            iSithGrabObject component = GetComponentInChildren<iSithGrabObject>();
+            if(selectionController == SelectionController.LeftController) {
+                component.trackedObj = leftController.GetComponent<SteamVR_TrackedObject>();
+            } else if (selectionController ==  SelectionController.RightController) {
+                component.trackedObj = rightController.GetComponent<SteamVR_TrackedObject>();
             }
+
             if(rightController != null && laserR == null) {
                 laserR = rightController.AddComponent<iSithLaser>() as iSithLaser;
                 laserR.laserPrefab = laserPrefab;
+            }
+            if(leftController != null && laserL == null) {
+                laserL = leftController.AddComponent<iSithLaser>() as iSithLaser;
+                laserL.laserPrefab = laserPrefab;
             }
         }       
     }
