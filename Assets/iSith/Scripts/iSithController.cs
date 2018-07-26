@@ -10,26 +10,32 @@ public class iSithController : MonoBehaviour {
     public iSithLaser laserR = null;
     public GameObject interactionObject;
 
-    private enum SelectionController {
+
+    public enum SelectionController {
         LeftController,
         RightController
     } 
 
-    SelectionController selectionController = SelectionController.RightController;
-
+    public SelectionController selectionController = SelectionController.RightController;
     void Awake() {
-        print("here");
         if(laserL == null || laserR == null) {
+            print("here");
             // lasers not set up yet so will try to run auto attach
             // Locates the camera rig and its child controllers
             SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
             GameObject leftController = CameraRigObject.left;
             GameObject rightController = CameraRigObject.right;
 
+            // returns if controllers already set up
+            if(leftController.GetComponent<iSithLaser>() != null) {
+                return;
+            }
+
             iSithGrabObject component = GetComponentInChildren<iSithGrabObject>();
             if(selectionController == SelectionController.LeftController) {
                 component.trackedObj = leftController.GetComponent<SteamVR_TrackedObject>();
             } else if (selectionController ==  SelectionController.RightController) {
+                print("here2");
                 component.trackedObj = rightController.GetComponent<SteamVR_TrackedObject>();
             }
 
@@ -122,6 +128,16 @@ public class iSithController : MonoBehaviour {
             setCubeLocation();
         }
         
+        // Resets the controller to select with if it is changed
+        SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
+        SteamVR_TrackedObject leftController = CameraRigObject.left.GetComponent<SteamVR_TrackedObject>();    
+        SteamVR_TrackedObject rightController = CameraRigObject.right.GetComponent<SteamVR_TrackedObject>();
+        iSithGrabObject component = GetComponentInChildren<iSithGrabObject>();
+        if(selectionController == SelectionController.LeftController && component.trackedObj != leftController) {             
+                component.trackedObj = leftController;
+        } else if (selectionController ==  SelectionController.RightController && component.trackedObj != rightController) {          
+                component.trackedObj = rightController;
+        }
         //Vector3.Lerp(interactionObject.transform.position, getInteractionPoint(), 0.5f);
 	}
 }
