@@ -6,7 +6,12 @@ using System.Linq;
 // Information on hook technique
 // http://www.eecs.ucf.edu/isuelab/publications/pubs/Cashion_Jeffrey_A_201412_PhD.pdf pf 13
 
+// TODO: Highlight closest object maybe?
+
 public class Hook : MonoBehaviour {
+
+    // User can specify layers of objects that the hook will be able to select
+    public int[] layersOfObjectsToSelect;
 
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
@@ -68,7 +73,6 @@ public class Hook : MonoBehaviour {
                 ReleaseObject();
             }
         }
-
         // printing list for testing
         print(nearbyObjects.Count);
 	}
@@ -77,8 +81,8 @@ public class Hook : MonoBehaviour {
     {
         var allObjects = FindObjectsOfType<GameObject>();
         foreach (GameObject each in allObjects)
-        {
-            if(each.layer == 8) // 8 is a pickupable object
+        {         
+            if (layersOfObjectsToSelect.Contains(each.layer)) //only works on selectable objects.
             {
                 nearbyObjects.Add(new HookObject(each));
             }
@@ -118,15 +122,12 @@ public class Hook : MonoBehaviour {
     {
         if (GetComponent<FixedJoint>())
         {
-
             GetComponent<FixedJoint>().connectedBody = null;
             Destroy(GetComponent<FixedJoint>());
 
             objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
             objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }
-
         objectInHand = null;
     }
-
 }
