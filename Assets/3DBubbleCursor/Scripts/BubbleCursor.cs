@@ -22,6 +22,7 @@ public class BubbleCursor : MonoBehaviour {
     private float startRadius = 0f;
     private GameObject radiusBubble;
     private GameObject objectBubble;
+    public LayerMask interactableLayer;
 
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
@@ -34,6 +35,17 @@ public class BubbleCursor : MonoBehaviour {
 
 
     private readonly float bubbleOffset = 0.6f;
+
+    private GameObject[] getInteractableObjects() {
+        GameObject[] AllSceneObjects = FindObjectsOfType<GameObject>();
+        List<GameObject> interactableObjects = new List<GameObject>();
+        foreach (GameObject obj in AllSceneObjects) {
+            if (obj.layer == interactableLayer) {
+                interactableObjects.Add(obj);
+            }
+        }
+        return interactableObjects.ToArray();
+    }
 
     void Awake() {
         GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
@@ -57,7 +69,7 @@ public class BubbleCursor : MonoBehaviour {
 
         // Use this for initialization
     void Start () {
-        interactableObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
+        interactableObjects = getInteractableObjects();
         startRadius = cursor.GetComponent<SphereCollider>().radius;
         extendDistance = Vector3.Distance(trackedObj.transform.position, cursor.transform.position);
         SetCursorParent();
@@ -112,34 +124,6 @@ public class BubbleCursor : MonoBehaviour {
         float[][] arraytest = allDists.OrderBy(row => row[0]).ToArray();
         arraytest = allDists.OrderBy(row => row[0]).ToArray();
         return arraytest;
-        /*	float[] lowestDists = new float[4];
-            lowestDists[0] = 0; // 1ST Lowest Distance
-            lowestDists[1] = 0; // 2ND Lowest Distance
-            lowestDists[2] = 0; // 1ST Lowest Index
-            lowestDists [3] = 0; // 2ND Lowest Index
-            float lowestDist = 0;
-            float[][] allDists = new float[interactableObjects.Length][];
-            for (int i=0; i< interactableObjects.Length; i++) {
-                allDists[i] = new float[2];
-            }
-
-            int lowestValue = 0;
-            for (int i = 0; i < interactableObjects.Length; i++) {
-                float dist = Vector3.Distance(cursor.transform.position, interactableObjects[i].transform.position)/2f;
-                if (i == 0) {
-                    lowestDist = dist;
-                    lowestValue = 0;
-                } else {
-                    if (dist < lowestDist) {
-                        lowestDist = dist;
-                        lowestValue = i;
-                    }
-                }
-                allDists [i][0] = dist;
-                allDists [i][1] = i;
-            }
-            float[][] arraytest = allDists.OrderBy(row => row[0]).ToArray();
-            return arraytest;*/
     }
 
     /// <summary>
