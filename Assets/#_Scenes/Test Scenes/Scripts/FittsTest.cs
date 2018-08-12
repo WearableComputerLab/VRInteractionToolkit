@@ -10,6 +10,10 @@ public class FittsTest : MonoBehaviour {
     public Material outlineMaterial;
     private Material oldMaterial;
     private GameObject chosenObject;
+    public float objectDistance;
+    private float objectDistanceTemp;
+    public float objectSize;
+    private float objectSizeTemp;
 
     //Statistics
     private int selectedCount = -1;
@@ -19,8 +23,29 @@ public class FittsTest : MonoBehaviour {
     private void Awake() {
         //generateObjects();
         interactableObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
+        objectDistanceTemp = objectDistance;
+        objectSizeTemp = objectSize;
+        initializeObjects();
     }
 
+    private void initializeObjects() {
+        foreach (GameObject obj in interactableObjects) {
+            obj.transform.position = new Vector3(objectDistance, obj.transform.position.y, obj.transform.position.z);
+            obj.transform.localScale = new Vector3(objectSize, objectSize, objectSize);
+        }
+    }
+
+    private void initializeObjectPos() {
+        foreach (GameObject obj in interactableObjects) {
+            obj.transform.position = new Vector3(objectDistance, obj.transform.position.y, obj.transform.position.z);
+        }
+    }
+
+    private void initializeObjectSize() {
+        foreach (GameObject obj in interactableObjects) {
+            obj.transform.localScale = new Vector3(objectSize, objectSize, objectSize);
+        }
+    }
 
     private void OnApplicationQuit() {
         print("Application ended after " + Time.time + " seconds");
@@ -61,6 +86,16 @@ public class FittsTest : MonoBehaviour {
     }
 
 	void Update () {
+        if (objectDistanceTemp != objectDistance) {
+            //print("distance value changed");
+            initializeObjectPos();
+        }
+        if (objectSizeTemp != objectSize) {
+            //print("size value changed");
+            initializeObjectSize();
+        }
+        objectDistanceTemp = objectDistance;
+        objectSizeTemp = objectSize;
         timer += Time.deltaTime * 1000;
         if (script.GetComponent<FishingReel>().tempObjectStored != null && script.GetComponent<FishingReel>().tempObjectStored.Equals(chosenObject)) {
                 objectSelected();

@@ -31,7 +31,8 @@ public class ImagePlane_StickyHand : MonoBehaviour {
         laserTransform.position = Vector3.Lerp(pointOfInteraction.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
-        InstantiateObject(hit.transform.gameObject);
+        print(hit.transform.name);
+        PickupObject(hit.transform.gameObject);
     }
 
     private void interactionPosition() {
@@ -48,33 +49,30 @@ public class ImagePlane_StickyHand : MonoBehaviour {
         cameraRig.transform.localPosition = new Vector3(0f, 0f, 0f);
     }
 
-    private void InstantiateObject(GameObject obj) {
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
-            if (objSelected == false && obj.transform.name != "Mirrored Cube") {
-                selectedObject = obj;
-                oldParent = selectedObject.transform.parent;
-                obj.transform.SetParent(trackedObj.transform);
-                float dist = Vector3.Distance(trackedObj.transform.position, obj.transform.position);
-                obj.transform.position = Vector3.Lerp(trackedObj.transform.position, obj.transform.position, 0.2f);
-                obj.transform.localScale = (obj.transform.localScale / dist);
-                obj.transform.localScale /= 2;
-                obj.transform.GetComponent<Renderer>().material = outlineMaterial;
-            } else if (objSelected == true) {
-                //resetProperties();
+    private Material oldMaterial;
+
+    public void PickupObject(GameObject obj) {
+        if (trackedObj != null) {
+            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && objSelected == false) {
+                if (interacionType == InteractionType.Manipulation_Movement) {
+                    selectedObject = obj;
+                    oldParent = selectedObject.transform.parent;
+                    obj.transform.SetParent(trackedObj.transform);
+                    float dist = Vector3.Distance(trackedObj.transform.position, obj.transform.position);
+                    obj.transform.position = Vector3.Lerp(trackedObj.transform.position, obj.transform.position, 0.2f);
+                    obj.transform.localScale = (obj.transform.localScale / dist);
+                    obj.transform.localScale /= 2;
+                    obj.transform.GetComponent<Renderer>().material = outlineMaterial;
+                } else if (interacionType == InteractionType.Selection) {
+                    if (selectedObject != null && oldMaterial != null) {
+                        selectedObject.transform.GetComponent<Renderer>().material = oldMaterial;
+                    }
+                    selectedObject = obj;
+                    oldMaterial = obj.transform.GetComponent<Renderer>().material;
+                    obj.transform.GetComponent<Renderer>().material = outlineMaterial;
+
+                }
             }
-        }
-    }
-
-
-    private void WorldGrab() {
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) { // temp
-            //Resetting everything back to normal
-            objSelected = false;
-            selectedObject.transform.SetParent(oldParent);
-            trackedObj.transform.localScale = new Vector3(1f, 1f, 1f);
-            cameraHead.transform.localScale = new Vector3(1f, 1f, 1f);
-            cameraRig.transform.localScale = new Vector3(1f, 1f, 1f);
-            cameraRig.transform.localPosition = new Vector3(0f, 0f, 0f);
         }
     }
 
@@ -149,9 +147,6 @@ public class ImagePlane_StickyHand : MonoBehaviour {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         //if (objSelected == false) {
         castRay();
-        if (objSelected == true) {
-            WorldGrab(); //Using the ScaledWorldGrab to scale down the world
-        }
     }
 
 }

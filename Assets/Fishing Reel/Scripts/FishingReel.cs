@@ -70,7 +70,7 @@ public class FishingReel : MonoBehaviour {
     }
 
     private float extendDistance = 0f;
-    private float cursorSpeed = 20f; // Decrease to make faster, Increase to make slower
+    private float cursorSpeed = 100f; // Decrease to make faster, Increase to make slower
 
     private void PadScrolling(GameObject obj) {
         if (obj.transform.name == "Mirrored Cube") {
