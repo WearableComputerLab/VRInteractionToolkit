@@ -31,7 +31,7 @@ public class ImagePlane_StickyHand : MonoBehaviour {
         laserTransform.position = Vector3.Lerp(pointOfInteraction.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
-        print(hit.transform.name);
+        //print(hit.transform.name);
         PickupObject(hit.transform.gameObject);
     }
 
@@ -53,24 +53,29 @@ public class ImagePlane_StickyHand : MonoBehaviour {
 
     public void PickupObject(GameObject obj) {
         if (trackedObj != null) {
-            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && objSelected == false) {
-                if (interacionType == InteractionType.Manipulation_Movement) {
+            if(controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && objSelected == false) {
+                if(interacionType == InteractionType.Manipulation_Movement) {
                     selectedObject = obj;
-                    oldParent = selectedObject.transform.parent;
-                    obj.transform.SetParent(trackedObj.transform);
+                    oldParent = obj.transform.parent;
                     float dist = Vector3.Distance(trackedObj.transform.position, obj.transform.position);
-                    obj.transform.position = Vector3.Lerp(trackedObj.transform.position, obj.transform.position, 0.2f);
-                    obj.transform.localScale = (obj.transform.localScale / dist);
-                    obj.transform.localScale /= 2;
-                    obj.transform.GetComponent<Renderer>().material = outlineMaterial;
-                } else if (interacionType == InteractionType.Selection) {
-                    if (selectedObject != null && oldMaterial != null) {
+                    obj.transform.position = Vector3.Lerp(trackedObj.transform.position, obj.transform.position, (obj.transform.localScale.x / dist) / dist);
+                    obj.transform.localScale = new Vector3(obj.transform.localScale.x / dist, obj.transform.localScale.y / dist, obj.transform.localScale.z / dist);
+                    obj.transform.SetParent(trackedObj.transform);
+                    objSelected = true;
+                } else if(interacionType == InteractionType.Selection) {
+                    if(selectedObject != null && oldMaterial != null) {
                         selectedObject.transform.GetComponent<Renderer>().material = oldMaterial;
                     }
                     selectedObject = obj;
                     oldMaterial = obj.transform.GetComponent<Renderer>().material;
                     obj.transform.GetComponent<Renderer>().material = outlineMaterial;
 
+                }
+            } else if(controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && objSelected == true) {
+                if(interacionType == InteractionType.Manipulation_Movement) {
+                    //print("reset.."+oldParent+" | obj:"+ selectedObject);
+                    selectedObject.transform.SetParent(oldParent);
+                    objSelected = false;
                 }
             }
         }

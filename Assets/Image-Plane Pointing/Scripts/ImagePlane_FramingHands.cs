@@ -102,7 +102,7 @@ public class ImagePlane_FramingHands : MonoBehaviour {
                 selectedObject.transform.localScale = new Vector3(selectedObject.transform.localScale.x / dist, selectedObject.transform.localScale.y / dist, selectedObject.transform.localScale.z / dist);
                 print("Scaled to:"+selectedObject.transform.localScale.x);
                 //float dist = Vector3.Distance(pointOfInteraction.transform.position, selectedObject.transform.position);
-                print(dist);
+                //print(dist);
 
                 objSelected = true;
                 laser.SetActive(false);
