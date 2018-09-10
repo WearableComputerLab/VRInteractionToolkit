@@ -23,6 +23,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
+using UnityEngine.Events;
+using System;
 
 public class BendCast : MonoBehaviour
 {
@@ -35,8 +37,11 @@ public class BendCast : MonoBehaviour
     public InteractionType interactionType;
     public GameObject selection; // holds the selected object
 
+    // Invoked when an object is selected
+    public UnityEvent selectedObject;
+
     public Material MaterialToHighlightObjects;
-    private Material unhighlightedObject;
+    public Material unhighlightedObject;
 
     
     private GameObject currentlyPointingAt;
@@ -86,9 +91,13 @@ public class BendCast : MonoBehaviour
         castLaserCurve();
 
         if(Controller.GetHairTriggerDown() && currentlyPointingAt != null) {
+            
             if(interactionType == InteractionType.Selection) {
                 // Pure Selection
+                selection = currentlyPointingAt;
+                selectedObject.Invoke();
                 print("selected" + currentlyPointingAt);
+                
             } else if(interactionType == InteractionType.Manipulation) {
                 // Currently no manipulation
             }

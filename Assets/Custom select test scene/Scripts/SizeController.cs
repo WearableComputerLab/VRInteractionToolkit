@@ -7,13 +7,13 @@ public class SizeController : MonoBehaviour {
 
 	public GameObject testObject;
 
-	[Range(0, 2)]
+	[Range(0, 1)]
 	public float scale = 0.4f;
 
-	[Range(0, 10)]
+	[Range(0, 5)]
 	public float circleRadius = 1f;
 
-	[Range(4, 20)]
+	[Range(4, 50)]
 	public int numberOfItems = 4;
 
 	public int currentNumberOfItems = 4;
@@ -52,7 +52,6 @@ public class SizeController : MonoBehaviour {
 		float angle = 360f/numberOfItems;
 		float currentAngle = 0;
 		foreach(Transform each in this.transform) {
-			print(currentAngle);
 			float x = this.transform.localPosition.x + (Mathf.Cos(Mathf.Deg2Rad * currentAngle) * circleRadius);
 			float y = this.transform.localPosition.y + (Mathf.Sin(Mathf.Deg2Rad * currentAngle) * circleRadius);
 			currentAngle += angle;
