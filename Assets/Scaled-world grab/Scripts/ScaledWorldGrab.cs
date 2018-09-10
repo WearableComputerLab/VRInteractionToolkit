@@ -11,6 +11,9 @@ public class ScaledWorldGrab : MonoBehaviour {
      *      - The initial selection technique used in this implementation is ray-casting
      * */
 
+    public GameObject controllerRight;
+    public GameObject controllerLeft;
+
     internal SteamVR_TrackedObject trackedObj;
     internal SteamVR_Controller.Device controller;
 
@@ -38,8 +41,8 @@ public class ScaledWorldGrab : MonoBehaviour {
 
 
     internal bool objSelected = false;
-    private GameObject cameraHead;
-    private GameObject cameraRig;
+    public GameObject cameraHead;
+    public  GameObject cameraRig;
     //private GameObject virtualHand;
     private GameObject selectedObject;
     private Transform oldParent;
@@ -179,9 +182,7 @@ public class ScaledWorldGrab : MonoBehaviour {
         mirroredCube.SetActive(true);
     }
 
-    void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
+    void Awake() {      
         cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
         cameraRig = GameObject.Find(CONSTANTS.cameraRig);
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;

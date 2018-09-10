@@ -28,11 +28,14 @@ public class BubbleCursor : MonoBehaviour {
     private SteamVR_Controller.Device controller;
 
     public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
-    public InteractionType interacionType;
+    public InteractionType interactionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller, Head };
     public ControllerPicked controllerPicked;
 
+    public GameObject controllerRight;
+    public GameObject controllerLeft;
+    public GameObject cameraHead;
 
     private readonly float bubbleOffset = 0.6f;
 
@@ -48,9 +51,6 @@ public class BubbleCursor : MonoBehaviour {
     }
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
-        GameObject cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
         cursor = this.transform.Find("BubbleCursor").gameObject;
         radiusBubble = cursor.transform.Find("RadiusBubble").gameObject;
         objectBubble = this.transform.Find("ObjectBubble").gameObject;

@@ -8,7 +8,10 @@ public class SphereCastingExp : MonoBehaviour {
     * University of South Australia
     * 
     * */
-
+    
+    public GameObject controllerLeft;
+    public GameObject controllerRight;
+    
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
     public static bool inMenu = false;
@@ -65,8 +68,6 @@ public class SphereCastingExp : MonoBehaviour {
     }
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         sphereObject = this.transform.Find("SphereTooltip").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {

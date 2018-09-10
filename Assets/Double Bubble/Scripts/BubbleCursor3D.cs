@@ -31,12 +31,12 @@ public class BubbleCursor3D : MonoBehaviour {
 
     public readonly float bubbleOffset = 0.6f;
 
+    public GameObject controllerRight;
+    public GameObject controllerLeft;
+    public GameObject cameraHead;
 
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
-        GameObject cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
         cursor = this.transform.Find("BubbleCursor").gameObject;
         radiusBubble = cursor.transform.Find("RadiusBubble").gameObject;
         objectBubble = this.transform.Find("ObjectBubble").gameObject;

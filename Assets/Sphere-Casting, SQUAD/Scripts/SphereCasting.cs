@@ -9,6 +9,9 @@ public class SphereCasting : MonoBehaviour {
     * 
     * */
 
+    public GameObject controllerRight;
+    public GameObject controllerLeft;
+    
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
     private PickupObjects pickupObjs;
@@ -66,9 +69,7 @@ public class SphereCasting : MonoBehaviour {
         }
     }
 
-    void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
+    void Awake() {    
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         sphereObject = this.transform.Find("SphereTooltip").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {

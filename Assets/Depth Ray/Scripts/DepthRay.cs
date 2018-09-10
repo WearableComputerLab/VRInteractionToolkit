@@ -11,6 +11,10 @@ public class DepthRay : MonoBehaviour {
      * -Refactor Code
      * */
 
+    
+    public GameObject controllerRight;
+    public GameObject controllerLeft;
+
     //private GameObject[] interactableObject;
     public List<GameObject> interactableObject;
     private SteamVR_TrackedObject trackedObj;
@@ -172,10 +176,7 @@ public class DepthRay : MonoBehaviour {
         return false;
     }
 
-
     void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         cubeAssister = this.transform.Find("Cube Assister").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {

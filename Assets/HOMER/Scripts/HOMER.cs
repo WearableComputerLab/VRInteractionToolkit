@@ -11,6 +11,8 @@ public class HOMER : MonoBehaviour {
      * 
      * */
 
+    public GameObject controllerRight;
+    public GameObject controllerLeft;
     SteamVR_TrackedObject trackedObj;
     SteamVR_Controller.Device controller;
 
@@ -107,8 +109,6 @@ public class HOMER : MonoBehaviour {
     }
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find("Controller (right)");
-        GameObject controllerLeft = GameObject.Find("Controller (left)");
         cameraHead = GameObject.Find("Camera (eye)");
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
