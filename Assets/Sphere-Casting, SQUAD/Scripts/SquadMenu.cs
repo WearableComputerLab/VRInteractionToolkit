@@ -82,7 +82,7 @@ public class SquadMenu : MonoBehaviour {
 
     public void selectObject(SteamVR_Controller.Device controller, GameObject obj) {
         //print("picked object:" + pickedObject);
-        if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && quadrantIsPicked() == true && pickedObject == null && obj.transform.parent == panel.transform && obj.name != "TriangleQuadObject") {
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && quadrantIsPicked() == true && pickedObject == null && obj.transform.parent == panel.transform && obj.name != "TriangleQuadObject") {
             //disableSQUAD();
             //pickedObject = obj;
             string objName = obj.name.Substring(0, obj.name.Length-7);
@@ -98,7 +98,7 @@ public class SquadMenu : MonoBehaviour {
 
     public void enableSQUAD(SteamVR_Controller.Device controller, SteamVR_TrackedObject trackedObj, List<GameObject> obj) {
         if (trackedObj != null) {
-            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
                 print("EnableSquad() called");
                 SphereCasting.inMenu = true;
                 panel.SetActive(true);
@@ -113,7 +113,7 @@ public class SquadMenu : MonoBehaviour {
 
 
     public void selectQuad(SteamVR_Controller.Device controller, GameObject obj) {
-        if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger)) {
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
             if (obj.name == "TriangleQuadObject" && isActive() == true && quadrantPicked == false) {
                 Renderer rend = obj.transform.GetComponent<Renderer>();
                 //rend.material.color = Color.blue;

@@ -12,7 +12,7 @@ public class selectableObjects : MonoBehaviour {
     }
 
     private void OnTriggerStay(Collider collider) {
-        if (collider.gameObject.tag == "InteractableObjects" && !bubbleSelection.selectableObjects.Contains(collider.gameObject)) {
+        if (collider.gameObject.layer == Mathf.Log(bubbleSelection.interactableLayer.value, 2) && !bubbleSelection.selectableObjects.Contains(collider.gameObject)) {
             bubbleSelection.selectableObjects.Add(collider.gameObject);
         }
     }

@@ -44,7 +44,7 @@ public class FishingReel : MonoBehaviour {
     public void PickupObject(GameObject obj) {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
-            if (controller.GetTouchDown(trigger) && pickedUpObject == false) {
+            if (controller.GetPressDown(trigger) && pickedUpObject == false) {
                 if (interacionType == InteractionType.Manipulation_Movement && this.GetComponent<SelectionManipulation>().manipulationMovementEnabled == true) {
                     obj.transform.SetParent(trackedObj.transform);
                     extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
@@ -59,7 +59,7 @@ public class FishingReel : MonoBehaviour {
                     objectSelected = true;
                 }
             }
-            if (controller.GetTouchUp(trigger) && pickedUpObject == true) {
+            if (controller.GetPressUp(trigger) && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement) {
                     tempObjectStored.transform.SetParent(null);
                     pickedUpObject = false;

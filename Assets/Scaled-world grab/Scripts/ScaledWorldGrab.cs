@@ -94,26 +94,13 @@ public class ScaledWorldGrab : MonoBehaviour {
 
     internal bool objectGrabbed = false;
 
-    /*void SelectedObject(GameObject obj) {
-        if (objSelected == true) {
-            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger)) {
-                obj.transform.SetParent(trackedObj.gameObject.transform);
-                objectGrabbed = true;
-            }
-            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && objectGrabbed == true) {
-                obj.transform.SetParent(null);
-                objectGrabbed = false;
-                resetProperties();
-            }
-        }
-    }*/
     private void OnTriggerStay(Collider col) {
         if (objSelected == true) {
-            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger)) {
+            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
                 col.gameObject.transform.SetParent(trackedObj.gameObject.transform);
                 objectGrabbed = true;
             }
-            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && objectGrabbed == true) {
+            if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && objectGrabbed == true) {
                 col.gameObject.transform.SetParent(null);
                 objectGrabbed = false;
                 resetProperties();

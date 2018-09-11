@@ -17,6 +17,7 @@ public class DepthRay : MonoBehaviour {
     private SteamVR_Controller.Device controller;
     private GameObject mirroredCube;
     private RaycastHit[] raycastObjects;
+    public LayerMask interactableLayer;
 
     public GameObject laserPrefab;
     private GameObject laser;
@@ -37,6 +38,17 @@ public class DepthRay : MonoBehaviour {
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
+
+    private GameObject[] getInteractableObjects() {
+        GameObject[] AllSceneObjects = FindObjectsOfType<GameObject>();
+        List<GameObject> interactableObjects = new List<GameObject>();
+        foreach(GameObject obj in AllSceneObjects) {
+            if(obj.layer == Mathf.Log(interactableLayer.value, 2)) {
+                interactableObjects.Add(obj);
+            }
+        }
+        return interactableObjects.ToArray();
+    }
 
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
@@ -80,7 +92,7 @@ public class DepthRay : MonoBehaviour {
     internal GameObject tempObjectStored;
     void PickupObject(GameObject obj) {
         if (trackedObj != null) {
-            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
                 if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
                     obj.transform.SetParent(trackedObj.transform);
                     tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
@@ -91,7 +103,7 @@ public class DepthRay : MonoBehaviour {
                     print("Selected object in pure selection mode:" + tempObjectStored.name);
                 }
             }
-            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
+            if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
                     tempObjectStored.transform.SetParent(null);
                     pickedUpObject = false;
@@ -151,8 +163,10 @@ public class DepthRay : MonoBehaviour {
     }
 
     private void ResetAllMaterials() {
+        //print("Materials reset..");
         if (oldHits != null) {
             foreach (RaycastHit hit in oldHits) {
+                print(hit.transform.name);
                 hit.transform.gameObject.GetComponent<Renderer>().material = defaultMat;
             }
         }
@@ -189,20 +203,13 @@ public class DepthRay : MonoBehaviour {
     }
 
     void Start() {
-        GameObject[] interactObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
+        GameObject[] interactObjects = getInteractableObjects();
         interactableObject = new List<GameObject>(interactObjects);
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
         cubeAssister.transform.position = trackedObj.transform.position;
-        /*GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
-        int count = 0;
-        for (int i=0; i<allObjects.Length; i++) {
-            if (allObjects[i].layer != LayerMask.NameToLayer("Ignore Raycast")) {
-                raycastObjects[count] = allObjects[i];
-            }
-            count++;
-        }*/
     }
+
     float distance = 0f;
     Vector3 forward;
     private GameObject currentClosestObject;
@@ -219,12 +226,20 @@ public class DepthRay : MonoBehaviour {
         if (hits.Length >= 1) {
             raycastObjects = hits;
             int closestVal = ClosestObject();
+            //print(raycastObjects[closestVal].transform.name);
             if (raycastObjects[closestVal].transform.name != "Mirrored Cube") {
                 if (selectionType == SelectionAssister.Hide_All_But_Closest) {
-                    if (currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
-                        currentClosestObject = raycastObjects[closestVal].transform.gameObject;
-                        PickupObject(raycastObjects[closestVal].transform.gameObject);
+                    //if(currentClosestObject != null) {
+                        print("closest val:" + raycastObjects[closestVal].transform.name);
+                        if(currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
+                            print("made in here..");
+                            currentClosestObject = raycastObjects[closestVal].transform.gameObject;
+                        //}
+                        }
+                        if (currentClosestObject != null) {
+                        PickupObject(currentClosestObject);
                     }
+                    //PickupObject(raycastObjects[closestVal].transform.gameObject);
                 } else if (selectionType == SelectionAssister.Hide_Closest_Only) {
                     if (currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
                         //print("new closest object");
@@ -246,24 +261,29 @@ public class DepthRay : MonoBehaviour {
         //print("hit length:" + hits.Length);
         for (int i = 0; i < hits.Length; i++) {
             RaycastHit hit = hits[i];
+            //print(hits.Length + " | " + oldHits == null);
+            //print("hit:" + hits[i].transform.name);
             if (selectionType == SelectionAssister.Hide_All_But_Closest) {
                 if (oldHits != null) {
-                    if (hit.transform.gameObject != mirroredCube && hits.Length != 1) {
+                    if (hit.transform.gameObject != mirroredCube && hits.Length != 1 && hits.Length <= oldHits.Length) {
                         if (Contains(oldHits[i].transform.gameObject, hits) == true) {
-                            if (hit.transform.gameObject != currentClosestObject) {
+                            if (hit.transform.gameObject != currentClosestObject && currentClosestObject != null) {
+                                print(hit.transform.gameObject.name +" | " + currentClosestObject.name);
                                 hit.transform.gameObject.transform.GetComponent<Renderer>().material = outlineMaterial;
-                                print(hits[0].transform.gameObject.name);
+                                //print(hits[0].transform.gameObject.name);
                             }
                         }
-                    } else if (hits.Length == 1) {
-                        ResetAllMaterials();
                     }
                 }
-            } else if (selectionType == SelectionAssister.Hide_Closest_Only) {
+            }/* else if (selectionType == SelectionAssister.Hide_Closest_Only) {
 
+            }*/
+
+            //print("hit:" + hit.transform.name + " index:"+i);
+            if(hits.Length == 1) {
+                ResetAllMaterials();
             }
 
-                //print("hit:" + hit.transform.name + " index:"+i);
             distance = hit.distance;
             hitPoint = hit.point;
             //hit.transform.gameObject.GetComponent<Renderer>().material.color = new Color(1, 1, 1, 0.5f);
@@ -271,6 +291,9 @@ public class DepthRay : MonoBehaviour {
         }
         if (hits.Length > 1) {
             oldHits = hits;
+        } else if (hits.Length <= 1) {
+            ResetAllMaterials();
+            //print("resetting all materials..");
         }
     }
 }
