@@ -25,7 +25,7 @@ public class FittsTest : MonoBehaviour {
         interactableObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
         objectDistanceTemp = objectDistance;
         objectSizeTemp = objectSize;
-        initializeObjects();
+        //initializeObjects();
     }
 
     private void initializeObjects() {
@@ -88,7 +88,7 @@ public class FittsTest : MonoBehaviour {
 	void Update () {
         if (objectDistanceTemp != objectDistance) {
             //print("distance value changed");
-            initializeObjectPos();
+            //initializeObjectPos();
         }
         if (objectSizeTemp != objectSize) {
             //print("size value changed");
