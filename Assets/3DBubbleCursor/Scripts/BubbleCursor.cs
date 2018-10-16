@@ -43,7 +43,7 @@ public class BubbleCursor : MonoBehaviour {
         GameObject[] AllSceneObjects = FindObjectsOfType<GameObject>();
         List<GameObject> interactableObjects = new List<GameObject>();
         foreach (GameObject obj in AllSceneObjects) {
-            if (obj.layer == interactableLayer) {
+            if (obj.layer == Mathf.Log(interactableLayer.value, 2)) {
                 interactableObjects.Add(obj);
             }
         }
@@ -146,13 +146,13 @@ public class BubbleCursor : MonoBehaviour {
     private GameObject tempObjectStored;
     void PickupObject(GameObject obj) {
         if (trackedObj != null) {
-            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
                 //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
                 obj.transform.SetParent(cursor.transform);
                 tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
                 pickedUpObject = true;
             }
-            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
+            if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
                 //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
                 tempObjectStored.transform.SetParent(null);
                 pickedUpObject = false;

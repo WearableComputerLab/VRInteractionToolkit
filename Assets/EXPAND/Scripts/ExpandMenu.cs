@@ -67,7 +67,7 @@ public class ExpandMenu : MonoBehaviour {
     public Material selectedMaterial;
 
     public void selectObject(SteamVR_Controller.Device controller, GameObject obj) {
-        if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedObject == null && obj.transform.parent == panel.transform && obj.name != "TriangleQuadObject") {
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedObject == null && obj.transform.parent == panel.transform && obj.name != "TriangleQuadObject") {
             string objName = obj.name.Substring(0, obj.name.Length - 7);
             //print("obj picked:" + objName);
             pickedObject = GameObject.Find(objName);
@@ -81,7 +81,7 @@ public class ExpandMenu : MonoBehaviour {
 
     public void enableEXPAND(SteamVR_Controller.Device controller, SteamVR_TrackedObject trackedObj, List<GameObject> obj) {
         if (trackedObj != null) {
-            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
                 SphereCastingExp.inMenu = true;
                 panel.SetActive(true);
                 generate2DObjects(obj);

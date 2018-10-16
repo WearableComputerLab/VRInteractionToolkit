@@ -15,6 +15,7 @@ public class BubbleSelection : MonoBehaviour {
     private GameObject objectBubble2D;
     private GameObject cameraHead;
     internal bool inBubbleSelection = false;
+    public LayerMask interactableLayer;
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     private GameObject tempObjectStored;
@@ -117,7 +118,7 @@ public class BubbleSelection : MonoBehaviour {
     private GameObject selectedObject;
 
     public void disableMenuOnTrigger() {
-        if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && inBubbleSelection == true) {
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && inBubbleSelection == true) {
             print("Selected object:"+ selectedObject.name);
             clearList();
             destroyChildGameObjects();
@@ -135,7 +136,7 @@ public class BubbleSelection : MonoBehaviour {
 
     public void enableMenu(SteamVR_Controller.Device myController, SteamVR_TrackedObject myTrackedObj, List<GameObject> obj) {
         if (myTrackedObj != null) {
-            if (myController.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && inBubbleSelection == false) {
+            if (myController.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && inBubbleSelection == false) {
                 print("size:" + obj.Count);
                 trackedObj = myTrackedObj;
                 panel.SetActive(true);
@@ -181,6 +182,7 @@ public class BubbleSelection : MonoBehaviour {
 
     private void Start() {
         bubbleCursor = GameObject.Find("3DBubbleCursor_Technique").GetComponent<BubbleCursor3D>();
+        interactableLayer = bubbleCursor.interactableLayer;
         disableMenuOnLoad();
     }
 

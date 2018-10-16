@@ -73,7 +73,7 @@ public class SerialSelectionMode : MonoBehaviour {
     void selectObject(GameObject obj) {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null && pickUpObjectsActive == false) {
-            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger)) {
+            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
                 if (obj != null && obj.name != "Mirrored Cube" && !selectedObjectsList.Contains(obj)) {
                     selectedObjectsList.Add(obj);
                     rendererMaterialTrackerList.Add(obj.transform.GetComponent<Renderer>().material);
@@ -99,7 +99,7 @@ public class SerialSelectionMode : MonoBehaviour {
             print("pick up objects set to:" + pickUpObjectsActive);
         }
         if (pickUpObjectsActive == true) {
-            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && objectsSelected == false && interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && objectsSelected == false && interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
                 for (int i = 0; i < selectedObjectsList.Count; i++) {
                     if (selectedObjectsList[i].layer != LayerMask.NameToLayer("Ignore Raycast")) {
                         selectedObjectsList[i].transform.SetParent(trackedObj.transform);
@@ -107,7 +107,7 @@ public class SerialSelectionMode : MonoBehaviour {
                     }
                 }
             }
-            if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && objectsSelected == true) {
+            if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && objectsSelected == true) {
                 for (int i = 0; i < selectedObjectsList.Count; i++) {
                     if (selectedObjectsList[i].layer != LayerMask.NameToLayer("Ignore Raycast")) {
                         selectedObjectsList[i].transform.SetParent(null);
