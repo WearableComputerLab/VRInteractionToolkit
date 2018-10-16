@@ -9,8 +9,11 @@ public class ImagePlane_FramingHands : MonoBehaviour {
      * - Making the laser scale/increase based on the dist apart of both controllers should fix alot of general issues
      * */
     internal bool objSelected = false;
-    private GameObject cameraHead;
-    private GameObject cameraRig;
+
+    public GameObject controllerRight;
+    public GameObject controllerLeft;
+    public GameObject cameraHead; // Camera etye
+    public GameObject cameraRig;
 
     private SteamVR_TrackedObject trackedObjL;
     private SteamVR_TrackedObject trackedObjR;
@@ -24,6 +27,10 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     public GameObject pointOfInteraction;
     private GameObject selectedObject;
     private Transform oldParent;
+
+
+    
+
 
     private void ShowLaser(RaycastHit hit) {
         float controllerDist = Vector3.Distance(trackedObjL.transform.position, trackedObjR.transform.position);
@@ -163,10 +170,7 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     }
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find("Controller (right)");
-        GameObject controllerLeft = GameObject.Find("Controller (left)");
-        cameraHead = GameObject.Find("Camera (eye)");
-        cameraRig = GameObject.Find("[CameraRig]");
+
         trackedObjL = controllerRight.GetComponent<SteamVR_TrackedObject>();
         trackedObjR = controllerLeft.GetComponent<SteamVR_TrackedObject>();
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;

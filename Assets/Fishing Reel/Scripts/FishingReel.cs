@@ -7,6 +7,9 @@ public class FishingReel : MonoBehaviour {
      * 
      * */
 
+    public GameObject controllerRight = null;
+    public GameObject controllerLeft = null;
+
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
 
@@ -112,8 +115,6 @@ public class FishingReel : MonoBehaviour {
     private GameObject manipulationIcons;
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
             print(controllerRight);

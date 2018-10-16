@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class ImagePlane_StickyHand : MonoBehaviour {
     internal bool objSelected = false;
-    private GameObject cameraHead;
-    private GameObject cameraRig;
+    public GameObject cameraHead;
+    public GameObject cameraRig;
+
+    public GameObject controllerRight = GameObject.Find("Controller (right)");
+    public GameObject controllerLeft = GameObject.Find("Controller (left)");
 
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
@@ -116,8 +119,7 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     }
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find("Controller (right)");
-        GameObject controllerLeft = GameObject.Find("Controller (left)");
+        
         cameraHead = GameObject.Find("Camera (eye)");
         cameraRig = GameObject.Find("[CameraRig]");
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
