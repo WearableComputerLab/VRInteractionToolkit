@@ -116,6 +116,7 @@ public class FishingReel : MonoBehaviour {
         GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
+            print(controllerRight);
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
         } else if (controllerPicked == ControllerPicked.Left_Controller) {
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
