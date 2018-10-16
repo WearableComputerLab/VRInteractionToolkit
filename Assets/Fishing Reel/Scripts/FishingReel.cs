@@ -45,7 +45,7 @@ public class FishingReel : MonoBehaviour {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
             if (controller.GetPressDown(trigger) && pickedUpObject == false) {
-                if (interacionType == InteractionType.Manipulation_Movement && this.GetComponent<SelectionManipulation>().manipulationMovementEnabled == true) {
+                if (interacionType == InteractionType.Manipulation_Movement) {
                     obj.transform.SetParent(trackedObj.transform);
                     extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
                     tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
@@ -116,6 +116,7 @@ public class FishingReel : MonoBehaviour {
         GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
+            print(controllerRight);
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
         } else if (controllerPicked == ControllerPicked.Left_Controller) {
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();

@@ -336,7 +336,7 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 443469957}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!21 &765338171
+--- !u!21 &673233278
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
@@ -563,7 +563,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21cdb380c3fbabb4e935026aa15296a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laserPrefab: {fileID: 1552384495066432, guid: 29b17e4a694b3c048b64f2a565ceabc5,
+  laserPrefab: {fileID: 1552384495066432, guid: cf0250ce7c1fcbd4fae4a3bef99bba22,
     type: 2}
   pointOfInteraction: {fileID: 1882412192}
   outlineMaterial: {fileID: 2100000, guid: 3d938759d8b7a414988ec3261fb5265d, type: 2}
@@ -1406,7 +1406,7 @@ MeshFilter:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1701461982}
-  m_Mesh: {fileID: 1793101229}
+  m_Mesh: {fileID: 1795080402}
 --- !u!23 &1701461985
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1423,7 +1423,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 0
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 765338171}
+  - {fileID: 673233278}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1658,7 +1658,7 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!43 &1793101229
+--- !u!43 &1795080402
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
