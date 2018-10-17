@@ -231,7 +231,7 @@ public class DepthRay : MonoBehaviour {
                         //print("new closest object");
                         if (currentClosestObject != null) {
                             if (currentClosestObjectMaterial != null) {
-                                currentClosestObject.transform.GetComponent<Renderer>().material = currentClosestObjectMaterial;
+                                currentClosestObject.transform.GetComponent<Renderer>().material = defaultMat;
                             }
                             currentClosestObjectMaterial = currentClosestObject.transform.GetComponent<Renderer>().material;
                         }
@@ -240,6 +240,10 @@ public class DepthRay : MonoBehaviour {
                         currentClosestObject.transform.GetComponent<Renderer>().material = outlineMaterial;
                     }
                     PickupObject(raycastObjects[closestVal].transform.gameObject);
+                }
+            } else {
+                if (currentClosestObject != null) {
+                    currentClosestObject.transform.GetComponent<Renderer>().material = defaultMat;
                 }
             }
         }
