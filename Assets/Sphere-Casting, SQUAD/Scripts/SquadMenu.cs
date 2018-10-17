@@ -21,17 +21,24 @@ public class SquadMenu : MonoBehaviour {
     public Material triangleMaterial;
     public GameObject cameraHead;
     private bool quadrantPicked = false;
+    private Transform[] TriangleQuadrant = new Transform[4];
 
     public List<GameObject> selectableObjects = new List<GameObject>();
 
     private void destroyChildGameObjects() {
-        foreach (Transform child in panel.transform) {
-            if (child.gameObject.name != "CreateTrianglesSprite" && child.gameObject.name != "TriangleQuadObject") {
+        for(int i = 0; i < 4; i++) {
+            foreach(Transform child in TriangleQuadrant[i].transform) {
                 GameObject.Destroy(child.gameObject);
-            } else if (child.gameObject.name == "TriangleQuadObject") {
+            }
+        }
+        foreach (Transform child in panel.transform) {
+            if (child.gameObject.name != "CreateTrianglesSprite" && !child.gameObject.name.Contains("TriangleQuad")) {
+                GameObject.Destroy(child.gameObject);
+            } else if (child.gameObject.name.Contains("TriangleQuad") && !child.gameObject.name.Contains("Placeholder")) {
                 child.gameObject.transform.GetComponent<Renderer>().material = triangleMaterial;
             }
         }
+
     }
 
     public bool isActive() {
@@ -82,10 +89,13 @@ public class SquadMenu : MonoBehaviour {
 
     public void selectObject(SteamVR_Controller.Device controller, GameObject obj) {
         //print("picked object:" + pickedObject);
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && quadrantIsPicked() == true && pickedObject == null && obj.transform.parent == panel.transform && obj.name != "TriangleQuadObject") {
+        quadrantPicked = true;
+        if(controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && quadrantIsPicked() == true) {
+        //if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && quadrantIsPicked() == true && pickedObject == null && obj.transform.parent == panel.transform && !obj.name.Contains("TriangleQuad")) {
             //disableSQUAD();
             //pickedObject = obj;
-            string objName = obj.name.Substring(0, obj.name.Length-7);
+            //string objName = obj.name.Substring(0, obj.name.Length-7);
+            string objName = obj.name;
             //print("obj picked:" + objName);
             pickedObject = GameObject.Find(objName);
             lastPickedObject = pickedObject;
@@ -96,12 +106,61 @@ public class SquadMenu : MonoBehaviour {
         }
     }
 
+    private void clearObjects() {
+
+    }
+
+    public void refineQuad(SteamVR_Controller.Device controller, GameObject obj) {
+        int val = 0;
+        int count = 0;
+        if (obj.name == "TriangleQuad North") {
+            val = 0;
+        } else if(obj.name == "TriangleQuad South") {
+            val = 1;
+        } else if(obj.name == "TriangleQuad East") {
+            val = 2;
+        } else if(obj.name == "TriangleQuad West") {
+            val = 3;
+        }
+        List<GameObject> quadObjs = new List<GameObject>();
+        foreach (Transform child in TriangleQuadrant[val]) {
+            print(child.name+" in: " + TriangleQuadrant[val]);
+            quadObjs.Add(child.gameObject);
+            count++;
+        }
+        destroyChildGameObjects();
+        print("----- REFINING QUAD -----");
+        print(count);
+        if(count == 1) {
+            selectObject(controller, quadObjs[0]);
+        } else {
+            generate2DObjects(quadObjs);
+        }
+    }
+
+    private void setQuadrants() { //NSEW
+        foreach (Transform child in panel.transform) {
+            print("quad:"+child.transform.name);
+            if (child.name == "TriangleQuad North Placeholder") {
+                TriangleQuadrant[0] = child;
+            } else if(child.name == "TriangleQuad South Placeholder") {
+                TriangleQuadrant[1] = child;
+            } else if(child.name == "TriangleQuad East Placeholder") {
+                TriangleQuadrant[2] = child;
+            } else if (child.name == "TriangleQuad West Placeholder") {
+                TriangleQuadrant[3] = child;
+            }
+        }
+    }
+
+
     public void enableSQUAD(SteamVR_Controller.Device controller, SteamVR_TrackedObject trackedObj, List<GameObject> obj) {
         if (trackedObj != null) {
             if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
                 print("EnableSquad() called");
                 SphereCasting.inMenu = true;
                 panel.SetActive(true);
+                setQuadrants();
                 //hideAllGameObjects();
                 generate2DObjects(obj);
                 if (lastPickedObject != null) {
@@ -111,10 +170,33 @@ public class SquadMenu : MonoBehaviour {
         }
     }
 
+    private GameObject lastQuad;
+    private Material oldMaterial;
+    public void hoverQuad(SteamVR_Controller.Device controller, GameObject obj) {
+        //print("obj contians:"+obj.name.Contains("TriangleQuad"));
+        if(obj.name.Contains("TriangleQuad") && isActive() == true) {
+            if(lastQuad == null) {
+                oldMaterial = obj.transform.GetComponent<Renderer>().material;
+                lastQuad = obj;
+                obj.transform.GetComponent<Renderer>().material = quadrantMaterial;
+            } else {
+                if (lastQuad != obj) {
+                    lastQuad.transform.GetComponent<Renderer>().material = oldMaterial;
+                    obj.transform.GetComponent<Renderer>().material = quadrantMaterial;
+                    lastQuad = obj;
+                }
+                if(controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+                    print("Quad selected:" + obj.name);
+                    refineQuad(controller, obj);
+                }
+            }
+        }
+    }
+
 
     public void selectQuad(SteamVR_Controller.Device controller, GameObject obj) {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
-            if (obj.name == "TriangleQuadObject" && isActive() == true && quadrantPicked == false) {
+            if (obj.name.Contains("TriangleQuad") && isActive() == true && quadrantPicked == false) {
                 Renderer rend = obj.transform.GetComponent<Renderer>();
                 //rend.material.color = Color.blue;
                 rend.material = quadrantMaterial;
@@ -171,16 +253,23 @@ public class SquadMenu : MonoBehaviour {
             } if ((i + 1) % 4 == 0) {
                 stage = 4;
             }
+            
             //print("object:" + pickedObject[i].name + " | count:" + (i + 1) + " | stage:"+stage);
             pickedObj2D = Instantiate(pickedObject[i], new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
+            pickedObj2D.name = pickedObject[i].name;
             pickedObj2D.transform.SetParent(panel.transform, false);
-            pickedObj2D.gameObject.AddComponent<Rigidbody>();
-            pickedObj2D.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
+            if(pickedObj2D.GetComponent<Rigidbody>() == null) {
+                pickedObj2D.gameObject.AddComponent<Rigidbody>();
+                pickedObj2D.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
+            }
             pickedObj2D.transform.localScale = new Vector3(0.0625f, 0.0625f, 0f);
             pickedObj2D.transform.localRotation = Quaternion.identity;
+            print("New object generated:" + pickedObj2D.name);
             prefabText.GetComponent<TextMesh>().text = pickedObj.gameObject.name;
             pickedObjText = Instantiate(prefabText, new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
-            pickedObjText.transform.SetParent(panel.transform, false);
+            pickedObjText.transform.SetParent(pickedObj2D.transform, false);
+            pickedObjText.GetComponent<TextMesh>().fontSize = 250;
+            //pickedObjText.transform.localScale = new Vector3(0f, -0.7f, 0f);
             pickedObjText.gameObject.AddComponent<Rigidbody>();
             pickedObjText.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
             //pickedObj2D.transform.localScale = new Vector3(0.01f, 0.01f, 0f);
@@ -195,37 +284,36 @@ public class SquadMenu : MonoBehaviour {
                 posX = left[pos, 0];
                 posY = left[pos, 1];
                 pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
-                pickedObjText.transform.localPosition = new Vector3(posX-0.01f, posY - 0.04f, -0.00001f);
+                //pickedObjText.transform.localPosition = new Vector3(posX-0.01f, posY - 0.04f, -0.00001f);
+                pickedObjText.transform.localPosition = new Vector3(0f, -0.6f, 0f);
+                pickedObj2D.transform.SetParent(TriangleQuadrant[3], true);
             } else if (stage == 2) {
                 imageSlots[1]++;
                 pos = imageSlots[1]-1;
                 posX = right[pos, 0];
                 posY = right[pos, 1];
                 pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
-                pickedObjText.transform.localPosition = new Vector3(posX - 0.01f, posY - 0.04f, -0.00001f);
+                pickedObjText.transform.localPosition = new Vector3(0f, -0.6f, 0f);
+                pickedObj2D.transform.SetParent(TriangleQuadrant[2], true);
             } else if (stage == 3) {
                 imageSlots[2]++;
                 pos = imageSlots[2] - 1;
                 posX = up[pos, 0];
                 posY = up[pos, 1];
                 pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
-                pickedObjText.transform.localPosition = new Vector3(posX - 0.01f, posY - 0.04f, -0.00001f);
+                pickedObjText.transform.localPosition = new Vector3(0f, -0.6f, 0f);
+                pickedObj2D.transform.SetParent(TriangleQuadrant[0], true);
             } else if (stage == 4) {
                 imageSlots[3]++;
                 pos = imageSlots[3] - 1;
                 posX = down[pos, 0];
                 posY = down[pos, 1];
                 pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
-                pickedObjText.transform.localPosition = new Vector3(posX - 0.01f, posY - 0.04f, -0.00001f);
+                pickedObjText.transform.localPosition = new Vector3(0f, -0.6f, 0f);
+                pickedObj2D.transform.SetParent(TriangleQuadrant[1], true);
             }
             //pickedObj2D.transform.localPosition = Vector3.zero;
         }
-    }
-
-
-    public void enableSQUAD() {
-        panel.SetActive(true);
-        SphereCasting.inMenu = true;
     }
 
     private void Start() {

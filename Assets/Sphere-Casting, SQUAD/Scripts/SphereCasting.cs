@@ -127,7 +127,7 @@ public class SphereCasting : MonoBehaviour {
                 pickupObjs.PickupObject(controller, trackedObj, pickupObjs.getSelectableObjects());
                 pickupObjs.clearList();
             } else if (squadEnabled == true && menu.isActive() == false && menu.quadrantIsPicked() == false) {
-                print("selectable objects:"+menu.getSelectableObjects().Count);
+                //print("selectable objects:"+menu.getSelectableObjects().Count);
                 if (menu.getSelectableObjects().Count > 1) {
                     menu.enableSQUAD(controller, trackedObj, menu.getSelectableObjects());
                     menu.clearList();
@@ -137,10 +137,12 @@ public class SphereCasting : MonoBehaviour {
                 }
             } else if (squadEnabled == true && menu.quadrantIsPicked() == true && menu.isActive() == true) {
                 //print("object selected:" + hit.transform.gameObject.name);
+
                 //todo check if obj is child of createtriangles panel
-                menu.selectObject(controller, hit.transform.gameObject);
+                //menu.selectObject(controller, hit.transform.gameObject);
             } else if (squadEnabled == true && menu.quadrantIsPicked() == false && menu.isActive() == true) {
-                menu.selectQuad(controller, hit.transform.gameObject);
+                //menu.selectQuad(controller, hit.transform.gameObject);
+                menu.hoverQuad(controller, hit.transform.gameObject);
             }
         }
     }

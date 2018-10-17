@@ -13,9 +13,9 @@ public class PickupObjects : MonoBehaviour {
     public List<GameObject> selectableObjects = new List<GameObject>();
     public static GameObject currentObject;
 
-    public PickupObjects() {
+    /*public PickupObjects() {
         print("declared");
-    }
+    }*/
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     private GameObject tempObjectStored;
