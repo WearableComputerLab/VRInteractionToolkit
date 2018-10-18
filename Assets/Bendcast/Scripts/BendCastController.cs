@@ -29,60 +29,19 @@ using UnityEngine;
 
 [ExecuteInEditMode]
 public class BendCastController : MonoBehaviour {
-    public enum InteractionType { Selection, Manipulation };
-    public InteractionType interactionType;
-    public GameObject laserPrefab;
-    public Material MaterialToHighlightObjects;
-
     // Method runs on drag and drop.
     void Awake()
     {
+        print("running controller");
         // Controller only ever needs to be setup once
-        BendCast test = GetComponent<BendCast>();
-        if(test != null) {
-            return;
+        BendCast cast;
+        if((cast = this.GetComponent<BendCast>()) != null) {
+            if(cast.leftController == null && cast.rightController == null) {
+                // Locates the camera rig and its child controllers
+                SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
+                cast.leftController = CameraRigObject.left;
+                cast.rightController = CameraRigObject.right;
+            }
         }
-
-        // Locates the camera rig and its child controllers
-        SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
-        GameObject leftController = CameraRigObject.left;
-        GameObject rightController = CameraRigObject.right;
-
-        if(leftController != null)
-        {
-            // Creates left component
-            BendCast componentLeft = gameObject.AddComponent<BendCast>() as BendCast;
-            attatchComponents(componentLeft, leftController, "Right");
-            
-        } 
-        else
-        {
-            Debug.Log("No left controller found. Did not attach Bend cast for left controller.");
-        }
-
-        if(rightController != null)
-        {
-            // Creates right component
-            BendCast componentRight = gameObject.AddComponent<BendCast>() as BendCast;
-            attatchComponents(componentRight, rightController, "Left");
-        }
-        else
-        {
-            Debug.Log("No right controller found. Did not attach Bend cast for right controller");
-        }
-    }
-
-    // Adds reference the tracked object of the component, applies the relevant controller namem
-    // Sets the initial layers of objects that the cast will bend to. (Can be adjusted as required by the user)
-    // Sets the initial laser, and material prefab to the ones set to this controller.
-    private void attatchComponents(BendCast component, GameObject controller, string name)
-    {
-        component.trackedObj = controller.GetComponent<SteamVR_TrackedObject>();
-        component.controllerName = name + " Controller";
-        component.layersOfObjectsToBendTo = new int[1];
-        component.layersOfObjectsToBendTo[0] = 8;
-        component.laserPrefab = laserPrefab;
-        component.MaterialToHighlightObjects = MaterialToHighlightObjects;
-        Debug.Log("Bend Cast attatched for" + name + "controller.");
     }
 }

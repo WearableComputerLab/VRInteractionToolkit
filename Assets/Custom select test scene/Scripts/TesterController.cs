@@ -89,7 +89,7 @@ public class TesterController : MonoBehaviour {
 	void objectSelected() {
 		if(theSelectionGameObject.GetComponent<BendCast>().selection.Equals(goal)) {
 			goal.GetComponent<Renderer>().material = goalDefaultMaterial;
-			theSelectionGameObject.GetComponent<BendCast>().unhighlightedObject = goalDefaultMaterial;
+			//theSelectionGameObject.GetComponent<BendCast>().unhighlightedObject = goalDefaultMaterial;
 			goal = null;
 			// Increase score by 1
 			score += 1;

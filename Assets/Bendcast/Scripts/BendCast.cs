@@ -29,23 +29,26 @@ using System;
 
 public class BendCast : MonoBehaviour
 {
-    // Set by the bendcast controller
-    public string controllerName;
-    public SteamVR_TrackedObject trackedObj;  
+    public GameObject leftController; // Reference to the steam VR left controller
+    public GameObject rightController; // Reference to the steam VR right controller
+
+    public enum SetController {left, right, notSet}; // So the player can choose which controller this bendcast will use
+    public SetController setController = SetController.left; // the set controller
+
+    private SteamVR_TrackedObject trackedObj;  // used by the script to keep track of the controller
 
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
     public InteractionType interactionType;
     public GameObject selection; // holds the selected object
 
-    // Invoked when an object is selected
-    public UnityEvent selectedObject;
-
-    public Material MaterialToHighlightObjects;
-    public Material unhighlightedObject;
-
     
-    private GameObject currentlyPointingAt;
+    public UnityEvent selectedObject; // Invoked when an object is selected
+
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+    
+    public GameObject currentlyPointingAt;
     private Vector3 castingBezierFrom;
 
     // Bend in ray is built from multiple other rays
@@ -55,7 +58,7 @@ public class BendCast : MonoBehaviour
     private Transform[] laserTransform;
     private Vector3 hitPoint;
 
-    private Vector3 p1PointLocation;
+    private Vector3 p1PointLocation; // used fot the bezier curve
 
     public int[] layersOfObjectsToBendTo;
 
@@ -69,10 +72,16 @@ public class BendCast : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        if(setController == SetController.left) {
+            trackedObj = leftController.GetComponent<SteamVR_TrackedObject>();
+        } else if (setController == SetController.right) {
+            trackedObj = rightController.GetComponent<SteamVR_TrackedObject>();
+        }
+
         // Initalizing all the lasers
         laserHolderGameobject = new GameObject();
         laserHolderGameobject.transform.parent = this.transform;
-        laserHolderGameobject.gameObject.name = controllerName + " Laser Rays";
+        laserHolderGameobject.gameObject.name = trackedObj.name + " Laser Rays";
 
         lasers = new GameObject[numOfLasers];
         laserTransform = new Transform[numOfLasers];
@@ -209,19 +218,18 @@ public class BendCast : MonoBehaviour
         {
             // Activiating laser gameobject in case it isnt active
             laserHolderGameobject.SetActive(true);
-
             
-            if(currentlyPointingAt != null && currentlyPointingAt != objectWithShortestDistance)
-            {
-                currentlyPointingAt.GetComponent<Renderer>().material = unhighlightedObject;
-                unhighlightedObject = objectWithShortestDistance.GetComponent<Renderer>().material;
+            // Invoke un-hover if object with shortest distance is now different to currently hovered
+            if(currentlyPointingAt != objectWithShortestDistance) {
+                unHovered.Invoke();
             }
-            
+
             // setting the object that is being pointed at
             currentlyPointingAt = objectWithShortestDistance;
+            hovered.Invoke(); // Broadcasting that object is hovered
+
             castingBezierFrom = trackedObj.transform.position;
 
-            currentlyPointingAt.GetComponent<Renderer>().material = MaterialToHighlightObjects;
         } else {
             // Laser didnt reach any object so will disable
             laserHolderGameobject.SetActive(false);
