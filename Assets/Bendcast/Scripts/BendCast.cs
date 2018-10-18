@@ -16,6 +16,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.If not, see<http://www.gnu.org/licenses/>.
+
  */
 
 using System.Collections;
@@ -63,12 +64,16 @@ public class BendCast : MonoBehaviour
         get { return SteamVR_Controller.Input((int)trackedObj.index); }
     }
 
+    private GameObject laserHolderGameobject;
+
     // Use this for initialization
     void Start()
     {
         // Initalizing all the lasers
-        GameObject laserHolder = new GameObject();
-        laserHolder.name = "LaserRays";
+        laserHolderGameobject = new GameObject();
+        laserHolderGameobject.transform.parent = this.transform;
+        laserHolderGameobject.gameObject.name = controllerName + " Laser Rays";
+
         lasers = new GameObject[numOfLasers];
         laserTransform = new Transform[numOfLasers];
         for (int i = 0; i < numOfLasers; i++)
@@ -76,7 +81,7 @@ public class BendCast : MonoBehaviour
             GameObject laserPart = Instantiate(laserPrefab, new Vector3((float)i, 1, 0), Quaternion.identity) as GameObject;
             laserTransform[i] = laserPart.transform;
             lasers[i] = laserPart;
-            laserPart.transform.parent = laserHolder.transform;
+            laserPart.transform.parent = laserHolderGameobject.transform;
         }
     }
     void Awake()
@@ -143,6 +148,7 @@ public class BendCast : MonoBehaviour
         }
     }
 
+
     void checkSurroundingObjects()
     {
         if (layersOfObjectsToBendTo.Length == 0)
@@ -168,40 +174,57 @@ public class BendCast : MonoBehaviour
                 // dont have to worry about executing twice as an object can only be on one layer
                 if (allObjects[i].layer == layersOfObjectsToBendTo[j])
                 {
-                    // Object can only have one layer so can do calculation for object here
-                    Vector3 objectPosition = allObjects[i].transform.position;
 
-                    // Finding closest to ray by creating a perpendicular plane using the formula that uses the point and then finds the distance between
-                    // that point and where a plane created from the vector intersects the laser
-                    float tValueFromFormulaExplained = (forwardVectorFromRemote.x * objectPosition.x + forwardVectorFromRemote.x * objectPosition.y
-                        + forwardVectorFromRemote.z * objectPosition.z - forwardVectorFromRemote.x * positionOfRemote.x - forwardVectorFromRemote.y * positionOfRemote.y
-                        - forwardVectorFromRemote.z * positionOfRemote.z) / (Mathf.Pow(forwardVectorFromRemote.x, 2) + Mathf.Pow(forwardVectorFromRemote.y, 2) + Mathf.Pow(forwardVectorFromRemote.z, 2));
+                    // Check if object is on plane projecting in front of VR remote. Otherwise ignore it. (we dont want our laser aiming backwards)
+                    Vector3 forwardParallelToDirectionPointing = Vector3.Cross(forwardVectorFromRemote, trackedObj.transform.up);
+                    Vector3 targObject = trackedObj.transform.position-allObjects[i].transform.position;
+                    Vector3 perp = Vector3.Cross(forwardParallelToDirectionPointing, targObject);
+                    float side = Vector3.Dot(perp, trackedObj.transform.up);
+                    if(side < 0) {
+                            // Object can only have one layer so can do calculation for object here
+                        Vector3 objectPosition = allObjects[i].transform.position;
 
-                    Vector3 newPoint = new Vector3(forwardVectorFromRemote.x * tValueFromFormulaExplained + positionOfRemote.x, forwardVectorFromRemote.y * tValueFromFormulaExplained + positionOfRemote.y
-                        , forwardVectorFromRemote.z * tValueFromFormulaExplained + positionOfRemote.z);
+                        // Finding closest to ray by creating a perpendicular plane using the formula that uses the point and then finds the distance between
+                        // that point and where a plane created from the vector intersects the laser
+                        float tValueFromFormulaExplained = (forwardVectorFromRemote.x * objectPosition.x + forwardVectorFromRemote.x * objectPosition.y
+                            + forwardVectorFromRemote.z * objectPosition.z - forwardVectorFromRemote.x * positionOfRemote.x - forwardVectorFromRemote.y * positionOfRemote.y
+                            - forwardVectorFromRemote.z * positionOfRemote.z) / (Mathf.Pow(forwardVectorFromRemote.x, 2) + Mathf.Pow(forwardVectorFromRemote.y, 2) + Mathf.Pow(forwardVectorFromRemote.z, 2));
 
-                    float distanceBetweenRayAndPoint = Mathf.Sqrt(Mathf.Pow(newPoint.x - objectPosition.x, 2) + Mathf.Pow(newPoint.y - objectPosition.y, 2) + Mathf.Pow(newPoint.z - objectPosition.z, 2));
-                    if (distanceBetweenRayAndPoint < shortestDistance)
-                    {
-                        shortestDistance = distanceBetweenRayAndPoint;
-                        objectWithShortestDistance = allObjects[i];
-                        p1PointLocation = newPoint;
+                        Vector3 newPoint = new Vector3(forwardVectorFromRemote.x * tValueFromFormulaExplained + positionOfRemote.x, forwardVectorFromRemote.y * tValueFromFormulaExplained + positionOfRemote.y
+                            , forwardVectorFromRemote.z * tValueFromFormulaExplained + positionOfRemote.z);
+
+                        float distanceBetweenRayAndPoint = Mathf.Sqrt(Mathf.Pow(newPoint.x - objectPosition.x, 2) + Mathf.Pow(newPoint.y - objectPosition.y, 2) + Mathf.Pow(newPoint.z - objectPosition.z, 2));
+                        if (distanceBetweenRayAndPoint < shortestDistance)
+                        {
+                            shortestDistance = distanceBetweenRayAndPoint;
+                            objectWithShortestDistance = allObjects[i];
+                            p1PointLocation = newPoint;
+                        }
                     }
+                    
                 }
             }
         }
         if (objectWithShortestDistance != null)
         {
+            // Activiating laser gameobject in case it isnt active
+            laserHolderGameobject.SetActive(true);
+
+            
             if(currentlyPointingAt != null && currentlyPointingAt != objectWithShortestDistance)
             {
                 currentlyPointingAt.GetComponent<Renderer>().material = unhighlightedObject;
                 unhighlightedObject = objectWithShortestDistance.GetComponent<Renderer>().material;
             }
             
+            // setting the object that is being pointed at
             currentlyPointingAt = objectWithShortestDistance;
             castingBezierFrom = trackedObj.transform.position;
 
             currentlyPointingAt.GetComponent<Renderer>().material = MaterialToHighlightObjects;
+        } else {
+            // Laser didnt reach any object so will disable
+            laserHolderGameobject.SetActive(false);
         }
     }
 }
