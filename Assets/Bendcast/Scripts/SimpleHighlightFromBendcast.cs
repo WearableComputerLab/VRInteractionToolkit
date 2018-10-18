@@ -1,6 +1,6 @@
 ﻿/*
  *  SimpleHighlightFromBendCast - Script that can be attached to an object displaying how to utilize the bend cast controllers events to react externally when an object
- *                                is highlighted.
+ *                                is highlighted or selected.
  *  
  *  Copyright(C) 2018  Ian Hanan
  *
@@ -34,7 +34,8 @@ public class SimpleHighlightFromBendcast : MonoBehaviour {
 	void Start () {
 		defaultMaterial = this.GetComponent<Renderer>().material;
 		selectObject.hovered.AddListener(highlight);
-		selectObject.unHovered.AddListener(unHighlight);		
+		selectObject.unHovered.AddListener(unHighlight);	
+		selectObject.selectedObject.AddListener(playSelectSound);	
 	}
 
 	void highlight() {
@@ -49,5 +50,11 @@ public class SimpleHighlightFromBendcast : MonoBehaviour {
 			print("unhighlight");
 			this.GetComponent<Renderer>().material = defaultMaterial;
 		}		
+	}
+
+	void playSelectSound() {
+		if(selectObject.currentlyPointingAt == this.gameObject) {
+			this.GetComponent<AudioSource>().Play();
+		}	
 	}
 }

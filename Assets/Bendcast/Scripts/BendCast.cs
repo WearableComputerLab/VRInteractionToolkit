@@ -233,6 +233,8 @@ public class BendCast : MonoBehaviour
         } else {
             // Laser didnt reach any object so will disable
             laserHolderGameobject.SetActive(false);
+            currentlyPointingAt = null;
+            selection = null;
         }
     }
 }
