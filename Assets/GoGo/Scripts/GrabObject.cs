@@ -1,20 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GrabObject : MonoBehaviour {
-
+    
      // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
     public InteractionType interactionType;
-    public GameObject selection; // holds the selected object
+    public GameObject selection = null; // holds the selected object
 
     public SteamVR_TrackedObject trackedObj;
-    private GameObject collidingObject;
+    public GameObject collidingObject;
     private GameObject objectInHand;
 
-    public Material MaterialToHighlightObjects;
-    private Material unhighlightedObject;
+    public UnityEvent selectedObject; // Invoked when an object is selected
+
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     private SteamVR_Controller.Device Controller
     {
@@ -50,14 +53,11 @@ public class GrabObject : MonoBehaviour {
 
     public void OnTriggerEnter(Collider other)
     {
+        SetCollidingObject(other);
         if(other.gameObject.layer == 8 && objectInHand == null)
         {
-            unhighlightedObject = other.GetComponent<Renderer>().material;
-            other.GetComponent<Renderer>().material = MaterialToHighlightObjects;
+            hovered.Invoke();
         }
-        
-        
-        SetCollidingObject(other);
     }
 
 
@@ -75,7 +75,7 @@ public class GrabObject : MonoBehaviour {
         }
         if(other.gameObject.layer == 8)
         {
-            other.GetComponent<Renderer>().material = unhighlightedObject;
+            unHovered.Invoke();
         }
         
         collidingObject = null;
@@ -85,10 +85,7 @@ public class GrabObject : MonoBehaviour {
     {
         
         objectInHand = collidingObject;
-        if (objectInHand.layer == 8)
-        {
-            objectInHand.GetComponent<Renderer>().material = unhighlightedObject;
-        }
+
         collidingObject = null;
 
         var joint = AddFixedJoint();
@@ -125,6 +122,7 @@ public class GrabObject : MonoBehaviour {
         {
             if (collidingObject)
             {
+                selectedObject.Invoke();
                 if(interactionType == InteractionType.Selection) {
                     // Pure selection
                     print("selected " + collidingObject);
