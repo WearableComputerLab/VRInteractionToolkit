@@ -27,10 +27,9 @@ using Valve.VR;
 
 public class Flashlight : MonoBehaviour
 {
-
     public GameObject objectAttachedTo;
 
-    private SteamVR_TrackedObject trackedObj;
+    public SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device device;
 
     public float transparency = 0.5f;
@@ -41,9 +40,12 @@ public class Flashlight : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        objectAttachedTo = this.transform.parent.gameObject;
-        trackedObj = this.GetComponentInParent<SteamVR_TrackedObject>();
-        device = SteamVR_Controller.Input((int)trackedObj.index);
+        // Mesh render wasnt enabled outside of game so as not to be annoying. Must now enable
+        this.GetComponent<Renderer>().enabled = true;
+
+        // set this flashlight to be child of the object it is set to be attached to
+        this.transform.parent = objectAttachedTo.transform;
+
 
         // Translates the cone so that whatever size it is as long as it is at position 0,0,0 if contoller it will jump to the origin point for flashlight
         translateConeDistanceAlongForward(this.GetComponent<Renderer>().bounds.size.z/2f);
@@ -52,6 +54,10 @@ public class Flashlight : MonoBehaviour
         //flashLightModel.GetComponent<MeshRenderer>().material.color = new Color(theColor.r, theColor.b, theColor.g, transparency);
 
         this.GetComponent<MeshRenderer>().material.color = new Color(theColor.r, theColor.b, theColor.g, transparency);
+
+        
+        trackedObj = this.gameObject.transform.parent.GetComponent<SteamVR_TrackedObject>();
+        device = SteamVR_Controller.Input((int)trackedObj.index);
     }
 
     // Update is called once per frame

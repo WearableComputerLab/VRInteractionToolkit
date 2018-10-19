@@ -226,6 +226,7 @@ public class BendCast : MonoBehaviour
 
             // setting the object that is being pointed at
             currentlyPointingAt = objectWithShortestDistance;
+            unHovered.Invoke();
             hovered.Invoke(); // Broadcasting that object is hovered
 
             castingBezierFrom = trackedObj.transform.position;

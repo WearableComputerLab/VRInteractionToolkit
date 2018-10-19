@@ -22,6 +22,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 /*
  *  Keeping info on things I have done here for now
@@ -40,14 +41,16 @@ public class FlashlightSelection : MonoBehaviour {
     private GameObject trackedObj;
     private List<GameObject> collidingObjects;
 
-    public Material highlightMaterial;
-    private ObjectHighlighter highlighter;
+    public UnityEvent selectedObject; // Invoked when an object is selected
+
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     private GameObject objectInHand;
 
     public int[] layersOfObjectsToSelect;
 
-    private GameObject objectHoveredOver;
+    public GameObject objectHoveredOver;
 
     private SteamVR_Controller.Device Controller
     {
@@ -62,7 +65,6 @@ public class FlashlightSelection : MonoBehaviour {
 
     void OnEnable()
     {
-        highlighter = new ObjectHighlighter(highlightMaterial);
         collidingObjects = new List<GameObject>();
         trackedObj = this.transform.gameObject;
         var render = SteamVR_Render.instance;
@@ -106,7 +108,6 @@ public class FlashlightSelection : MonoBehaviour {
         {
             return;
         }
-        highlighter.deHighlighobject(other.gameObject);
         collidingObjects.Remove(other.gameObject);
     }
 
@@ -157,13 +158,14 @@ public class FlashlightSelection : MonoBehaviour {
                 }
             }
 
-            // highlighting object
-            if(objectInHand == null) {
-                highlighter.highlightObject(collidingObjects[indexOfSmallest]);
+            if(objectHoveredOver != collidingObjects[indexOfSmallest]) {
+                unHovered.Invoke();
             }
-
+            
             return collidingObjects[indexOfSmallest];
         }
+
+        unHovered.Invoke();
         return null;
     }
 
@@ -175,14 +177,16 @@ public class FlashlightSelection : MonoBehaviour {
             collidingObjects.Remove(objectInHand);
 
             var joint = AddFixedJoint();
+            objectInHand.GetComponent<Rigidbody>().velocity = Vector3.zero; // Setting velocity to 0 so can catch without breakforce effecting it
             joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
         }
     }
 
     private FixedJoint AddFixedJoint()
     {
+        
         FixedJoint fx = gameObject.AddComponent<FixedJoint>();
-        fx.breakForce = Mathf.Infinity;
+        fx.breakForce = 1000;
         fx.breakTorque = Mathf.Infinity;
         return fx;
     }
@@ -202,7 +206,10 @@ public class FlashlightSelection : MonoBehaviour {
             //objectInHand.GetComponent<Rigidbody>().angularVelocity = GetComponent<Rigidbody>().angularVelocity;
 
             
-            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
+            //objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
+            //objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
+
+            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity * Vector3.Distance(Controller.transform.pos, objectInHand.transform.position);
             objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }
 
@@ -214,13 +221,14 @@ public class FlashlightSelection : MonoBehaviour {
     {
 
         objectHoveredOver = getObjectHoveringOver();
-        
+        hovered.Invoke();
         
         print(collidingObjects.Count);
         if (Controller.GetHairTriggerDown())
         {
             if (collidingObjects.Count > 0)
             {
+                selectedObject.Invoke();
                 if(interactionType == InteractionType.Selection) {
                     // Pure selection
                     print("selected " + objectHoveredOver);
