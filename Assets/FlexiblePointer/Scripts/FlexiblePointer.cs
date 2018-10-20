@@ -22,10 +22,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Valve.VR;
+using UnityEngine.Events;
 
 public class FlexiblePointer : MonoBehaviour
 {
-    // DOING PUBLICLY FOR TESTING LATER SEE IF CAN DO IT AUTOMATICALLY! Also because it needs both controlers need checks that they are both online otherwise do nothing
     public SteamVR_TrackedObject trackedObjL;
     public SteamVR_TrackedObject trackedObjR;
     public GameObject controlPoint;
@@ -50,8 +50,18 @@ public class FlexiblePointer : MonoBehaviour
     private SteamVR_Controller.Device deviceL;
     private SteamVR_Controller.Device deviceR;
     
+    public UnityEvent selectedObject; // Invoked when an object is selected
 
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
     
+    public GameObject currentlyPointingAt; // Is the gameobject that the ray is currently touching
+
+    public GameObject selection;
+
+    // Allows to choose if the script purley selects or has full manipulation
+    public enum InteractionType { Selection, Manipulation };
+    public InteractionType interactionType;
 
     // Use this for initialization
     void Start()
@@ -137,6 +147,11 @@ public class FlexiblePointer : MonoBehaviour
         // Set the controllable distance to be the distance between the end of laser to back remote
         float distanceToMoveControlPoint = Vector3.Distance(point2, trackedObjR.transform.position);
 
+        if(float.IsNaN(distanceToMoveControlPoint)) {
+            // error with calculation will return
+            return;
+        }
+
         // Checking touchpad L
         float xvalL = touchpadL.x;
         float yvalL = touchpadL.y;
@@ -172,6 +187,20 @@ public class FlexiblePointer : MonoBehaviour
         checkControlPointVisibility();
         setPoint0and1();
         castBezierRay();
+
+        // checking for selection
+        if(deviceR.GetHairTriggerDown() && currentlyPointingAt != null) {
+            
+            if(interactionType == InteractionType.Selection) {
+                // Pure Selection
+                selection = currentlyPointingAt;
+                selectedObject.Invoke();
+                print("selected" + currentlyPointingAt);
+                
+            } else if(interactionType == InteractionType.Manipulation) {
+                // Currently no manipulation
+            }
+        }
     }
 
     void castBezierRay()
@@ -188,13 +217,19 @@ public class FlexiblePointer : MonoBehaviour
             positionOfLastLaserPart = trackedObjL.transform.position;
         }
 
-        // -1 so can project out the last laser
+        // Used to see if ANY of the lasers collided with an object
+        bool foundObject = false;
+        
         for (int i = 0; i < numOfLasers; i++)
         {
             lasers[i].SetActive(true);
             Vector3 nextPart = getBezierPoint(valueToSearchBezierBy);
             float distBetweenParts = Vector3.Distance(nextPart, positionOfLastLaserPart);
-            laserTransform[i].position = Vector3.Lerp(positionOfLastLaserPart, nextPart, .5f);
+            if(float.IsNaN(distBetweenParts)) {
+                // error with calculation will return
+                return;
+            }
+            laserTransform[i].position = Vector3.Lerp(positionOfLastLaserPart, nextPart, 0.5f);
             laserTransform[i].LookAt(nextPart);
             laserTransform[i].localScale = new Vector3(laserTransform[i].localScale.x, laserTransform[i].localScale.y,
         distBetweenParts);
@@ -204,21 +239,34 @@ public class FlexiblePointer : MonoBehaviour
 
             if (i > 0)
             {
-                // Do a ray cast check on each part to check for collision (extended from laser part)
-                Vector3 dir = laserTransform[i - 1].forward;
-                RaycastHit hit;
-                if (Physics.Raycast(positionOfLastLaserPart, dir, out hit, distBetweenParts))
-                {
-                    // no object previouslly was highlighted so just highlight this one
-                    HoverOnRayHit objectHit = hit.transform.gameObject.GetComponent<HoverOnRayHit>();
-                    if (objectHit != null)
+                if(!foundObject) {
+                    // Do a ray cast check on each part to check for collision (extended from laser part) 
+                    // First object collided with is the only one that will select
+                    Vector3 dir = laserTransform[i - 1].forward;
+                    RaycastHit hit;
+                    if (Physics.Raycast(positionOfLastLaserPart, dir, out hit, distBetweenParts))
                     {
-                        objectHit.OnRayHit();
-                    }
-                } 
-            }
+                        // no object previouslly was highlighted so just highlight this one
+                        if(hit.transform.gameObject.layer == LayerMask.NameToLayer("PickableObject")) {
+                            if(currentlyPointingAt != hit.transform.gameObject) {
+                                unHovered.Invoke(); // unhover old object
+                            }
+                            
+                            currentlyPointingAt = hit.transform.gameObject;
+                            hovered.Invoke();
+                            foundObject = true;
+                        }
+                    }                 
+                }
+            }              
+        }
+        if(!foundObject) {
+            // no object was hit so unhover and deselect
+            unHovered.Invoke();
+            currentlyPointingAt = null;
         }
     }
+    
 
     // t being betweek 0 and 1 to get a spot on the curve
     Vector3 getBezierPoint(float t)

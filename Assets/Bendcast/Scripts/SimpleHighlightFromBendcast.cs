@@ -42,14 +42,13 @@ public class SimpleHighlightFromBendcast : MonoBehaviour {
 		if(selectObject.currentlyPointingAt == this.gameObject) {
 			print("highlight");
 			this.GetComponent<Renderer>().material = highlightMaterial;
-		}		
+		} 
 	}
 
 	void unHighlight() {
-		if(selectObject.currentlyPointingAt == this.gameObject) {
-			print("unhighlight");
-			this.GetComponent<Renderer>().material = defaultMaterial;
-		}		
+		print("unhighlight");
+		this.GetComponent<Renderer>().material = defaultMaterial;
+			
 	}
 
 	void playSelectSound() {
