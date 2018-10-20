@@ -1,6 +1,31 @@
-﻿using System.Collections;
+﻿/*
+ *  Absolute and relative mapping is in the form of a Raycast (However It could 
+ *  be adapted to a simple hand technique). When you press the set button (touchpad) the movement 
+ *  of the virtual controller relative to your real controller is scaled with a ration of 10:1. 
+ *  By doing this you can be precise when selecting small or distant objects with the ray. This is
+ *  because the distance you have to move your hand across an object is amplified 10x due to the ratio.
+ *  
+ *  Copyright(C) 2018  Ian Hanan
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.If not, see<http://www.gnu.org/licenses/>.
+
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ARMLaser : MonoBehaviour {
 
@@ -16,22 +41,41 @@ public class ARMLaser : MonoBehaviour {
     private Vector3 lastPosition;
     public GameObject theModel;
 
+    public UnityEvent selectedObject; // Invoked when an object is selected
+
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+
     public enum InteractionType { Selection, Manipulation };
 
     public InteractionType interactionType = InteractionType.Selection;
     public GameObject selection; // holds the selected object
 
-    // Quick solution to highlight on select - maybe find a better way?
-    public Material MaterialToHighlightObjects;
-    private Material unhighlightedObject;
-    private GameObject currentlyPointingAt;
+    public GameObject currentlyPointingAt;
 
     // Using the hack from gogo shadow - will have to fix them all once find a better way
     void makeModelChild()
     {
-        if (theModel.transform.childCount > 0)
+        if (this.transform.childCount == 0)
         {
-            theModel.transform.parent = this.transform;
+            if (theModel.GetComponent<SteamVR_RenderModel>() != null)
+            { // The steamVR_RenderModel is generated after code start so we cannot parent right away or it wont generate. 
+                if (theModel.transform.childCount > 0)
+                {
+                    theModel.transform.parent = this.transform;
+                    // Due to the transfer happening at a random time down the line we need to re-align the model inside the shadow controller to 0 so nothing is wonky.
+                    theModel.transform.localPosition = Vector3.zero;
+                    theModel.transform.localRotation = Quaternion.identity;
+                }
+            }
+            else
+            {
+                // If it is just a custom model we can immediately parent
+                theModel.transform.parent = this.transform;
+                // Due to the transfer happening at a random time down the line we need to re-align the model inside the shadow controller to 0 so nothing is wonky.
+                theModel.transform.localPosition = Vector3.zero;
+                theModel.transform.localRotation = Quaternion.identity;
+            }
         }
     }
 
@@ -51,19 +95,18 @@ public class ARMLaser : MonoBehaviour {
             {
                 // no object previouslly was highlighted so just highlight this one
                 currentlyPointingAt = hit.transform.gameObject;
-                unhighlightedObject = currentlyPointingAt.GetComponent<Renderer>().material;
-                currentlyPointingAt.GetComponent<Renderer>().material = MaterialToHighlightObjects;
+                hovered.Invoke();
             }
             else if (hit.transform.gameObject != currentlyPointingAt)
             {
                 // unhighlight previous one and highlight this one
-                currentlyPointingAt.GetComponent<Renderer>().material = unhighlightedObject;
+                unHovered.Invoke();
                 currentlyPointingAt = hit.transform.gameObject;
-                currentlyPointingAt.GetComponent<Renderer>().material = MaterialToHighlightObjects;
+                hovered.Invoke();
             }
         } else
         {
-            currentlyPointingAt.GetComponent<Renderer>().material = unhighlightedObject;
+            unHovered.Invoke();
         }
     }
 
@@ -73,7 +116,7 @@ public class ARMLaser : MonoBehaviour {
         if (currentlyPointingAt != null)
         {
             // remove highlight from previously highlighted object 
-            currentlyPointingAt.GetComponent<Renderer>().material = unhighlightedObject;
+            unHovered.Invoke();
             currentlyPointingAt = null;
         }
 

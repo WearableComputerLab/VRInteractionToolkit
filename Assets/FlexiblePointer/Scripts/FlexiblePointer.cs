@@ -26,15 +26,19 @@ using Valve.VR;
 public class FlexiblePointer : MonoBehaviour
 {
     // DOING PUBLICLY FOR TESTING LATER SEE IF CAN DO IT AUTOMATICALLY! Also because it needs both controlers need checks that they are both online otherwise do nothing
-    public SteamVR_TrackedObject trackedObj1;
-    public SteamVR_TrackedObject trackedObj2;
-    public GameObject testControlPoint;
+    public SteamVR_TrackedObject trackedObjL;
+    public SteamVR_TrackedObject trackedObjR;
+    public GameObject controlPoint;
+
+    public bool controlPointVisible = true;
+
+    public GameObject laserContainer;
 
     public float scaleFactor = 2f;
 
-    private Vector3 point0;
-    private Vector3 point1;
-    private Vector3 point2;
+    private Vector3 point0; // bezier back
+    private Vector3 point1; // bezier control
+    private Vector3 point2; /// bezier front
 
     // Laser vars
     private int numOfLasers = 20;
@@ -42,6 +46,10 @@ public class FlexiblePointer : MonoBehaviour
     private GameObject[] lasers;
     private Transform[] laserTransform;
     private Vector3 hitPoint;
+
+    private SteamVR_Controller.Device deviceL;
+    private SteamVR_Controller.Device deviceR;
+    
 
     
 
@@ -56,6 +64,7 @@ public class FlexiblePointer : MonoBehaviour
             GameObject laserPart = Instantiate(laserPrefab, new Vector3((float)i, 1, 0), Quaternion.identity) as GameObject;
             laserTransform[i] = laserPart.transform;
             lasers[i] = laserPart;
+            laserPart.transform.parent = laserContainer.transform;
         }
         setPoint0and1();
     }
@@ -64,28 +73,17 @@ public class FlexiblePointer : MonoBehaviour
     int calculatePointingController()
     {
         Vector3 playerPos = this.transform.position;
-        float distTo1 = Vector3.Distance(playerPos, trackedObj1.transform.position);
-        float distTo2 = Vector3.Distance(playerPos, trackedObj2.transform.position);
-
+        float distTo1 = Vector3.Distance(playerPos, trackedObjL.transform.position);
+        float distTo2 = Vector3.Distance(playerPos, trackedObjR.transform.position);
         return 1;
-        // Allows to switch between but is buggy so while testing will keep off
-        /*
-        if(distTo1 > distTo2)
-        {
-            return 1;
-        } else
-        {
-            return 2;
-        }
-        */
     }
 
     void setPoint0and1()
     {
         // Setting test points
-        Vector3 controller1Pos = trackedObj1.transform.position;
+        Vector3 controller1Pos = trackedObjL.transform.position;
 
-        Vector3 controller2Pos = trackedObj2.transform.position;
+        Vector3 controller2Pos = trackedObjR.transform.position;
 
         Vector3 forwardVectorBetweenRemotes;
 
@@ -129,41 +127,49 @@ public class FlexiblePointer : MonoBehaviour
     // Initalizes point1 's curve
     void setCurveControlPoint()
     {
-        // Setting control point of curve
-        // Based off of rotation of controllers
-        // to calculate the control point we find the perpendicular vector (in the center of the vector between each remote
-        // Then we calculate the intersection of that vector with the forward vector of the non-pointing remote 
-        // and use the backward vector of the pointing remote and its intersection
+        // Will use touchpads to calculate touchpoint
+        deviceL = SteamVR_Controller.Input((int)trackedObjL.index);
+        deviceR = SteamVR_Controller.Input((int)trackedObjR.index);
 
-        // assuming 1 is pointing controller for test
-        Vector3 d1 = trackedObj1.transform.forward * -1f;
-        Vector3 d2 = trackedObj2.transform.forward;
+        Vector2 touchpadL = (deviceL.GetAxis(EVRButtonId.k_EButton_Axis0)); // Getting reference to the touchpad
+        Vector2 touchpadR = (deviceR.GetAxis(EVRButtonId.k_EButton_Axis0)); // Getting reference to the touchpad
 
-        Vector3 p1 = trackedObj1.transform.position;
-        Vector3 p2 = trackedObj2.transform.position;
+        // Set the controllable distance to be the distance between the end of laser to back remote
+        float distanceToMoveControlPoint = Vector3.Distance(point2, trackedObjR.transform.position);
 
-        // as these two vectors will probably create skew lines (on different planes) have to calculate the points on the lines that are
-        // closest to eachother and then getting the midpoint between them giving a fake 'intersection'
-        // This is achieved by utilizing parts of the fromula to find the shortest distance between two skew lines
-        Vector3 n1 = Vector3.Cross(d1, (Vector3.Cross(d2, d1)));
-        Vector3 n2 = Vector3.Cross(d2, (Vector3.Cross(d1, d2)));
+        // Checking touchpad L
+        float xvalL = touchpadL.x;
+        float yvalL = touchpadL.y;
 
-        // Figuring out point 1
-        Vector3 localPoint1 = p1 + ((Vector3.Dot((p2 - p1), n2)) / (Vector3.Dot(d1, n2))) * d1;
+        // Checking touchpad R
+        float xvalR = touchpadR.x;
+        float yvalR = touchpadR.y;
 
-        // Figuring out point 2
-        Vector3 localPoint2 = p2 + ((Vector3.Dot((p1 - p2), n1)) / (Vector3.Dot(d2, n1))) * d2;
+        // getting between the front of the flexible pointer to the back of the remotes
+        Vector3 forwardBetweenRemotes = point2 - trackedObjR.transform.position;
+        Vector3 middleOfRemotes = (point2 + trackedObjR.transform.position)/2f;
 
-        point1 = (localPoint1 + localPoint2) / 2;
+        // moving along y axis acording to R y
+        controlPoint.transform.position = vectorDistanceAlongFoward(distanceToMoveControlPoint*(yvalR), middleOfRemotes, forwardBetweenRemotes);
+        // now need to move left and right by getting the side vector forward 
+        Vector3 sideForward = Vector3.Cross(forwardBetweenRemotes, Vector3.up);
+        controlPoint.transform.position = vectorDistanceAlongFoward(distanceToMoveControlPoint*(xvalR*-1), controlPoint.transform.position, sideForward);
+        // now need to control depth using the other controller
+        controlPoint.transform.position = vectorDistanceAlongFoward(distanceToMoveControlPoint*(yvalL), controlPoint.transform.position, Vector3.up);
 
-        // Cube showing where control point is (for testing remove after)
-        testControlPoint.transform.position = point1;
+        // setting the actual bezier curve point to follow control point
+        point1 = controlPoint.transform.position;
+    
+    }
 
+    private Vector3 vectorDistanceAlongFoward(float theDistance, Vector3 startPos, Vector3 forward) {
+        return startPos+forward.normalized*theDistance;
     }
 
     // Update is called once per frame
     void Update()
     {
+        checkControlPointVisibility();
         setPoint0and1();
         castBezierRay();
     }
@@ -175,11 +181,11 @@ public class FlexiblePointer : MonoBehaviour
         Vector3 positionOfLastLaserPart;
         if (calculatePointingController() == 1)
         {
-            positionOfLastLaserPart = trackedObj2.transform.position;
+            positionOfLastLaserPart = trackedObjR.transform.position;
         }
         else
         {
-            positionOfLastLaserPart = trackedObj1.transform.position;
+            positionOfLastLaserPart = trackedObjL.transform.position;
         }
 
         // -1 so can project out the last laser
@@ -218,5 +224,14 @@ public class FlexiblePointer : MonoBehaviour
     Vector3 getBezierPoint(float t)
     {
         return (Mathf.Pow(1 - t, 2) * point0 + 2 * (1 - t) * t * point1 + Mathf.Pow(t, 2) * point2);
+    }
+
+    // sets whether the user can see the control point. Will be called if user changes the bool variable setting
+    private void checkControlPointVisibility() {
+        if(controlPointVisible) {
+            controlPoint.GetComponent<MeshRenderer>().enabled = true;
+        } else {
+            controlPoint.GetComponent<MeshRenderer>().enabled = false;
+        }
     }
 }

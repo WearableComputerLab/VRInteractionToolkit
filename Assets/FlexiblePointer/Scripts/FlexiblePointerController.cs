@@ -7,7 +7,7 @@ public class FlexiblePointerController : MonoBehaviour {
 	void Awake() {
 		// Check if already set up
 		FlexiblePointer flexiblePointerComponent = this.GetComponent<FlexiblePointer>();
-		if(flexiblePointerComponent.trackedObj1 != null && flexiblePointerComponent.trackedObj2 != null) {
+		if(flexiblePointerComponent.trackedObjL != null && flexiblePointerComponent.trackedObjR != null) { 
 			// Controllers already set so return
 			return;
 		}
@@ -20,11 +20,11 @@ public class FlexiblePointerController : MonoBehaviour {
 		if(flexiblePointerComponent != null) {
 			SteamVR_TrackedObject leftTracked = leftController.GetComponent<SteamVR_TrackedObject>();
 			SteamVR_TrackedObject rightTracked = rightController.GetComponent<SteamVR_TrackedObject>();
-			if(flexiblePointerComponent.trackedObj1 == null && leftTracked != null) {				
-				flexiblePointerComponent.trackedObj1 = leftTracked;
+			if(flexiblePointerComponent.trackedObjL == null && leftTracked != null) {				
+				flexiblePointerComponent.trackedObjL = leftTracked;
 			}
-			if(flexiblePointerComponent.trackedObj2 == null && rightTracked != null) {
-				flexiblePointerComponent.trackedObj2 = rightTracked;
+			if(flexiblePointerComponent.trackedObjR == null && rightTracked != null) {
+				flexiblePointerComponent.trackedObjR = rightTracked;
 			}			
 		}
 	}

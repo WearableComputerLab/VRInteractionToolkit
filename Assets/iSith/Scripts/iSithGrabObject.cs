@@ -1,13 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class iSithGrabObject : MonoBehaviour {
 
     public SteamVR_TrackedObject trackedObj;
-    private GameObject collidingObject;
-    private GameObject collidingObjectHighlighted;
-    private GameObject objectInHand;
+    public GameObject collidingObject;
+    public GameObject objectInHand;
+
+    public UnityEvent selectedObject; // Invoked when an object is selected
+
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+    
 
     private SteamVR_Controller.Device Controller
     {
@@ -24,11 +30,6 @@ public class iSithGrabObject : MonoBehaviour {
         }
     }
 
-    void Awake()
-    {
-        //trackedObj = GetComponent<SteamVR_TrackedObject>();
-    }
-
     private void SetCollidingObject(Collider col)
     {
 
@@ -38,16 +39,13 @@ public class iSithGrabObject : MonoBehaviour {
         }
 
         collidingObject = col.gameObject;
+        hovered.Invoke();
     }
 
 
     public void OnTriggerEnter(Collider other)
     {
-        collidingObjectHighlighted = other.transform.gameObject.transform.GetChild(0).gameObject;
-        if (collidingObjectHighlighted != null)
-        {
-            collidingObjectHighlighted.SetActive(true);
-        }
+        
         SetCollidingObject(other);
     }
 
@@ -65,11 +63,7 @@ public class iSithGrabObject : MonoBehaviour {
             return;
         }
 
-        if (collidingObjectHighlighted != null)
-        {
-            collidingObjectHighlighted.SetActive(false);
-            collidingObjectHighlighted = null;
-        }
+        unHovered.Invoke();
 
         collidingObject = null;
     }
@@ -78,6 +72,7 @@ public class iSithGrabObject : MonoBehaviour {
     {
 
         objectInHand = collidingObject;
+        selectedObject.Invoke();
         collidingObject = null;
 
         var joint = AddFixedJoint();

@@ -10,6 +10,8 @@ public class iSithController : MonoBehaviour {
     public iSithLaser laserR = null;
     public GameObject interactionObject;
 
+    private float lastLocationLDistance = -1;
+    private float lastLocationRDistance = -1;
 
     public enum SelectionController {
         LeftController,
@@ -18,46 +20,27 @@ public class iSithController : MonoBehaviour {
 
     public SelectionController selectionController = SelectionController.RightController;
     void Awake() {
-        if(laserL == null || laserR == null) {
-            print("here");
-            // lasers not set up yet so will try to run auto attach
-            // Locates the camera rig and its child controllers
-            SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
-            GameObject leftController = CameraRigObject.left;
-            GameObject rightController = CameraRigObject.right;
-
             // returns if controllers already set up
-            if(leftController.GetComponent<iSithLaser>() != null) {
-                return;
-            }
+            if(laserR.controller == null || laserL.controller == null) {
+                // lasers not set up yet so will try to run auto attach
+                // Locates the camera rig and its child controllers
+                SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
+                GameObject leftController = CameraRigObject.left;
+                GameObject rightController = CameraRigObject.right;
 
-            iSithGrabObject component = GetComponentInChildren<iSithGrabObject>();
-            if(selectionController == SelectionController.LeftController) {
-                component.trackedObj = leftController.GetComponent<SteamVR_TrackedObject>();
-            } else if (selectionController ==  SelectionController.RightController) {
-                print("here2");
-                component.trackedObj = rightController.GetComponent<SteamVR_TrackedObject>();
-            }
-
-            if(rightController != null && laserR == null) {
-                laserR = rightController.AddComponent<iSithLaser>() as iSithLaser;
-                laserR.laserPrefab = laserPrefab;
-            }
-            if(leftController != null && laserL == null) {
-                laserL = leftController.AddComponent<iSithLaser>() as iSithLaser;
-                laserL.laserPrefab = laserPrefab;
-            }
-        }       
+                laserL.controller = leftController;
+                laserR.controller = rightController;
+            }   
     }
 
     void setCubeLocation()
     {
         // assuming 1 is pointing controller for test
-        Vector3 d1 = laserL.transform.forward;
-        Vector3 d2 = laserR.transform.forward;
+        Vector3 d1 = laserL.controller.transform.forward;
+        Vector3 d2 = laserR.controller.transform.forward;
 
-        Vector3 p1 = laserL.transform.position;
-        Vector3 p2 = laserR.transform.position;
+        Vector3 p1 = laserL.controller.transform.position;
+        Vector3 p2 = laserR.controller.transform.position;
 
         // as these two vectors will probably create skew lines (on different planes) have to calculate the points on the lines that are
         // closest to eachother and then getting the midpoint between them giving a fake 'intersection'
@@ -73,15 +56,7 @@ public class iSithController : MonoBehaviour {
 
         Vector3 location = (localPoint1 + localPoint2) / 2f;
 
-        /*
-        Vector3 theVector = this.transform.forward;
-        hitPoint = this.transform.position;
-        float distance_formula_on_vector = Mathf.Sqrt(theVector.x * theVector.x + theVector.y * theVector.y + theVector.z * theVector.z);
-        // Using formula to find a point which lies at distance on a 3D line from vector and direction
-        hitPoint.x = hitPoint.x + (100 / (distance_formula_on_vector)) * theVector.x;
-        hitPoint.y = hitPoint.y + (100 / (distance_formula_on_vector)) * theVector.y;
-        hitPoint.z = hitPoint.z + (100 / (distance_formula_on_vector)) * theVector.z;
-        */
+        
 
         float distance_formula_on_vector = Mathf.Sqrt(d1.x * d1.x + d1.y * d1.y + d1.z * d1.z);
 
@@ -90,10 +65,27 @@ public class iSithController : MonoBehaviour {
         if (num > 0)
         {
             interactionObject.transform.position = location;
+            lastLocationLDistance = Vector3.Distance(p1, localPoint1);
+            lastLocationRDistance = Vector3.Distance(p2, localPoint2);
         } else
         {
-            interactionObject.transform.position = (p1 + p2) / 2f;
+            // Because the skew calculation includes behind the controllers must account for when the smalles point is behind
+            // if last location distance != -1 will calculate the last location of the cross over point so object doesnt jump around wildly
+            // otherwise will just place between controllers
+            if(lastLocationLDistance != -1) {
+                Vector3 normalizedLDirectionPlusDistance = d1.normalized* lastLocationLDistance;
+                Vector3 normalizedRDirectionPlusDistance = d2.normalized * lastLocationRDistance;
+                Vector3 lPos = p1 + normalizedLDirectionPlusDistance;
+                Vector3 rPos = p2 + normalizedRDirectionPlusDistance;
+                Vector3 finalLocal = (lPos+rPos)/2f;
+                interactionObject.transform.position = finalLocal;
+            } else {
+                interactionObject.transform.position = (p1 + p2) / 2f;
+            }
+            
+
         }
+        
     }
 
 
@@ -115,15 +107,9 @@ public class iSithController : MonoBehaviour {
             return 0.0f;
         }
     }
-
-    // Use this for initialization
-    void Start () {
-		
-	}
 	
 	// Update is called once per frame
 	void Update () {
-        // Is this the best way? Check later.
         if(Application.isPlaying) {
             setCubeLocation();
         }
@@ -138,6 +124,5 @@ public class iSithController : MonoBehaviour {
         } else if (selectionController ==  SelectionController.RightController && component.trackedObj != rightController) {          
                 component.trackedObj = rightController;
         }
-        //Vector3.Lerp(interactionObject.transform.position, getInteractionPoint(), 0.5f);
 	}
 }

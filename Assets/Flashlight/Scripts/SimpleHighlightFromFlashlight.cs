@@ -1,5 +1,5 @@
 ﻿/*
- *  SimpleHighlightFromBendCast - Script that can be attached to an object displaying how to utilize the bend cast controllers events to react externally when an object
+ *  SimpleHighlightFromBendCast - Script that can be attached to an object displaying how to utilize the flashlight controllers events to react externally when an object
  *                                is highlighted or selected.
  *  
  *  Copyright(C) 2018  Ian Hanan
