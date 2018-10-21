@@ -10,16 +10,17 @@ public class WorldInMiniature : MonoBehaviour {
      * 
      * */
 
-    private SteamVR_TrackedObject trackedObj;
-    private SteamVR_TrackedObject trackedObjO; //tracked object other
+    internal SteamVR_TrackedObject trackedObj;
+    internal SteamVR_TrackedObject trackedObjO; //tracked object other
     private SteamVR_Controller.Device controller;
     internal SteamVR_Controller.Device controllerO; //controller other
     private GameObject worldInMinParent;
     GameObject[] allSceneObjects;
     private GameObject cameraHead;
     private bool WiMAactive = false;
-    private List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light", "background"};
+    public List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light", "background"};
     private float scaleAmount = 20f;
+    public LayerMask interactableLayer;
     public Material outlineMaterial;
 
     public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };

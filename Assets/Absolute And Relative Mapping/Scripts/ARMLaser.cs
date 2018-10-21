@@ -49,7 +49,7 @@ public class ARMLaser : MonoBehaviour {
     public enum InteractionType { Selection, Manipulation };
 
     public InteractionType interactionType = InteractionType.Selection;
-    public GameObject selection; // holds the selected object
+    public GameObject lastSelectedObject; // holds the selected object
 
     public GameObject currentlyPointingAt;
 
@@ -212,7 +212,7 @@ public class ARMLaser : MonoBehaviour {
             if(currentlyPointingAt != null) { // If pointing at an object
                 if(interactionType == InteractionType.Selection) 
                 {
-                    selection = currentlyPointingAt;
+                    lastSelectedObject = currentlyPointingAt;
                 } else if (interactionType == InteractionType.Manipulation) 
                 {
                     // No manipualtion implemented for this currently

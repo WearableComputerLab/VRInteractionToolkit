@@ -7,13 +7,19 @@ using UnityEngine.SceneManagement;
 
 public class AppManagerVR : MonoBehaviour {
 
+    public GameObject script;
+    public SteamVR_TrackedObject trackedObjL;
+    public SteamVR_TrackedObject trackedObjR;
+    private SteamVR_Controller.Device controllerL;
+    private SteamVR_Controller.Device controllerR;
+
     public static int STATE = 0;
     private GameObject[] buttons = new GameObject[20];
     public GameObject buttonsParent;
     private int target = 0;
     private bool firstTarget = false;
-    private float distance = 200f;
-    private float amplitude = 50f;
+    private float distance = 250f;
+    private float amplitude = 40f;
     private float prevHitTime;
     public float buttonSize = 1f;
     private Vector3[] ogPositions = new Vector3[20];
@@ -21,7 +27,7 @@ public class AppManagerVR : MonoBehaviour {
 
     public GameObject[,] linkedButtons = new GameObject[10, 2];
 
-    public List<string> logInfo = new List<string>();
+    private List<string> logInfo = new List<string>();
 
     // Use this for initialization
     void Start() {
@@ -31,6 +37,9 @@ public class AppManagerVR : MonoBehaviour {
                 button.transform.localPosition = ogPositions[counter];
                 counter++;
             }
+        }
+        if (STATE == 0) {
+            logInfo.Add("Technique, Obj Type, ID, Distance, Amplitude, Error, Time");
         }
         STATE++;
         firstTarget = false;
@@ -50,7 +59,7 @@ public class AppManagerVR : MonoBehaviour {
         //idText.text = "ID:" + Mathf.Log((distance / amplitude) + 1, 2).ToString();
         //distText.text = "D:" + distance;
         //amplText.text = "A:" + amplitude;
-        //logInfo.Add(idText.text + " | " + distText.text + " | " + amplText.text);
+        //logInfo.Add(Mathf.Log((distance / amplitude) + 1, 2) + "," + distance + "," + amplitude + "," + currentScript.ToString());
         //writeToFile();
     }
 
@@ -77,6 +86,8 @@ public class AppManagerVR : MonoBehaviour {
         linkedButtons[9, 1] = buttons[19];
     }
 
+    public GameObject cameraRig;
+
     private void setButtonSize(GameObject[] buttons) {
         int count = 0;
         foreach(GameObject button in buttons) {
@@ -87,17 +98,27 @@ public class AppManagerVR : MonoBehaviour {
             button.transform.localScale = new Vector3(amplitude/10f, amplitude/10f, amplitude/10f);
             //print("size:" + button.GetComponent<Renderer>().bounds.size);
             //button.transform.localPosition = new Vector3(button.transform.localPosition.x * (distance / 100f), button.transform.localPosition.y * (distance / 100f), button.transform.localPosition.z * (distance / 100f));
-            button.transform.localPosition = new Vector3(button.transform.localPosition.x * (distance / 100f), button.transform.localPosition.y * (distance / 100f), button.transform.localPosition.z * (distance / 100f));
+            button.transform.localPosition = new Vector3(40f, button.transform.localPosition.y * (distance / 100f), button.transform.localPosition.z * (distance / 100f));
             count++;
         }
+        cameraRig.transform.position = new Vector3(cameraRig.transform.position.x, (distance / 10f)/2f, cameraRig.transform.position.z);
     }
 
     private int selectionIndex = 0;
 
     public void newTargetVR() {
+        //print(states.Length);
         if(firstTarget == false || selectionIndex == 0) {
-            if(target >= 1 && Input.anyKeyDown) {
+            if(target >= 1 && controllerR != null && controllerR.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) || target >= 1 && controllerL != null && controllerL.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
                 linkedButtons[target - 1, 1].GetComponent<Renderer>().material.color = Color.white;
+                if(currentSelectedObject == linkedButtons[target - 1, 1]) {
+                    print("Target:" + target + "A | Selection Time:" + prevHitTime * 1000 + " ms" + " | ERROR = FALSE");
+                    //logInfo.Add("Target:" + target + "A | Selection Time:" + prevHitTime * 1000 + " ms" + " | ERROR = FALSE");
+                    logInfo.Add(currentScript.ToString()+","+ +target+"A,"+ Mathf.Log((distance / amplitude) + 1, 2) + ","+distance+","+amplitude+",0,"+prevHitTime * 1000);
+                } else {
+                    print("Target:" + target + "A | Selection Time:" + prevHitTime * 1000 + " ms" + " | ERROR = TRUE");
+                    logInfo.Add(currentScript.ToString() + "," + +target + "A," + Mathf.Log((distance / amplitude) + 1, 2) + "," + distance + "," + amplitude + ",1," + prevHitTime * 1000);
+                }
                 prevHitTime = 0f;
                 linkedButtons[target, 0].GetComponent<Renderer>().material.color = Color.red;
                 linkedButtons[target, 0].transform.SetSiblingIndex(16);
@@ -111,15 +132,30 @@ public class AppManagerVR : MonoBehaviour {
                 firstTarget = true;
             }
         } else {
-            if(Input.anyKeyDown) {
+            if(controllerR != null && controllerR.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) || controllerL != null && controllerL.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+                if(target != 0) {
+                    if(currentSelectedObject == linkedButtons[target, 0]) {
+                        print("Target:" + target + "B | Selection Time:" + prevHitTime * 1000 + " ms" + " | ERROR = FALSE");
+                        //logInfo.Add("Target:" + target + "B | Selection Time:" + prevHitTime * 1000 + " ms" + " | ERROR = FALSE");
+                        logInfo.Add(currentScript.ToString() + "," + +target + "B," + Mathf.Log((distance / amplitude) + 1, 2) + "," + distance + "," + amplitude + ",0," + prevHitTime * 1000);
+                    } else {
+                        print("Target:" + target + "B | Selection Time:" + prevHitTime * 1000 + " ms" + " | ERROR = TRUE");
+                        //logInfo.Add("Target:" + target + "B | Selection Time:" + prevHitTime * 1000 + " ms" + " | ERROR = TRUE");
+                        logInfo.Add(currentScript.ToString() + "," + +target + "B," + Mathf.Log((distance / amplitude) + 1, 2) + "," + distance + "," + amplitude + ",1," + prevHitTime * 1000);
+                    }
+                }
+
+
                 linkedButtons[target, 0].GetComponent<Renderer>().material.color = Color.white;
                 linkedButtons[target, 1].GetComponent<Renderer>().material.color = Color.red;
                 linkedButtons[target, 1].transform.SetSiblingIndex(16);
+                //print("TARGET:" + linkedButtons[target, 0].name);
+                //print("SELECTED:" + currentSelectedObject);
                 selectionIndex = 0;
                 target++;
                 prevHitTime = 0f;
                 if(target == 10) { //completed..
-                    if(completedStates.Count == 5) {
+                    if(completedStates.Count == states.Length/2) {
                         print("Loading next scene..");
                         writeToFile();
                         loadNextLevel();
@@ -129,9 +165,9 @@ public class AppManagerVR : MonoBehaviour {
                     linkedButtons[9, 1].GetComponent<Renderer>().material.color = Color.white;
                     print("Completed.." + completedStates.Count);
                     print("RESTART WITH CHANGES NOW");
-                    int state = Random.Range(0, 5);
+                    int state = Random.Range(0, states.Length/2);
                     while(completedStates.Contains(state)) {
-                        state = Random.Range(0, 5);
+                        state = Random.Range(0, states.Length/2);
                     }
                     completedStates.Add(state);
                     distance = states[state, 0];
@@ -142,15 +178,15 @@ public class AppManagerVR : MonoBehaviour {
         }
     }
     private List<float> completedStates = new List<float>();
-    private float[,] states = new float[,] { { 400f, 20f }, { 350, 60f }, { 300, 40 }, { 500, 10f }, { 100, 50 } };
-
+    //private float[,] states = new float[,] { { 400f, 20f }, { 350, 60f }, { 300, 40 }, { 500, 10f }, { 100, 50 } };
+    private float[,] states = new float[,] { { 350f, 20f }, { 500, 10f } };
     public void loadNextLevel() {
         SceneManager.LoadScene(Application.loadedLevel + 1);
     }
 
     public void writeToFile() {
         //StreamWriter writer = new StreamWriter(Application.dataPath + "testing.txt", true);
-        string dest = "trial" + ".txt";
+        string dest = "trial" + ".csv";
         StreamWriter writer = null;
         //using(writer = File.AppendText(dest)) {
         //StreamWriter writer = new StreamWriter(dest, true);
@@ -158,7 +194,7 @@ public class AppManagerVR : MonoBehaviour {
         bool foundPath = false;
         while(foundPath == false) {
             if(File.Exists(dest)) {
-                dest = "trial" + count + ".txt";
+                dest = "trial" + count + ".csv";
                 count++;
             } else {
                 print("Found path:" + dest);
@@ -176,10 +212,42 @@ public class AppManagerVR : MonoBehaviour {
         writer.Close();
     }
 
-
+    private GameObject currentSelectedObject;
+    public enum SCRIPT {FISHING_REEL, BUBBLE_CURSOR, ARM, WORLD_IN_MIN, BENDCAST};
+    public SCRIPT currentScript;
 
     // Update is called once per frame
     void Update() {
+        if(currentScript == SCRIPT.FISHING_REEL) {
+            if(script.GetComponent<FishingReel>().lastSelectedObject != null && !script.GetComponent<FishingReel>().lastSelectedObject.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<FishingReel>().lastSelectedObject;
+            }
+        } else if(currentScript == SCRIPT.BUBBLE_CURSOR) {
+            if(script.GetComponent<BubbleCursor>().lastSelectedObject != null && !script.GetComponent<BubbleCursor>().lastSelectedObject.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<BubbleCursor>().lastSelectedObject;
+            }
+        /*} else if(currentScript == SCRIPT.ARM) {
+            if(script.GetComponent<ARMController>().lastSelectedObject != null && !script.GetComponent<BubbleCursor>().lastSelectedObject.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<BubbleCursor>().lastSelectedObject;
+            }*/
+        } else if(currentScript == SCRIPT.WORLD_IN_MIN) {
+            if(script.GetComponent<WorldInMiniature>().selectedObject != null && !script.GetComponent<WorldInMiniature>().selectedObject.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<WorldInMiniature>().selectedObject;
+            }
+        } else if(currentScript == SCRIPT.BENDCAST) {
+            if(script.GetComponent<BendCast>().lastSelectedObject != null && !script.GetComponent<BendCast>().lastSelectedObject.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<BendCast>().lastSelectedObject;
+            }
+        }
+
+        if((int)trackedObjR.index != -1) {
+            controllerR = SteamVR_Controller.Input((int)trackedObjR.index);
+        }
+        if((int)trackedObjL.index != -1) {
+            controllerL = SteamVR_Controller.Input((int)trackedObjL.index);
+        }
+
+
         newTargetVR();
         //print("prev hit time:"+prevHitTime);
         if(target >= 1) {

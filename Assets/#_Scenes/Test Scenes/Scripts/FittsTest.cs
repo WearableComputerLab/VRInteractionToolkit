@@ -97,7 +97,7 @@ public class FittsTest : MonoBehaviour {
         objectDistanceTemp = objectDistance;
         objectSizeTemp = objectSize;
         timer += Time.deltaTime * 1000;
-        if (script.GetComponent<FishingReel>().tempObjectStored != null && script.GetComponent<FishingReel>().tempObjectStored.Equals(chosenObject)) {
+        if (script.GetComponent<FishingReel>().lastSelectedObject != null && script.GetComponent<FishingReel>().lastSelectedObject.Equals(chosenObject)) {
                 objectSelected();
         }
 	}

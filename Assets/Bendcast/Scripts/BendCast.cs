@@ -40,7 +40,7 @@ public class BendCast : MonoBehaviour
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
     public InteractionType interactionType;
-    public GameObject selection; // holds the selected object
+    public GameObject lastSelectedObject; // holds the selected object
 
     
     public UnityEvent selectedObject; // Invoked when an object is selected
@@ -108,7 +108,7 @@ public class BendCast : MonoBehaviour
             
             if(interactionType == InteractionType.Selection) {
                 // Pure Selection
-                selection = currentlyPointingAt;
+                lastSelectedObject = currentlyPointingAt;
                 selectedObject.Invoke();
                 print("selected" + currentlyPointingAt);
                 
@@ -235,7 +235,7 @@ public class BendCast : MonoBehaviour
             // Laser didnt reach any object so will disable
             laserHolderGameobject.SetActive(false);
             currentlyPointingAt = null;
-            selection = null;
+            lastSelectedObject = null;
         }
     }
 }
