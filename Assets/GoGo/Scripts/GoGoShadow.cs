@@ -142,16 +142,6 @@ public class GoGoShadow : MonoBehaviour
     void checkForAction()
     {
         device = SteamVR_Controller.Input((int)trackedObj.index);
-        if ( device.GetPressDown(SteamVR_Controller.ButtonMask.Axis0)) // top side of touchpad and pushing down 
-        {
-            // 0.12f
-            // Want the center of the chest so have to move the location back as the VR googles are extruding from the vive
-            //Vector3 centerOfHead = Camera.main.transform.position + (Camera.main.transform.forward.normalized * -0.08f);
-            // 0.3 down to chest
-            Vector3 downToChest = Camera.main.transform.position + (Vector3.down * 0.2f);
-            chestPosition = downToChest;
-            relativeChestPos = Camera.main.transform.position - chestPosition; // need to get the position of chest relative to head so moves with user when he moves
-        }
         if (armLengthCalculator == ToggleArmLengthCalculator.on && device.GetPressUp(SteamVR_Controller.ButtonMask.Axis0)) //(will only register if arm length calculator is on)
         {
             armLength = Vector3.Distance(trackedObj.transform.position, chestPosition);
