@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine.UI;
 
 public class BubbleCursor : MonoBehaviour {
-    
+
     /* 3D Bubble Cursor implementation by Kieran May
      * University of South Australia
      * 
@@ -16,7 +16,6 @@ public class BubbleCursor : MonoBehaviour {
      * -Make bubble cursor compatible with all type of gameobject shapes
      * -Refactor code
      * */
-
     private GameObject[] interactableObjects; // In-game objects
     private GameObject cursor;
     private float startRadius = 0f;
@@ -73,6 +72,7 @@ public class BubbleCursor : MonoBehaviour {
         startRadius = cursor.GetComponent<SphereCollider>().radius;
         extendDistance = Vector3.Distance(trackedObj.transform.position, cursor.transform.position);
         SetCursorParent();
+        moveCursorPosition();
     }
 
     void SetCursorParent() {
@@ -135,26 +135,33 @@ public class BubbleCursor : MonoBehaviour {
 
     private void PadScrolling() {
         if (controller.GetAxis().y != 0) {
-            //print(controller.GetAxis().y);
-            //cursor.transform.position += new Vector3(0f, 0f, controller.GetAxis().y/20);
             extendDistance += controller.GetAxis().y / cursorSpeed;
             moveCursorPosition();
         }
     }
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
-    private GameObject tempObjectStored;
+    internal GameObject lastSelectedObject;
+
     void PickupObject(GameObject obj) {
         if (trackedObj != null) {
             if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
-                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
-                obj.transform.SetParent(cursor.transform);
-                tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
-                pickedUpObject = true;
+                if(interactionType == InteractionType.Manipulation_Movement) {
+                    //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
+                    obj.transform.SetParent(cursor.transform);
+                    lastSelectedObject = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
+                    pickedUpObject = true;
+                } else if (interactionType == InteractionType.Selection) {
+                    lastSelectedObject = obj;
+                    pickedUpObject = true;
+                }
             }
             if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
-                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
-                tempObjectStored.transform.SetParent(null);
+                if(interactionType == InteractionType.Manipulation_Movement) {
+                    //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
+                    lastSelectedObject.transform.SetParent(null);
+                    pickedUpObject = false;
+                }
                 pickedUpObject = false;
             }
         }
@@ -207,6 +214,13 @@ public class BubbleCursor : MonoBehaviour {
             }
             if(interactableObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(BoxCollider)) {
                 SecondClosestCircleRadius = lowestDistances[1][0] - (interactableObjects[(int)lowestDistances[1][1]].GetComponent<BoxCollider>().size.x * interactableObjects[(int)lowestDistances[1][1]].transform.localScale.x) + (interactableObjects[(int)lowestDistances[1][1]].GetComponent<BoxCollider>().size.x * interactableObjects[(int)lowestDistances[1][1]].transform.localScale.x);
+            }
+            //MeshCollider isn't quite as precise as other colliders
+            if(interactableObjects[(int)lowestDistances[0][1]].GetComponent<Collider>().GetType() == typeof(MeshCollider)) {
+                ClosestCircleRadius = lowestDistances[0][0] + (interactableObjects[(int)lowestDistances[0][1]].transform.localScale.x) + (interactableObjects[(int)lowestDistances[0][1]].transform.localScale.x);
+            }
+            if(interactableObjects[(int)lowestDistances[1][1]].GetComponent<Collider>().GetType() == typeof(MeshCollider)) {
+                SecondClosestCircleRadius = lowestDistances[1][0] - (interactableObjects[(int)lowestDistances[1][1]].transform.localScale.x) + (interactableObjects[(int)lowestDistances[1][1]].transform.localScale.x);
             }
 
             float closestValue = Mathf.Min(ClosestCircleRadius, SecondClosestCircleRadius);

@@ -43,7 +43,7 @@ public class FishingReel : MonoBehaviour {
     private Valve.VR.EVRButtonId trigger = Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger;
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
-    internal GameObject tempObjectStored;
+    internal GameObject lastSelectedObject;
     public void PickupObject(GameObject obj) {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
@@ -51,20 +51,20 @@ public class FishingReel : MonoBehaviour {
                 if (interacionType == InteractionType.Manipulation_Movement) {
                     obj.transform.SetParent(trackedObj.transform);
                     extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
-                    tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
+                    lastSelectedObject = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
                     pickedUpObject = true;
                 } else if (interacionType == InteractionType.Manipulation_Full && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
-                    tempObjectStored = obj;
+                    lastSelectedObject = obj;
                     objectSelected = true;
                     this.GetComponent<SelectionManipulation>().selectedObject = obj;
                 } else if (interacionType == InteractionType.Selection) {
-                    tempObjectStored = obj;
+                    lastSelectedObject = obj;
                     objectSelected = true;
                 }
             }
             if (controller.GetPressUp(trigger) && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement) {
-                    tempObjectStored.transform.SetParent(null);
+                    lastSelectedObject.transform.SetParent(null);
                     pickedUpObject = false;
                 }
                 objectSelected = false;
