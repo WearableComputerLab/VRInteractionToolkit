@@ -125,7 +125,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: d70951840e11e714c8d3f9bfd9691d84, type: 2}
+  - {fileID: 2100000, guid: c1676c6ea612c3a4c801253f5db63df3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -160,7 +160,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: d70951840e11e714c8d3f9bfd9691d84, type: 2}
+  - {fileID: 2100000, guid: c1676c6ea612c3a4c801253f5db63df3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -297,8 +297,23 @@ MonoBehaviour:
   interactionType: 1
   selection: {fileID: 0}
   theController: {fileID: 0}
-  highlightMaterial: {fileID: 2100000, guid: 6729a932de5127b419aacfd9be7dde0d, type: 2}
+  selectedObject:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  hovered:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  unHovered:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   layersOfObjectsToSelect: 08000000
+  objectHoveredOver: {fileID: 0}
 --- !u!114 &114390609378747924
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -313,8 +328,23 @@ MonoBehaviour:
   interactionType: 1
   selection: {fileID: 0}
   theController: {fileID: 0}
-  highlightMaterial: {fileID: 2100000, guid: 6729a932de5127b419aacfd9be7dde0d, type: 2}
+  selectedObject:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  hovered:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  unHovered:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   layersOfObjectsToSelect: 08000000
+  objectHoveredOver: {fileID: 0}
 --- !u!114 &114624464056501392
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -35,7 +35,13 @@ public class Spindle : MonoBehaviour {
         //interactionObject.transform.forward = trackedObj2.transform.forward;
         interactionObject.transform.LookAt(trackedObj2.transform);
 
-        Vector3 rotation = new Vector3(0, 0, interactionObject.transform.eulerAngles.z + trackedObj2.transform.eulerAngles.z);
+        Vector3 rotation;
+        if(spindleAndWheel) {
+            rotation = new Vector3(0, 0, interactionObject.transform.eulerAngles.z + trackedObj2.transform.eulerAngles.z);
+        } else {
+            rotation = new Vector3(0,0,0);
+        }
+        
 
         interactionObject.transform.Rotate(rotation);
 

@@ -1,14 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class NewPRISIM : MonoBehaviour {
+public class PRISMMovement : MonoBehaviour {
 
 	public SteamVR_TrackedObject trackedObj;
 	//public GameObject theController;
 
-	private GameObject collidingObject;
-	private GameObject objectInHand;
+	public GameObject collidingObject;
+	public GameObject objectInHand = null;
 	
 	private SteamVR_Controller.Device Controller
 	{
@@ -29,7 +30,12 @@ public class NewPRISIM : MonoBehaviour {
 	private float offset = 0;
 	private float totalTimePassedWhenMaxThresholdExceeded = 0;
 
+	
+    public UnityEvent selectedObject; // Invoked when an object is selected
 
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+    
 
 	// Offset recovery as specified by paper Time.time is in seconds
 	private void offsetRecovery() {
@@ -72,12 +78,14 @@ public class NewPRISIM : MonoBehaviour {
         {
             return;
         }
-        collidingObject = col.gameObject;
+        collidingObject = col.gameObject;		
+		hovered.Invoke();
     }
 
     public void OnTriggerEnter(Collider other)
     {       
         SetCollidingObject(other);
+		
     }
 
     public void OnTriggerStay(Collider other)
@@ -91,6 +99,7 @@ public class NewPRISIM : MonoBehaviour {
         {
             return;
         }    
+		unHovered.Invoke();
         collidingObject = null;
     }
 
@@ -99,9 +108,8 @@ public class NewPRISIM : MonoBehaviour {
     {
         
         objectInHand = collidingObject;
+		selectedObject.Invoke();
         collidingObject = null;
-		// Set objectsPosition to hand
-		//objectInHand.transform.position = this.transform.position;
 	}
 
 	private void ReleaseObject()
@@ -111,14 +119,13 @@ public class NewPRISIM : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		lastPosition = this.transform.position;
 	}
 	
 	// Only updates if millisecondDelayTime (500ms) has passed
 	private void updateLastPosition() {
 		if(timePassedTracker >= millisecondsDelayTime) {
 			moveObjectInHand();
-			lastPosition = this.transform.position;
+			lastPosition = trackedObj.transform.position;
 
 			timePassedTracker = 0;
 		}
@@ -187,23 +194,23 @@ public class NewPRISIM : MonoBehaviour {
 	}
 
 	private Vector3 getDirectionControllerMoving() {
-		return (this.transform.position - lastPosition).normalized;
+		return (trackedObj.transform.position - lastPosition).normalized;
 	}
 
 	private float getDistanceTraveledSinceLastPosition() {
-		return Vector3.Distance(this.transform.position, lastPosition);
+		return Vector3.Distance(trackedObj.transform.position, lastPosition);
 	}
 
 	private float getDistanceTraveledX() {
-		return Mathf.Abs(this.transform.position.x - lastPosition.x);
+		return Mathf.Abs(trackedObj.transform.position.x - lastPosition.x);
 	}
 
 	private float getDistanceTraveledY() {
-		return Mathf.Abs(this.transform.position.y - lastPosition.y);
+		return Mathf.Abs(trackedObj.transform.position.y - lastPosition.y);
 	}
 
 	private float getDistanceTraveledZ() {
-		return Mathf.Abs(this.transform.position.z - lastPosition.z);
+		return Mathf.Abs(trackedObj.transform.position.z - lastPosition.z);
 	}
 
 	// Update is called once per frame

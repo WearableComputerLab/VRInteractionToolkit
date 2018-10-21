@@ -49,12 +49,6 @@ public class Flashlight : MonoBehaviour
 
         // Translates the cone so that whatever size it is as long as it is at position 0,0,0 if contoller it will jump to the origin point for flashlight
         translateConeDistanceAlongForward(this.GetComponent<Renderer>().bounds.size.z/2f);
-
-        //GameObject flashLightModel = this.transform.GetChild(0).gameObject;
-        //flashLightModel.GetComponent<MeshRenderer>().material.color = new Color(theColor.r, theColor.b, theColor.g, transparency);
-
-        this.GetComponent<MeshRenderer>().material.color = new Color(theColor.r, theColor.b, theColor.g, transparency);
-
         
         trackedObj = this.gameObject.transform.parent.GetComponent<SteamVR_TrackedObject>();
         device = SteamVR_Controller.Input((int)trackedObj.index);

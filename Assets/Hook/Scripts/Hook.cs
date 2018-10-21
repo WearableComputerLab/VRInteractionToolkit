@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Events;
 
 // Information on hook technique
 // http://www.eecs.ucf.edu/isuelab/publications/pubs/Cashion_Jeffrey_A_201412_PhD.pdf pf 13
@@ -20,12 +21,21 @@ public class Hook : MonoBehaviour {
 
     //  Used lists instead of arrays incase we want future optimization where it dynamically changes
     //  Instead of looping through every object in the scene
-    List<HookObject> nearbyObjects;
+    private List<HookObject> nearbyObjects;
     int countOfIncreases;
 
     private GameObject objectInHand;
-    public SteamVR_TrackedObject trackedObj;
+    public SteamVR_TrackedObject trackedObj = null;
     public bool checkForNewlySpawnedObjects = true;
+
+    
+    public UnityEvent selectedObject; // Invoked when an object is selected
+
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+
+    public GameObject currentlyHovered = null; // To hold the closest object
+    private GameObject lastHovered = null; // To check if changed
 
     private SteamVR_Controller.Device Controller
     {
@@ -38,28 +48,16 @@ public class Hook : MonoBehaviour {
         populateGameObjectList();
         // Set count of Increases to 1/3 of the list (int incase is odd and cannot use odd)
         countOfIncreases = nearbyObjects.Count / 3;
+
+        // Controller needs a rigidbody to grab objects in hook
+        Rigidbody body = trackedObj.gameObject.AddComponent<Rigidbody>();
+        body.isKinematic = true;
     }
 	
 	// Update is called once per frame
 	void Update () {
-		foreach(HookObject each in nearbyObjects)
-        {
-            each.setDistance(this.gameObject);
-        }
-        nearbyObjects = nearbyObjects.OrderBy(w => w.lastDistance).ToList();
-        // now increase or decrease score 
-        int count = 0;
-        foreach(HookObject each in nearbyObjects)
-        {
-            if (count < countOfIncreases)
-            {
-                each.increaseScore();
-                count++;
-            } else
-            {
-                each.decreaseScore();
-            }
-        }
+        updateHovered();
+		updateHookList();
 
         // Pressing trigger to grab object
         if (Controller.GetHairTriggerDown())
@@ -74,8 +72,51 @@ public class Hook : MonoBehaviour {
             }
         }
         // printing list for testing
-        print(nearbyObjects.Count);
+        print("Nearby objects: " + nearbyObjects.Count);
 	}
+
+    private void updateHookList() {
+        // Remove any null objects from list if they were destroyed
+        int listLength = nearbyObjects.Count;
+        for(int i = 0; i < listLength; i++) {
+            if(!nearbyObjects[i].checkStillExists()) {
+                // doesnt exist anymore so remove
+                nearbyObjects.RemoveAt(i);
+                print("removed");
+            }
+            listLength--;
+        }
+
+        // Check all the objects still exist
+        foreach(HookObject each in nearbyObjects)
+        {
+            each.setDistance(trackedObj.gameObject);
+        }
+        // Reordering all the nearbyobjects by their newly set distance
+        nearbyObjects = nearbyObjects.OrderBy(w => w.lastDistance).ToList();
+        // now increase or decrease score 
+        int count = 0;
+        foreach(HookObject each in nearbyObjects)
+        {
+            if (count < countOfIncreases)
+            {
+                each.increaseScore();
+                count++;
+            } else
+            {
+                each.decreaseScore();
+            }
+        }
+    }
+
+    private void updateHovered() {
+        currentlyHovered = nearbyObjects.ElementAt<HookObject>(0).ContainingObject;
+        if(currentlyHovered != null && currentlyHovered != lastHovered) {
+            // Hovering a new object 
+            unHovered.Invoke();
+            hovered.Invoke();
+        }
+    }
 
     void populateGameObjectList()
     {
@@ -89,30 +130,38 @@ public class Hook : MonoBehaviour {
         }
     }
 
+    // If for example new objects are spaned to the scene the user can access the hook with that object and add that object to the hook with this method
+    public void addNewlySpawnedObjectToHook(GameObject newObject) {
+        newObject.layer = layersOfObjectsToSelect[0]; // adds the first layer of objects that can be selected so that it definately has one
+        nearbyObjects.Add(new HookObject(newObject));
+    }
+
     private void GrabObject()
     {
         if(nearbyObjects.Count > 0)
         {
-            GameObject objectToSelect = nearbyObjects.ElementAt<HookObject>(0).ContainingObject;
+            GameObject objectToSelect =currentlyHovered;
             if(interactionType == InteractionType.Selection) {
                 // Pure selection
-                print("selected " + objectToSelect);
                 selection = objectToSelect;
             } else {
                 // Manipulation
+                selection = objectToSelect;
                 objectInHand = objectToSelect;
                 objectInHand.transform.position = trackedObj.transform.position;
 
                 var joint = AddFixedJoint();
                 joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
-            }           
+                joint.connectedBody.useGravity = false; // turn of gravity while grabbing
+            }   
+            selectedObject.Invoke();        
         }
     }
 
 
     private FixedJoint AddFixedJoint()
     {
-        FixedJoint fx = gameObject.AddComponent<FixedJoint>();
+        FixedJoint fx = trackedObj.gameObject.AddComponent<FixedJoint>();
         fx.breakForce = Mathf.Infinity;
         fx.breakTorque = Mathf.Infinity;
         return fx;
@@ -120,11 +169,11 @@ public class Hook : MonoBehaviour {
 
     private void ReleaseObject()
     {
-        if (GetComponent<FixedJoint>())
+        if (trackedObj.GetComponent<FixedJoint>())
         {
-            GetComponent<FixedJoint>().connectedBody = null;
-            Destroy(GetComponent<FixedJoint>());
-
+            trackedObj.GetComponent<FixedJoint>().connectedBody = null;
+            Destroy(trackedObj.GetComponent<FixedJoint>());
+            objectInHand.GetComponent<Rigidbody>().useGravity = true;
             objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
             objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }

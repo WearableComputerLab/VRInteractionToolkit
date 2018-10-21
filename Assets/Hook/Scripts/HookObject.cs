@@ -15,7 +15,14 @@ public class HookObject : MonoBehaviour {
 
     public void setDistance(GameObject obj)
     {
-        lastDistance = Vector3.Distance(ContainingObject.transform.position, obj.transform.position);
+        if (ContainingObject != null) {
+            lastDistance = Vector3.Distance(ContainingObject.transform.position, obj.transform.position);
+        }   
+    }
+
+    public bool checkStillExists() {
+        // checks if the gameobject this hookobject contains still exists
+        return ContainingObject != null;
     }
 
     public void decreaseScore()

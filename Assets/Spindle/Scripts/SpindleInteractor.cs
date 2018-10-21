@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SpindleInteractor : MonoBehaviour {
 
@@ -22,10 +23,17 @@ public class SpindleInteractor : MonoBehaviour {
 
     // Pickup Vars
     private GameObject collidingObject;
-    private GameObject collidingObjectHighlighted;
-    private GameObject objectInHand;
+    public GameObject collidingObjectHighlighted;
+    public GameObject objectInHand;
     private bool pickedUpWith1 = false;
     private bool pickedUpWith2 = false;
+
+    
+    public UnityEvent selectedObject; // Invoked when an object is selected
+
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+    
 
     // Use this for initialization
     void Start () {
@@ -118,10 +126,10 @@ public class SpindleInteractor : MonoBehaviour {
 
     public void OnTriggerEnter(Collider other)
     {
-        collidingObjectHighlighted = other.transform.gameObject.transform.GetChild(0).gameObject;
+        collidingObjectHighlighted = other.transform.gameObject;
         if (collidingObjectHighlighted != null)
         {
-            collidingObjectHighlighted.SetActive(true);
+            hovered.Invoke();
         }
         SetCollidingObject(other);
     }
@@ -142,7 +150,7 @@ public class SpindleInteractor : MonoBehaviour {
 
         if (collidingObjectHighlighted != null)
         {
-            collidingObjectHighlighted.SetActive(false);
+            unHovered.Invoke();
             collidingObjectHighlighted = null;
         }
 
@@ -153,6 +161,7 @@ public class SpindleInteractor : MonoBehaviour {
     {
 
         objectInHand = collidingObject;
+        selectedObject.Invoke();
         collidingObject = null;
 
         var joint = AddFixedJoint();

@@ -7,22 +7,20 @@ public class HookController : MonoBehaviour {
 
 	public GameObject leftController;
 	public GameObject rightController;
+	public Hook leftHook;
+	public Hook rightHook;
+
 
 	// Use this for initialization
 	void Awake() {
-		// Locates the camera rig and its child controllers
-        SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
-        leftController = CameraRigObject.left;
-        rightController = CameraRigObject.right;
+		if(leftHook.trackedObj == null && rightHook.trackedObj == null){
+			// Locates the camera rig and its child controllers
+			SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
+			leftController = CameraRigObject.left;
+			rightController = CameraRigObject.right;
 
-		if(leftController != null && leftController.GetComponent<Hook>() == null) {
-			Hook hookComponent = leftController.AddComponent<Hook>() as Hook;
-			hookComponent.trackedObj = leftController.GetComponent<SteamVR_TrackedObject>();
-		} 
-		
-		if(rightController != null && rightController.GetComponent<Hook>() == null) {
-			Hook hookComponent = rightController.AddComponent<Hook>() as Hook;
-			hookComponent.trackedObj = rightController.GetComponent<SteamVR_TrackedObject>();
-		}
+			leftHook.trackedObj = leftController.GetComponent<SteamVR_TrackedObject>();
+			rightHook.trackedObj = rightController.GetComponent<SteamVR_TrackedObject>();
+		}		
 	}
 }

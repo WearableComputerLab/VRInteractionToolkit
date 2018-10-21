@@ -10,6 +10,8 @@ public class AperatureSelection : MonoBehaviour {
 	private Transform laserTransform;
 	private Vector3 hitPoint;
 
+	public GameObject laserContainer;
+
 	public GameObject aperatureVolume;
 
 	public SteamVR_TrackedObject controllerTrackedObj;
@@ -17,8 +19,6 @@ public class AperatureSelection : MonoBehaviour {
 	public SteamVR_TrackedObject headsetTrackedObj;
 	
 	private float minimumDistanceOfIntersection = 2f;
-
-	public GameObject testObjectToSeeIfIntersectionWorking;
 
 
 	void OnEnable() {
@@ -31,24 +31,17 @@ public class AperatureSelection : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		// Turning on flashlight for apeature
+		aperatureVolume.SetActive(true);
+		
+		// Setting flashlight as a child of head
+		aperatureVolume.transform.parent = headsetTrackedObj.transform.parent.transform;
+		aperatureVolume.transform.localEulerAngles = new Vector3(0, 180, 0);
+
+
 		laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
-
-		/* 
-		SteamVR_TrackedObject[] objects = this.GetComponentsInChildren<SteamVR_TrackedObject>();
-		// Finding headset
-		foreach(SteamVR_TrackedObject obj in objects) {
-			if(obj.index == SteamVR_TrackedObject.EIndex.Hmd) {
-				// This is the headset
-				headsetTrackedObj = obj;
-			}
-		}
-		*/
-		if(headsetTrackedObj == null) {
-			print("y");
-		}
-		// setting up the volume
-		//aperatureVolume.transform.parent = headsetTrackedObj.transform;
+		laser.transform.parent = laserContainer.transform;
 
 		// Translates the cone so that whatever size it is as long as it is at position 0,0,0 if contoller it will jump to the origin point for flashlight
 		if(aperatureVolume.GetComponent<Renderer>().bounds.size.z != 0) {
@@ -60,6 +53,7 @@ public class AperatureSelection : MonoBehaviour {
 	void Update () {
 		ShowLaser();
 		getIntersectionLocation();
+
 	}
 
 	Vector3 getIntersectionLocation() {
@@ -87,11 +81,7 @@ public class AperatureSelection : MonoBehaviour {
         float distanceBetweenPoints = Vector3.Distance(localPoint1, localPoint2);
 
 		float lengthOfCone = Vector3.Distance(headsetTrackedObj.transform.position, localPoint2);
-		// Has to be within 2
-        if (distanceBetweenPoints < minimumDistanceOfIntersection)
-        {
-            testObjectToSeeIfIntersectionWorking.transform.position = localPoint2*2;
-        }
+
 
 		// Reszing the volume to match the location
 		aperatureVolume.transform.localScale = new Vector3(aperatureVolume.transform.localScale.x, aperatureVolume.transform.localScale.y, lengthOfCone*100);
