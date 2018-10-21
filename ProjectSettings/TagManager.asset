@@ -19,7 +19,7 @@ TagManager:
   - PickableObject
   - FlashLight
   - Laser
-  - 
+  - IgnoreTeleport
   - 
   - 
   - 

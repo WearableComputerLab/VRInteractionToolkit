@@ -51,7 +51,7 @@ public class RedGreenSquareGame : MonoBehaviour {
 			// one scond has past so can add to timer
 			lastTime = Time.time;
 			count += 1;
-			timer.text = count.ToString();
+			timer.text = count.ToString()  + " Sec";
 		}
 	}
 
@@ -67,7 +67,7 @@ public class RedGreenSquareGame : MonoBehaviour {
 			if(objectsInRed.Count == 0 && objectsInGreen.Count == gameObjects.Count) {
 				// Success stop timer!
 				finalScore.text = "Time taken:";
-				timer.text = count.ToString();
+				timer.text = count.ToString() + " Sec";
 				counting = false;
 			}
 
@@ -84,6 +84,7 @@ public class RedGreenSquareGame : MonoBehaviour {
 		objectsInGreen = new List<GameObject>();
 		objectsInRed = new List<GameObject>();
 		counting = false;
+		count = 0;
 		timer.text = "0";
 		finalScore.text = "";
 

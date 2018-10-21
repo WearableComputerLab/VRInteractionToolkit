@@ -18,6 +18,8 @@ public class SizeController : MonoBehaviour {
 
 	public int currentNumberOfItems = 4;
 
+	public bool forcedZ = true;
+
 	// Use this for initialization
 	void Start () {
 	}
@@ -55,7 +57,11 @@ public class SizeController : MonoBehaviour {
 			float x = this.transform.localPosition.x + (Mathf.Cos(Mathf.Deg2Rad * currentAngle) * circleRadius);
 			float y = this.transform.localPosition.y + (Mathf.Sin(Mathf.Deg2Rad * currentAngle) * circleRadius);
 			currentAngle += angle;
-			each.localPosition = new Vector3(x, y, each.localPosition.z);
+			each.localPosition = new Vector3(x, y, each.transform.localPosition.z);
+
+			if(forcedZ) {
+				each.transform.position = new Vector3(each.position.x, each.position.y, this.transform.position.z);
+			} 			
 		}
 	}
 }

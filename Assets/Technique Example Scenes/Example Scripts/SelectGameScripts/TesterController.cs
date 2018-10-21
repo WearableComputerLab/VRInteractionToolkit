@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class TesterController : MonoBehaviour {
 
-	public GameObject theSelectionGameObject;
-
 	private List<GameObject> testobjects;
 
 	private float endTime;
@@ -24,11 +22,10 @@ public class TesterController : MonoBehaviour {
 
 	private bool testRunning = false; // Tracking if test is running
 
+	public int testTimer = 20;
+
 	// Use this for initialization
 	void Start () {
-		BendCast theSelectionComponent = theSelectionGameObject.GetComponent<BendCast>();
-		theSelectionComponent.selectedObject.AddListener(objectSelected);
-
 		testobjects = new List<GameObject>();
 		foreach(Transform each in this.transform) {
 			testobjects.Add(each.gameObject);
@@ -71,29 +68,33 @@ public class TesterController : MonoBehaviour {
 		}
 	}
 
-	void startTest() {
-		testRunning = true;
+	public void startTest() {
+		if(!testRunning) {
+			testRunning = true;
 
-		// Start visual countdown timer
-		endTime = Time.time + 60;
-		timerText.text = "60";
+			// reset score
+			score = 0;
+			scoreText.text = "Score: " + score.ToString();	
+			// Start visual countdown timer
+			endTime = Time.time + testTimer;
+			timerText.text = testTimer.ToString();
 
-		// Highlight first item
-		// get a index between 0 and length of objects so can choose randomly to highlight
-		int number = Random.Range(0, testobjects.Count-1);
-		goal = testobjects[number];
+			// Highlight first item
+			// get a index between 0 and length of objects so can choose randomly to highlight
+			int number = Random.Range(0, testobjects.Count-1);
+			goal = testobjects[number];
 
-		goal.GetComponent<Renderer>().material = goalHighlightMaterial;
+			goal.GetComponent<Renderer>().material = goalHighlightMaterial;
+		}		
 	}
 
-	void objectSelected() {
-		if(theSelectionGameObject.GetComponent<BendCast>().selection.Equals(goal)) {
+	public void objectSelected(GameObject theobject) {
+		if(goal == theobject) {
 			goal.GetComponent<Renderer>().material = goalDefaultMaterial;
-			//theSelectionGameObject.GetComponent<BendCast>().unhighlightedObject = goalDefaultMaterial;
 			goal = null;
 			// Increase score by 1
 			score += 1;
 			scoreText.text = "Score: " + score.ToString();
-		}	
+		}		
 	}
 }

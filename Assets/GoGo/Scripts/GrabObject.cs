@@ -131,6 +131,7 @@ public class GrabObject : MonoBehaviour {
                 } else {
                     // Manipulation
                     pickUpObject();
+                    selection = collidingObject;
                 }
                 
             }

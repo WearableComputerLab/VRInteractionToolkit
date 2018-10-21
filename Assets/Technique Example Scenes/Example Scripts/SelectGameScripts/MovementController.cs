@@ -14,7 +14,11 @@ public class MovementController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		GameObject[] allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+		GameObject[] allObjects = new GameObject[this.transform.childCount];
+		
+		for(int i = 0; i < this.transform.childCount; i++) {
+			allObjects[i] = this.transform.GetChild(i).gameObject;
+		}
 		GameObject[] objectsInOrder = new GameObject[allObjects.Length];
 		int count = 0;
 		// Finds all the objects for testing and adds them in order of their assigned index to the orderedList
