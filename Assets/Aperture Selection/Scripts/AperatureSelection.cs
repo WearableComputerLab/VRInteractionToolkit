@@ -20,6 +20,8 @@ public class AperatureSelection : MonoBehaviour {
 	
 	private float minimumDistanceOfIntersection = 2f;
 
+	public float amplificationOfLength = 4f; // multiple the distance so that the cone can reach further
+
 
 	void OnEnable() {
 		     
@@ -81,7 +83,7 @@ public class AperatureSelection : MonoBehaviour {
         float distanceBetweenPoints = Vector3.Distance(localPoint1, localPoint2);
 
 		float lengthOfCone = Vector3.Distance(headsetTrackedObj.transform.position, localPoint2);
-
+		lengthOfCone = lengthOfCone*amplificationOfLength;
 
 		// Reszing the volume to match the location
 		aperatureVolume.transform.localScale = new Vector3(aperatureVolume.transform.localScale.x, aperatureVolume.transform.localScale.y, lengthOfCone*100);
