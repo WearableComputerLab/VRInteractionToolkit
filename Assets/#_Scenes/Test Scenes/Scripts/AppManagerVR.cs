@@ -29,6 +29,13 @@ public class AppManagerVR : MonoBehaviour {
 
     private List<string> logInfo = new List<string>();
 
+    void Awake() {
+        script.SetActive(true);
+        if (script.transform.parent.gameObject.activeInHierarchy == false) {
+            script.transform.parent.gameObject.SetActive(true);
+        }
+    }
+
     // Use this for initialization
     void Start() {
         if(gameRunning == true) {
@@ -181,7 +188,8 @@ public class AppManagerVR : MonoBehaviour {
     //private float[,] states = new float[,] { { 400f, 20f }, { 350, 60f }, { 300, 40 }, { 500, 10f }, { 100, 50 } };
     private float[,] states = new float[,] { { 350f, 20f }, { 500, 10f } };
     public void loadNextLevel() {
-        SceneManager.LoadScene(Application.loadedLevel + 1);
+        //SceneManager.LoadScene(Application.loadedLevel + 1);
+        print("Scene has been completed for: "+currentScript+" ..load the next technique");
     }
 
     public void writeToFile() {
@@ -213,7 +221,7 @@ public class AppManagerVR : MonoBehaviour {
     }
 
     private GameObject currentSelectedObject;
-    public enum SCRIPT {FISHING_REEL, BUBBLE_CURSOR, ARM, WORLD_IN_MIN, BENDCAST};
+    public enum SCRIPT {FISHING_REEL, BUBBLE_CURSOR, ABSOLUTE_RELATIVE_MAPPING, WORLD_IN_MIN, BENDCAST, APERATURE, FLASHLIGHT, ISITH, HOOK, IMAGEPLANE_STICKYHAND, IMAGEPLANE_FRAMINGHANDS};
     public SCRIPT currentScript;
 
     // Update is called once per frame
@@ -226,10 +234,10 @@ public class AppManagerVR : MonoBehaviour {
             if(script.GetComponent<BubbleCursor>().lastSelectedObject != null && !script.GetComponent<BubbleCursor>().lastSelectedObject.Equals(currentSelectedObject)) {
                 currentSelectedObject = script.GetComponent<BubbleCursor>().lastSelectedObject;
             }
-        /*} else if(currentScript == SCRIPT.ARM) {
-            if(script.GetComponent<ARMController>().lastSelectedObject != null && !script.GetComponent<BubbleCursor>().lastSelectedObject.Equals(currentSelectedObject)) {
-                currentSelectedObject = script.GetComponent<BubbleCursor>().lastSelectedObject;
-            }*/
+        } else if(currentScript == SCRIPT.ABSOLUTE_RELATIVE_MAPPING) {
+            if(script.GetComponent<ARMLaser>().lastSelectedObject != null && !script.GetComponent<ARMLaser>().lastSelectedObject.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<ARMLaser>().lastSelectedObject;
+            }
         } else if(currentScript == SCRIPT.WORLD_IN_MIN) {
             if(script.GetComponent<WorldInMiniature>().selectedObject != null && !script.GetComponent<WorldInMiniature>().selectedObject.Equals(currentSelectedObject)) {
                 currentSelectedObject = script.GetComponent<WorldInMiniature>().selectedObject;
@@ -237,6 +245,30 @@ public class AppManagerVR : MonoBehaviour {
         } else if(currentScript == SCRIPT.BENDCAST) {
             if(script.GetComponent<BendCast>().lastSelectedObject != null && !script.GetComponent<BendCast>().lastSelectedObject.Equals(currentSelectedObject)) {
                 currentSelectedObject = script.GetComponent<BendCast>().lastSelectedObject;
+            }
+        } else if(currentScript == SCRIPT.APERATURE) {
+            if(script.GetComponent<AperatureSelectionSelector>().selection != null && !script.GetComponent<AperatureSelectionSelector>().selection.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<AperatureSelectionSelector>().selection;
+            }
+        } else if(currentScript == SCRIPT.FLASHLIGHT) {
+            if(script.GetComponent<FlashlightSelection>().selection != null && !script.GetComponent<FlashlightSelection>().selection.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<FlashlightSelection>().selection;
+            }
+        } else if(currentScript == SCRIPT.ISITH) {
+            if(script.GetComponent<iSithGrabObject>().objectInHand != null && !script.GetComponent<iSithGrabObject>().objectInHand.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<iSithGrabObject>().objectInHand;
+            }
+        } else if(currentScript == SCRIPT.HOOK) {
+            if(script.GetComponent<Hook>().selection != null && !script.GetComponent<Hook>().selection.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<Hook>().selection;
+            }
+        } else if(currentScript == SCRIPT.IMAGEPLANE_STICKYHAND) {
+            if(script.GetComponent<ImagePlane_StickyHand>().selectedObject != null && !script.GetComponent<ImagePlane_StickyHand>().selectedObject.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<ImagePlane_StickyHand>().selectedObject;
+            }
+        } else if(currentScript == SCRIPT.IMAGEPLANE_FRAMINGHANDS) {
+            if(script.GetComponent<ImagePlane_FramingHands>().selectedObject != null && !script.GetComponent<ImagePlane_FramingHands>().selectedObject.Equals(currentSelectedObject)) {
+                currentSelectedObject = script.GetComponent<ImagePlane_FramingHands>().selectedObject;
             }
         }
 

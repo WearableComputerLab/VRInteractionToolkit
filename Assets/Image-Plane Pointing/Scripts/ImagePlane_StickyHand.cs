@@ -7,8 +7,11 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     public GameObject cameraHead;
     public GameObject cameraRig;
 
-    public GameObject controllerRight = GameObject.Find("Controller (right)");
+    /*public GameObject controllerRight = GameObject.Find("Controller (right)");
     public GameObject controllerLeft = GameObject.Find("Controller (left)");
+    */
+    public GameObject controllerRight = null;
+    public GameObject controllerLeft = null;
 
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
@@ -17,8 +20,8 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     private Transform laserTransform;
     private Vector3 hitPoint;
     private GameObject mirroredCube;
-    public GameObject pointOfInteraction;
-    private GameObject selectedObject;
+    private GameObject pointOfInteraction;
+    internal GameObject selectedObject;
     private Transform oldParent;
     public Material outlineMaterial;
 
@@ -29,12 +32,13 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     public ControllerPicked controllerPicked;
 
     private void ShowLaser(RaycastHit hit) {
+
         mirroredCube.SetActive(false);
         laser.SetActive(true);
         laserTransform.position = Vector3.Lerp(pointOfInteraction.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
-        //print(hit.transform.name);
+        print(hit.transform.name);
         PickupObject(hit.transform.gameObject);
     }
 
@@ -70,8 +74,8 @@ public class ImagePlane_StickyHand : MonoBehaviour {
                         selectedObject.transform.GetComponent<Renderer>().material = oldMaterial;
                     }
                     selectedObject = obj;
-                    oldMaterial = obj.transform.GetComponent<Renderer>().material;
-                    obj.transform.GetComponent<Renderer>().material = outlineMaterial;
+                    //oldMaterial = obj.transform.GetComponent<Renderer>().material;
+                    //obj.transform.GetComponent<Renderer>().material = outlineMaterial;
 
                 }
             } else if(controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && objSelected == true) {
@@ -105,7 +109,7 @@ public class ImagePlane_StickyHand : MonoBehaviour {
 
     private float cursorSpeed = 20f; // Decrease to make faster, Increase to make slower
 
-    void mirroredObject() {
+    /*void mirroredObject() {
         Vector3 controllerPos = cameraHead.transform.forward;
         float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
         Vector3 mirroredPos = pointOfInteraction.transform.position;
@@ -116,12 +120,29 @@ public class ImagePlane_StickyHand : MonoBehaviour {
 
         mirroredCube.transform.position = mirroredPos;
         mirroredCube.transform.rotation = pointOfInteraction.transform.rotation;
+    }*/
+
+
+    
+       void mirroredObject() {
+        Vector3 controllerPos = pointOfInteraction.transform.forward;
+        float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
+        Vector3 mirroredPos = pointOfInteraction.transform.position;
+
+        mirroredPos.x = mirroredPos.x + (100f / (distance_formula_on_vector)) * controllerPos.x;
+        mirroredPos.y = mirroredPos.y + (100f / (distance_formula_on_vector)) * controllerPos.y;
+        mirroredPos.z = mirroredPos.z + (100f / (distance_formula_on_vector)) * controllerPos.z;
+
+        mirroredCube.transform.position = mirroredPos;
+        mirroredCube.transform.rotation = pointOfInteraction.transform.rotation;
     }
+     
 
     void Awake() {
-        
-        cameraHead = GameObject.Find("Camera (eye)");
-        cameraRig = GameObject.Find("[CameraRig]");
+
+        //cameraHead = GameObject.Find("Camera (eye)");
+        //cameraRig = GameObject.Find("[CameraRig]");
+        pointOfInteraction = this.transform.Find("InteractionPoint").gameObject;
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
@@ -142,9 +163,11 @@ public class ImagePlane_StickyHand : MonoBehaviour {
         interactionPosition();
         mirroredObject();
         ShowLaser();
-        Ray ray = Camera.main.ScreenPointToRay(pointOfInteraction.transform.position);
+        Ray ray = Camera.main.ScreenPointToRay(cameraHead.transform.position);
+
+        Vector3 newForward = pointOfInteraction.transform.position - cameraHead.transform.position;
         RaycastHit hit;
-        if (Physics.Raycast(pointOfInteraction.transform.position, cameraHead.transform.forward, out hit, 100)) {
+        if (Physics.Raycast(cameraHead.transform.position, newForward, out hit, 100)) {
             hitPoint = hit.point;
             ShowLaser(hit);
         }

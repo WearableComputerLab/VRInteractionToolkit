@@ -10,8 +10,15 @@ public class ImagePlane_FramingHands : MonoBehaviour {
      * */
     internal bool objSelected = false;
 
-    public GameObject controllerRight;
-    public GameObject controllerLeft;
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public InteractionType interacionType;
+
+    public enum ControllerPicked { Left_Controller, Right_Controller };
+    public ControllerPicked controllerPicked;
+
+    public GameObject controllerRight = null;
+    public GameObject controllerLeft = null;
+
     public GameObject cameraHead; // Camera etye
     public GameObject cameraRig;
 
@@ -19,13 +26,16 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     private SteamVR_TrackedObject trackedObjR;
     private SteamVR_Controller.Device controllerL;
     private SteamVR_Controller.Device controllerR;
+    private SteamVR_Controller.Device controller;
+    private SteamVR_TrackedObject trackedObj;
+
     public GameObject laserPrefab;
     private GameObject laser;
     private Transform laserTransform;
     private Vector3 hitPoint;
     private GameObject mirroredCube;
-    public GameObject pointOfInteraction;
-    private GameObject selectedObject;
+    private GameObject pointOfInteraction;
+    internal GameObject selectedObject;
     private Transform oldParent;
 
 
@@ -67,10 +77,12 @@ public class ImagePlane_FramingHands : MonoBehaviour {
 
     internal void resetProperties() {
         objSelected = false;
-        selectedObject.transform.SetParent(oldParent);
-        cameraHead.transform.localScale = new Vector3(1f, 1f, 1f);
-        cameraRig.transform.localScale = new Vector3(1f, 1f, 1f);
-        cameraRig.transform.localPosition = new Vector3(0f, 0f, 0f);
+        if(interacionType == InteractionType.Manipulation_Movement) {
+            selectedObject.transform.SetParent(oldParent);
+            cameraHead.transform.localScale = new Vector3(1f, 1f, 1f);
+            cameraRig.transform.localScale = new Vector3(1f, 1f, 1f);
+            cameraRig.transform.localPosition = new Vector3(0f, 0f, 0f);
+        }
     }
 
     //Tham's scale method
@@ -89,46 +101,53 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     Vector3 oldHeadScale;
     Vector3 oldCameraRigScale;
     private void InstantiateObject(GameObject obj) {
-        if (controllerL.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
             if (objSelected == false && obj.transform.name != "Mirrored Cube") {
-                selectedObject = obj;
-                oldParent = selectedObject.transform.parent;
-                float dist = Vector3.Distance(pointOfInteraction.transform.position, selectedObject.transform.position);
-                selectedObject.transform.SetParent(pointOfInteraction.transform);
-                selectedObject.transform.localPosition = new Vector3(0f, 0f, 0f);
 
-                Vector3 controllerPos = pointOfInteraction.transform.forward;
-                Vector3 pos = pointOfInteraction.transform.position;
-                float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
-                float distextended = 0.25f;
-                pos.x += (distextended / (distance_formula_on_vector)) * controllerPos.x;
-                pos.y += (distextended / (distance_formula_on_vector)) * controllerPos.y;
-                pos.z += (distextended / (distance_formula_on_vector)) * controllerPos.z;
-                obj.transform.position = pos;
+                //Manipulation here
+                if(interacionType == InteractionType.Manipulation_Movement) {
+                    selectedObject = obj;
+                    oldParent = selectedObject.transform.parent;
+                    float dist = Vector3.Distance(pointOfInteraction.transform.position, selectedObject.transform.position);
+                    selectedObject.transform.SetParent(pointOfInteraction.transform);
+                    selectedObject.transform.localPosition = new Vector3(0f, 0f, 0f);
 
-                selectedObject.transform.localScale = new Vector3(selectedObject.transform.localScale.x / dist, selectedObject.transform.localScale.y / dist, selectedObject.transform.localScale.z / dist);
-                print("Scaled to:"+selectedObject.transform.localScale.x);
-                //float dist = Vector3.Distance(pointOfInteraction.transform.position, selectedObject.transform.position);
-                //print(dist);
+                    Vector3 controllerPos = pointOfInteraction.transform.forward;
+                    Vector3 pos = pointOfInteraction.transform.position;
+                    float distance_formula_on_vector = Mathf.Sqrt(controllerPos.x * controllerPos.x + controllerPos.y * controllerPos.y + controllerPos.z * controllerPos.z);
+                    float distextended = 0.25f;
+                    pos.x += (distextended / (distance_formula_on_vector)) * controllerPos.x;
+                    pos.y += (distextended / (distance_formula_on_vector)) * controllerPos.y;
+                    pos.z += (distextended / (distance_formula_on_vector)) * controllerPos.z;
+                    obj.transform.position = pos;
 
-                objSelected = true;
-                laser.SetActive(false);
+                    selectedObject.transform.localScale = new Vector3(selectedObject.transform.localScale.x / dist, selectedObject.transform.localScale.y / dist, selectedObject.transform.localScale.z / dist);
+                    print("Scaled to:" + selectedObject.transform.localScale.x);
+                    //float dist = Vector3.Distance(pointOfInteraction.transform.position, selectedObject.transform.position);
+                    //print(dist);
 
-                Disteh = Vector3.Distance(cameraHead.transform.position, pointOfInteraction.transform.position);
-                Disteo = Vector3.Distance(cameraHead.transform.position, obj.transform.position);
-                print("cameraHead:" + cameraHead.transform.position);
-                print("hand:" + pointOfInteraction.transform.position);
-                print("object:" + obj.transform.localPosition);
+                    objSelected = true;
+                    laser.SetActive(false);
 
-                scaleAmount = Disteo / Disteh;
-                print("scale amount:" + scaleAmount);
-                oldHeadScale = cameraHead.transform.localScale;
-                oldCameraRigScale = cameraRig.transform.localScale;
-                ScaleAround(cameraRig.transform, cameraHead.transform, new Vector3(scaleAmount, scaleAmount, scaleAmount));
-                //selectedObject.transform.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
-                Vector3 eyeProportion = cameraHead.transform.localScale / scaleAmount;
-                //Keep eye distance proportionate to original position
-                cameraHead.transform.localScale = eyeProportion;
+                    Disteh = Vector3.Distance(cameraHead.transform.position, pointOfInteraction.transform.position);
+                    Disteo = Vector3.Distance(cameraHead.transform.position, obj.transform.position);
+                    print("cameraHead:" + cameraHead.transform.position);
+                    print("hand:" + pointOfInteraction.transform.position);
+                    print("object:" + obj.transform.localPosition);
+
+                    scaleAmount = Disteo / Disteh;
+                    print("scale amount:" + scaleAmount);
+                    oldHeadScale = cameraHead.transform.localScale;
+                    oldCameraRigScale = cameraRig.transform.localScale;
+                    ScaleAround(cameraRig.transform, cameraHead.transform, new Vector3(scaleAmount, scaleAmount, scaleAmount));
+                    //selectedObject.transform.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);
+                    Vector3 eyeProportion = cameraHead.transform.localScale / scaleAmount;
+                    //Keep eye distance proportionate to original position
+                    cameraHead.transform.localScale = eyeProportion;
+                } else if(interacionType == InteractionType.Selection) {
+                    selectedObject = obj;
+                    print("selected:" + selectedObject);
+                }
             } else if (objSelected == true) {
                 resetProperties();
             }
@@ -136,7 +155,7 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     }
 
     private void WorldGrab() {
-        if (controllerL.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) { // temp
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) { // temp
             //Resetting everything back to normal
             objSelected = false;
             selectedObject.transform.SetParent(oldParent);
@@ -170,9 +189,18 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     }
 
     void Awake() {
-
+        pointOfInteraction = this.transform.Find("InteractionPoint").gameObject;
         trackedObjL = controllerRight.GetComponent<SteamVR_TrackedObject>();
         trackedObjR = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        if(controllerPicked == ControllerPicked.Right_Controller) {
+            print(controllerRight);
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+        } else if(controllerPicked == ControllerPicked.Left_Controller) {
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+        } else {
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
     }
 
@@ -194,6 +222,7 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     }
 
     void Update() {
+        controller = SteamVR_Controller.Input((int)trackedObj.index);
         controllerL = SteamVR_Controller.Input((int)trackedObjL.index);
         controllerR = SteamVR_Controller.Input((int)trackedObjR.index);
         //if (objSelected == false) {
