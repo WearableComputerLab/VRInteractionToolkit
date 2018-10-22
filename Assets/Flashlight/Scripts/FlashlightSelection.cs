@@ -48,7 +48,7 @@ public class FlashlightSelection : MonoBehaviour {
 
     private GameObject objectInHand;
 
-    public int[] layersOfObjectsToSelect;
+    public List<int> layersOfObjectsToSelect;
 
     public GameObject objectHoveredOver;
 
@@ -82,7 +82,7 @@ public class FlashlightSelection : MonoBehaviour {
 
     private void SetCollidingObject(Collider col)
     {
-        if (collidingObjects.Contains(col.gameObject) || !col.GetComponent<Rigidbody>())
+        if (collidingObjects.Contains(col.gameObject))
         {
             return;
         }
@@ -92,7 +92,9 @@ public class FlashlightSelection : MonoBehaviour {
 
     public void OnTriggerEnter(Collider other)
     {
-        SetCollidingObject(other);
+        if(layersOfObjectsToSelect.Contains(other.gameObject.layer)) {
+            SetCollidingObject(other);
+        }     
     }
 
 
@@ -114,37 +116,32 @@ public class FlashlightSelection : MonoBehaviour {
     private GameObject getObjectHoveringOver()
     {
         List<double> distancesFromCenterOfCone = new List<double>();
+        List<GameObject> viableObjects = new List<GameObject>();
 
         Vector3 forwardVectorFromRemote = trackedObj.transform.forward;
         Vector3 positionOfRemote = trackedObj.transform.position;
 
         foreach (GameObject potentialObject in collidingObjects)
         {
-            // Only doing if the object is on a layer where the object can be picked up
-            for (int i = 0; i < layersOfObjectsToSelect.Length; i++)
+            
+            // dont have to worry about executing twice as an object can only be on one layer
+            if (layersOfObjectsToSelect.Contains(potentialObject.layer))
             {
-                // dont have to worry about executing twice as an object can only be on one layer
-                if (potentialObject.layer == layersOfObjectsToSelect[i])
-                {
-                    // Object can only have one layer so can do calculation for object here
-                    Vector3 objectPosition = potentialObject.transform.position;
+                // Object can only have one layer so can do calculation for object here
+                Vector3 objectPosition = potentialObject.transform.position;
 
-                    // Finding closest to ray by creating a perpendicular plane using the formula that uses the point and then finds the distance between
-                    // that point and where a plane created from the vector intersects the laser
-                    float tValueFromFormulaExplained = (forwardVectorFromRemote.x * objectPosition.x + forwardVectorFromRemote.x * objectPosition.y
-                        + forwardVectorFromRemote.z * objectPosition.z - forwardVectorFromRemote.x * positionOfRemote.x - forwardVectorFromRemote.y * positionOfRemote.y
-                        - forwardVectorFromRemote.z * positionOfRemote.z) / (Mathf.Pow(forwardVectorFromRemote.x, 2) + Mathf.Pow(forwardVectorFromRemote.y, 2) + Mathf.Pow(forwardVectorFromRemote.z, 2));
-
-                    Vector3 newPoint = new Vector3(forwardVectorFromRemote.x * tValueFromFormulaExplained + positionOfRemote.x, forwardVectorFromRemote.y * tValueFromFormulaExplained + positionOfRemote.y
-                        , forwardVectorFromRemote.z * tValueFromFormulaExplained + positionOfRemote.z);
-
-                    double distanceBetweenRayAndPoint = Mathf.Sqrt(Mathf.Pow(newPoint.x - objectPosition.x, 2) + Mathf.Pow(newPoint.y - objectPosition.y, 2) + Mathf.Pow(newPoint.z - objectPosition.z, 2));
-                    distancesFromCenterOfCone.Add(distanceBetweenRayAndPoint);
-                }
+                // Using vector algebra to get shortest distance between object and vector 
+                Vector3 forwardControllerToObject = trackedObj.transform.position - objectPosition;
+                Vector3 controllerForward = trackedObj.transform.forward;
+                float distanceBetweenRayAndPoint = Vector3.Magnitude(Vector3.Cross(forwardControllerToObject,controllerForward))/Vector3.Magnitude(controllerForward);               
+                
+                distancesFromCenterOfCone.Add(distanceBetweenRayAndPoint);
+                viableObjects.Add(potentialObject);
             }
+            
         }
 
-        if(collidingObjects.Count > 0 && distancesFromCenterOfCone.Count > 0)
+        if(viableObjects.Count > 0 && distancesFromCenterOfCone.Count > 0)
         {
             // Find the smallest object by distance
             int indexOfSmallest = 0;
@@ -158,11 +155,11 @@ public class FlashlightSelection : MonoBehaviour {
                 }
             }
 
-            if(objectHoveredOver != collidingObjects[indexOfSmallest]) {
+            if(objectHoveredOver != viableObjects[indexOfSmallest]) {
                 unHovered.Invoke();
             }
             
-            return collidingObjects[indexOfSmallest];
+            return viableObjects[indexOfSmallest];
         }
 
         unHovered.Invoke();
@@ -171,6 +168,11 @@ public class FlashlightSelection : MonoBehaviour {
 
     private void GrabObject()
     {
+        if (!objectHoveredOver.GetComponent<Rigidbody>())
+        {
+            return;
+        }
+
         objectInHand = objectHoveredOver;
 
         if(objectHoveredOver != null) {
@@ -232,11 +234,12 @@ public class FlashlightSelection : MonoBehaviour {
                 if(interactionType == InteractionType.Selection) {
                     // Pure selection
                     print("selected " + objectHoveredOver);
-                    selection = objectHoveredOver;
+                    
                 } else if(interactionType == InteractionType.Manipulation) {
                     //Manipulation
                     GrabObject();
-                }             
+                }         
+                selection = objectHoveredOver;    
             }
         }
 

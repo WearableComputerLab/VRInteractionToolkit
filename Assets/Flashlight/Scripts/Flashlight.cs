@@ -45,12 +45,13 @@ public class Flashlight : MonoBehaviour
 
         // set this flashlight to be child of the object it is set to be attached to
         this.transform.parent = objectAttachedTo.transform;
-
+        // making sure rotation and position is correct
+        this.transform.eulerAngles = new Vector3(0, 180, 0);
+        this.transform.localPosition = new Vector3(0, 0, 0);
 
         // Translates the cone so that whatever size it is as long as it is at position 0,0,0 if contoller it will jump to the origin point for flashlight
         translateConeDistanceAlongForward(this.GetComponent<Renderer>().bounds.size.z/2f);
-        
-        trackedObj = this.gameObject.transform.parent.GetComponent<SteamVR_TrackedObject>();
+
         device = SteamVR_Controller.Input((int)trackedObj.index);
     }
 
@@ -72,7 +73,7 @@ public class Flashlight : MonoBehaviour
     void checkForInput()
     {
         //Dont allow size to change if object is in hand - check by getting child object
-
+        device = SteamVR_Controller.Input((int)trackedObj.index);
         FlashlightSelection childSelector = this.transform.GetComponent<FlashlightSelection>();
         if (!childSelector.holdingObject())
         {

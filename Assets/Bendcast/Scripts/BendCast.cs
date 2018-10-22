@@ -60,7 +60,7 @@ public class BendCast : MonoBehaviour
 
     private Vector3 p1PointLocation; // used fot the bezier curve
 
-    public int[] layersOfObjectsToBendTo;
+    public List<int> layersOfObjectsToBendTo;
 
     private SteamVR_Controller.Device Controller
     {
@@ -160,7 +160,7 @@ public class BendCast : MonoBehaviour
 
     void checkSurroundingObjects()
     {
-        if (layersOfObjectsToBendTo.Length == 0)
+        if (layersOfObjectsToBendTo.Count == 0)
         {
             return;
         }
@@ -178,41 +178,37 @@ public class BendCast : MonoBehaviour
         // Loop through objects and look for closest (if of a viable layer)
         for (int i = 0; i < allObjects.Length; i++)
         {
-            for (int j = 0; j < layersOfObjectsToBendTo.Length; j++)
+            // dont have to worry about executing twice as an object can only be on one layer
+            if (layersOfObjectsToBendTo.Contains(allObjects[i].layer))
             {
-                // dont have to worry about executing twice as an object can only be on one layer
-                if (allObjects[i].layer == layersOfObjectsToBendTo[j])
-                {
+                // Check if object is on plane projecting in front of VR remote. Otherwise ignore it. (we dont want our laser aiming backwards)
+                Vector3 forwardParallelToDirectionPointing = Vector3.Cross(forwardVectorFromRemote, trackedObj.transform.up);
+                Vector3 targObject = trackedObj.transform.position-allObjects[i].transform.position;
+                Vector3 perp = Vector3.Cross(forwardParallelToDirectionPointing, targObject);
+                float side = Vector3.Dot(perp, trackedObj.transform.up);
+                if(side < 0) {
+                        // Object can only have one layer so can do calculation for object here
+                    Vector3 objectPosition = allObjects[i].transform.position;
 
-                    // Check if object is on plane projecting in front of VR remote. Otherwise ignore it. (we dont want our laser aiming backwards)
-                    Vector3 forwardParallelToDirectionPointing = Vector3.Cross(forwardVectorFromRemote, trackedObj.transform.up);
-                    Vector3 targObject = trackedObj.transform.position-allObjects[i].transform.position;
-                    Vector3 perp = Vector3.Cross(forwardParallelToDirectionPointing, targObject);
-                    float side = Vector3.Dot(perp, trackedObj.transform.up);
-                    if(side < 0) {
-                            // Object can only have one layer so can do calculation for object here
-                        Vector3 objectPosition = allObjects[i].transform.position;
-
-                        // Finding closest to ray by creating a perpendicular plane using the formula that uses the point and then finds the distance between
-                        // that point and where a plane created from the vector intersects the laser
-                        float tValueFromFormulaExplained = (forwardVectorFromRemote.x * objectPosition.x + forwardVectorFromRemote.x * objectPosition.y
-                            + forwardVectorFromRemote.z * objectPosition.z - forwardVectorFromRemote.x * positionOfRemote.x - forwardVectorFromRemote.y * positionOfRemote.y
-                            - forwardVectorFromRemote.z * positionOfRemote.z) / (Mathf.Pow(forwardVectorFromRemote.x, 2) + Mathf.Pow(forwardVectorFromRemote.y, 2) + Mathf.Pow(forwardVectorFromRemote.z, 2));
-
-                        Vector3 newPoint = new Vector3(forwardVectorFromRemote.x * tValueFromFormulaExplained + positionOfRemote.x, forwardVectorFromRemote.y * tValueFromFormulaExplained + positionOfRemote.y
-                            , forwardVectorFromRemote.z * tValueFromFormulaExplained + positionOfRemote.z);
-
-                        float distanceBetweenRayAndPoint = Mathf.Sqrt(Mathf.Pow(newPoint.x - objectPosition.x, 2) + Mathf.Pow(newPoint.y - objectPosition.y, 2) + Mathf.Pow(newPoint.z - objectPosition.z, 2));
-                        if (distanceBetweenRayAndPoint < shortestDistance)
-                        {
-                            shortestDistance = distanceBetweenRayAndPoint;
-                            objectWithShortestDistance = allObjects[i];
-                            p1PointLocation = newPoint;
-                        }
-                    }
+                    // Using vector algebra to get shortest distance between object and vector 
+                    Vector3 forwardControllerToObject = trackedObj.transform.position - objectPosition;
+                    Vector3 controllerForward = trackedObj.transform.forward;
+                    float distanceBetweenRayAndPoint = Vector3.Magnitude(Vector3.Cross(forwardControllerToObject,controllerForward))/Vector3.Magnitude(controllerForward);
                     
+        
+
+                    Vector3 newPoint = new Vector3(forwardVectorFromRemote.x * distanceBetweenRayAndPoint + positionOfRemote.x, forwardVectorFromRemote.y * distanceBetweenRayAndPoint + positionOfRemote.y
+                            , forwardVectorFromRemote.z * distanceBetweenRayAndPoint + positionOfRemote.z);
+
+                    if (distanceBetweenRayAndPoint < shortestDistance)
+                    {
+                        shortestDistance = distanceBetweenRayAndPoint;
+                        objectWithShortestDistance = allObjects[i];
+                        p1PointLocation = newPoint;
+                    }
                 }
-            }
+                
+            }         
         }
         if (objectWithShortestDistance != null)
         {
