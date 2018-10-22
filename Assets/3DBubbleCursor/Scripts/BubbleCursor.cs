@@ -4,6 +4,7 @@ using System;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class BubbleCursor : MonoBehaviour {
 
@@ -22,6 +23,9 @@ public class BubbleCursor : MonoBehaviour {
     private GameObject radiusBubble;
     private GameObject objectBubble;
     public LayerMask interactableLayer;
+
+    public UnityEvent selectedObject; // Invoked when an object is selected
+    public UnityEvent droppedObject; // Invoked when an object is dropped
 
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
@@ -153,14 +157,16 @@ public class BubbleCursor : MonoBehaviour {
                     pickedUpObject = true;
                 } else if (interactionType == InteractionType.Selection) {
                     lastSelectedObject = obj;
-                    pickedUpObject = true;
+                    pickedUpObject = true;                   
                 }
+                selectedObject.Invoke();
             }
             if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
                 if(interactionType == InteractionType.Manipulation_Movement) {
                     //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
                     lastSelectedObject.transform.SetParent(null);
                     pickedUpObject = false;
+                    droppedObject.Invoke();
                 }
                 pickedUpObject = false;
             }
@@ -179,7 +185,7 @@ public class BubbleCursor : MonoBehaviour {
         cursor.transform.position = pose;
         cursor.transform.rotation = trackedObj.transform.rotation;
     }
-    private GameObject selectedObject;
+ 
     // Update is called once per frame
     void Update () {
         if (trackedObj != null) {

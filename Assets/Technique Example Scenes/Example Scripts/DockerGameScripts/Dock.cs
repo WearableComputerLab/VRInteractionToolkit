@@ -40,6 +40,9 @@ public class Dock : MonoBehaviour {
 		dockObject.transform.position = dockObjectOriginalPos;
 		dockObject.transform.eulerAngles = dockObjectOriginalRot;
 		dockObject.GetComponent<Renderer>().material = defaultMaterial;
+		dockObject.GetComponent<Rigidbody>().velocity = new Vector3(0,0,0);
+		dockObject.GetComponent<Rigidbody>().angularVelocity = new Vector3(0,0,0);
+		dockObject.GetComponent<Rigidbody>().isKinematic = false;
 	}
 
 	void OnTriggerEnter(Collider other) {
