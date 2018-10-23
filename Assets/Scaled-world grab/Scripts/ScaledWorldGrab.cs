@@ -70,7 +70,9 @@ public class ScaledWorldGrab : MonoBehaviour {
                 oldParent = selectedObject.transform.parent;
                 objSelected = true;
                 laser.SetActive(false);
-
+                cameraHeadLocalScaleOriginal = cameraHead.transform.localScale;
+                cameraRigLocalScaleOriginal = cameraRig.transform.localScale;
+                cameraRigLocalPositionOriginal = cameraRig.transform.localPosition;
                 Disteh = Vector3.Distance(cameraHead.transform.position, trackedObj.transform.position);
                 Disteo = Vector3.Distance(cameraHead.transform.position, obj.transform.position);
                 print("cameraHead:"+ cameraHead.transform.position);
@@ -111,12 +113,16 @@ public class ScaledWorldGrab : MonoBehaviour {
         }
     }
 
+    private Vector3 cameraHeadLocalScaleOriginal;
+    private Vector3 cameraRigLocalScaleOriginal;
+    private Vector3 cameraRigLocalPositionOriginal;
+
     internal void resetProperties() {
         objSelected = false;
         selectedObject.transform.SetParent(oldParent);
-        cameraHead.transform.localScale = new Vector3(1f, 1f, 1f);
-        cameraRig.transform.localScale = new Vector3(1f, 1f, 1f);
-        cameraRig.transform.localPosition = new Vector3(0f, 0f, 0f);
+        cameraHead.transform.localScale = cameraHeadLocalScaleOriginal;
+        cameraRig.transform.localScale = cameraRigLocalScaleOriginal;
+        cameraRig.transform.localPosition = cameraRigLocalPositionOriginal;
     }
 
     private void WorldGrab() {
@@ -181,6 +187,10 @@ public class ScaledWorldGrab : MonoBehaviour {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }
+        trackedObj.gameObject.AddComponent<ControllerCollider>();
+        SphereCollider col = trackedObj.gameObject.AddComponent<SphereCollider>();
+        col.isTrigger = true;
+        col.radius = 0.05f;
     }
 
     // Use this for initialization

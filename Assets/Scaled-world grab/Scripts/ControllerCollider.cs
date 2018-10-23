@@ -8,7 +8,7 @@ public class ControllerCollider : MonoBehaviour {
 
     private void OnTriggerStay(Collider col) {
         if (scaledWorldGrab.objSelected == true) {
-            if (scaledWorldGrab.controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger)) {
+            if (scaledWorldGrab.controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
                 if (scaledWorldGrab.interacionType == ScaledWorldGrab.InteractionType.Manipulation_Full || scaledWorldGrab.interacionType == ScaledWorldGrab.InteractionType.Manipulation_Movement) {
                     col.gameObject.transform.SetParent(scaledWorldGrab.trackedObj.gameObject.transform);
                     scaledWorldGrab.objectGrabbed = true;
@@ -18,7 +18,7 @@ public class ControllerCollider : MonoBehaviour {
                     return;
                 }
             }
-            if (scaledWorldGrab.controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && scaledWorldGrab.objectGrabbed == true) {
+            if (scaledWorldGrab.controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && scaledWorldGrab.objectGrabbed == true) {
                 col.gameObject.transform.SetParent(null);
                 scaledWorldGrab.objectGrabbed = false;
                 scaledWorldGrab.resetProperties();

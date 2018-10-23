@@ -10,12 +10,23 @@ public class TriggerDropAction : MonoBehaviour {
     private SteamVR_TrackedObject trackedObjR;
     private DockerData dockerData;
 
+    private List<string> logInfo = new List<string>();
+
     void OnTriggerStay(Collider col) {
+        //print("collding");
         if (this.transform.name == col.transform.name) {
-            if(deviceL != null && deviceL.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) || deviceR != null && deviceR.GetPressUp(SteamVR_Controller.ButtonMask.Trigger)) {
+            //print("trying to connect");
+            //print("Device isnt null L" + deviceL != null);
+            //print("Device isnt null R" + deviceR != null);
+            if(deviceL != null && deviceL.GetPress(SteamVR_Controller.ButtonMask.Trigger) || deviceR != null && deviceR.GetPress(SteamVR_Controller.ButtonMask.Trigger)) {
                 col.transform.position = this.transform.position;
                 col.transform.rotation = this.transform.rotation;
-                dockerData.incrementDockerCount();
+                col.GetComponent<Rigidbody>().velocity = Vector3.zero;
+                col.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+                if (col.transform.gameObject.GetComponent<Renderer>().material.color != Color.green) {
+                    dockerData.incrementDockerCount();
+                }
+                col.transform.gameObject.GetComponent<Renderer>().material.color = Color.green;
             }
         }
     }
