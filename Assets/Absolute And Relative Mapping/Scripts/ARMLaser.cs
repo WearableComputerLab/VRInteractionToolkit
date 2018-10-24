@@ -53,6 +53,8 @@ public class ARMLaser : MonoBehaviour {
 
     public GameObject currentlyPointingAt;
 
+	public LayerMask interactionLayers;
+
     // Using the hack from gogo shadow - will have to fix them all once find a better way
     void makeModelChild()
     {
@@ -89,7 +91,7 @@ public class ARMLaser : MonoBehaviour {
 
         
         // highlighting the object
-        if(hit.transform.gameObject.layer == 8)
+		if(interactionLayers == (interactionLayers | (1 << hit.transform.gameObject.layer)))
         {
             if (currentlyPointingAt == null)
             {

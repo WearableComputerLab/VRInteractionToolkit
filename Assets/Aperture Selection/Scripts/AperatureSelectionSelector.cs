@@ -23,7 +23,7 @@ public class AperatureSelectionSelector : MonoBehaviour {
 
     private GameObject objectInHand;
 
-    public List<int> layersOfObjectsToSelect;
+	public LayerMask interactionLayers;
 
     public GameObject objectHoveredOver;
 
@@ -98,7 +98,7 @@ public class AperatureSelectionSelector : MonoBehaviour {
         {
             
             // dont have to worry about executing twice as an object can only be on one layer
-            if (layersOfObjectsToSelect.Contains(potentialObject.layer))
+			if (interactionLayers == (interactionLayers | (1 << potentialObject.layer)))
             {
                 // Object can only have one layer so can do calculation for object here
                 Vector3 objectPosition = potentialObject.transform.position;
