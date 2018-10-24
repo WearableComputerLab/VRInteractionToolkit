@@ -5,6 +5,7 @@ using UnityEngine.Events;
 
 public class AperatureSelectionSelector : MonoBehaviour {
 
+	public LayerMask interactionLayers;
 
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
@@ -15,17 +16,12 @@ public class AperatureSelectionSelector : MonoBehaviour {
 
     private GameObject trackedObj;
     private List<GameObject> collidingObjects;
-
-    public UnityEvent selectedObject; // Invoked when an object is selected
-
-    public UnityEvent hovered; // Invoked when an object is hovered by technique
-    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
-
     private GameObject objectInHand;
-
-	public LayerMask interactionLayers;
-
     public GameObject objectHoveredOver;
+
+	public UnityEvent selectedObject; // Invoked when an object is selected
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     private SteamVR_Controller.Device Controller
     {

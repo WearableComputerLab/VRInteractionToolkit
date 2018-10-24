@@ -169,6 +169,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a03690bbb34eec4e88e7655b4062a0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactionLayers:
+    serializedVersion: 2
+    m_Bits: 256
   trackedObj: {fileID: 0}
   collidingObject: {fileID: 0}
   objectInHand: {fileID: 0}
@@ -201,6 +204,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a03690bbb34eec4e88e7655b4062a0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactionLayers:
+    serializedVersion: 2
+    m_Bits: 256
   trackedObj: {fileID: 0}
   collidingObject: {fileID: 0}
   objectInHand: {fileID: 0}

@@ -26,6 +26,8 @@ using UnityEngine.Events;
 
 public class FlexiblePointer : MonoBehaviour
 {
+	public LayerMask interactionLayers;
+
     public SteamVR_TrackedObject trackedObjL;
     public SteamVR_TrackedObject trackedObjR;
     public GameObject controlPoint;
@@ -50,16 +52,16 @@ public class FlexiblePointer : MonoBehaviour
     private SteamVR_Controller.Device deviceL;
     private SteamVR_Controller.Device deviceR;
     
-    public UnityEvent selectedObject; // Invoked when an object is selected
-
-    public UnityEvent hovered; // Invoked when an object is hovered by technique
-    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
-    
     public GameObject currentlyPointingAt; // Is the gameobject that the ray is currently touching
 
     public GameObject selection;
 
-	public LayerMask interactionLayers;
+	public UnityEvent selectedObject; // Invoked when an object is selected
+
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+
+
 
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };

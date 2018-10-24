@@ -23,18 +23,14 @@ public class Hook : MonoBehaviour {
     //  Instead of looping through every object in the scene
     private List<HookObject> nearbyObjects;
     int countOfIncreases;
-
     private GameObject objectInHand;
     public SteamVR_TrackedObject trackedObj = null;
     public bool checkForNewlySpawnedObjects = true;
-
-    
-    public UnityEvent selectedObject; // Invoked when an object is selected
-
-    public UnityEvent hovered; // Invoked when an object is hovered by technique
-    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
-
     public GameObject currentlyHovered = null; // To hold the closest object
+	public UnityEvent selectedObject; // Invoked when an object is selected
+
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
     private GameObject lastHovered = null; // To check if changed
 
     private SteamVR_Controller.Device Controller

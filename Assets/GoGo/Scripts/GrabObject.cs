@@ -5,6 +5,8 @@ using UnityEngine.Events;
 
 public class GrabObject : MonoBehaviour {
     
+	public LayerMask interactionLayers;
+
      // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
     public InteractionType interactionType;
@@ -19,7 +21,7 @@ public class GrabObject : MonoBehaviour {
     public UnityEvent hovered; // Invoked when an object is hovered by technique
     public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
-	public LayerMask interactionLayers;
+
 
     private SteamVR_Controller.Device Controller
     {

@@ -29,6 +29,8 @@ using System;
 
 public class BendCast : MonoBehaviour
 {
+	public LayerMask interactionLayers;
+
     public GameObject leftController; // Reference to the steam VR left controller
     public GameObject rightController; // Reference to the steam VR right controller
 
@@ -42,12 +44,6 @@ public class BendCast : MonoBehaviour
     public InteractionType interactionType;
     public GameObject lastSelectedObject; // holds the selected object
 
-    
-    public UnityEvent selectedObject; // Invoked when an object is selected
-
-    public UnityEvent hovered; // Invoked when an object is hovered by technique
-    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
-    
     public GameObject currentlyPointingAt;
     private Vector3 castingBezierFrom;
 
@@ -60,7 +56,12 @@ public class BendCast : MonoBehaviour
 
     private Vector3 p1PointLocation; // used fot the bezier curve
 
-	public LayerMask interactionLayers;
+	public UnityEvent selectedObject; // Invoked when an object is selected
+
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+
+
 
     private SteamVR_Controller.Device Controller
     {

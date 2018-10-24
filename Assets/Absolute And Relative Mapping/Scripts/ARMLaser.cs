@@ -28,6 +28,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 public class ARMLaser : MonoBehaviour {
+	public LayerMask interactionLayers;
 
     private SteamVR_TrackedObject trackedObj;
     public GameObject theController;
@@ -41,11 +42,6 @@ public class ARMLaser : MonoBehaviour {
     private Vector3 lastPosition;
     public GameObject theModel;
 
-    public UnityEvent selectedObject; // Invoked when an object is selected
-
-    public UnityEvent hovered; // Invoked when an object is hovered by technique
-    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
-
     public enum InteractionType { Selection, Manipulation };
 
     public InteractionType interactionType = InteractionType.Selection;
@@ -53,7 +49,10 @@ public class ARMLaser : MonoBehaviour {
 
     public GameObject currentlyPointingAt;
 
-	public LayerMask interactionLayers;
+	public UnityEvent selectedObject; // Invoked when an object is selected
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+
 
     // Using the hack from gogo shadow - will have to fix them all once find a better way
     void makeModelChild()
