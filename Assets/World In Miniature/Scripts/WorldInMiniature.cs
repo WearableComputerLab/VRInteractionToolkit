@@ -14,9 +14,9 @@ public class WorldInMiniature : MonoBehaviour {
     internal SteamVR_TrackedObject trackedObjO; //tracked object other
     private SteamVR_Controller.Device controller;
     internal SteamVR_Controller.Device controllerO; //controller other
-    private GameObject worldInMinParent;
+    public GameObject worldInMinParent;
     GameObject[] allSceneObjects;
-    private GameObject cameraHead;
+    
     private bool WiMAactive = false;
     public List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light", "background"};
     private float scaleAmount = 20f;
@@ -28,6 +28,10 @@ public class WorldInMiniature : MonoBehaviour {
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
+
+	public GameObject controllerRight;
+	public GameObject controllerLeft;
+	public GameObject cameraHead;
 
     void createWiM() {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) {
@@ -91,11 +95,6 @@ public class WorldInMiniature : MonoBehaviour {
     }
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
-        cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
-
-        worldInMinParent = this.transform.Find("WorldInMinParent").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
             trackedObjO = controllerLeft.GetComponent<SteamVR_TrackedObject>();
