@@ -19,7 +19,7 @@ public class GrabObject : MonoBehaviour {
     public UnityEvent hovered; // Invoked when an object is hovered by technique
     public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
-    public int interactionLayer = 8;
+	public LayerMask interactionLayers;
 
     private SteamVR_Controller.Device Controller
     {
@@ -56,7 +56,7 @@ public class GrabObject : MonoBehaviour {
     public void OnTriggerEnter(Collider other)
     {
         SetCollidingObject(other);
-        if(other.gameObject.layer == interactionLayer && objectInHand == null)
+		if(interactionLayers == (interactionLayers | (1 << other.gameObject.layer)) && objectInHand == null)
         {
             hovered.Invoke();
         }
@@ -75,7 +75,7 @@ public class GrabObject : MonoBehaviour {
         {
             return;
         }
-        if(other.gameObject.layer == interactionLayer)
+		if(interactionLayers == (interactionLayers | (1 << other.gameObject.layer)))
         {
             unHovered.Invoke();
         }
@@ -121,7 +121,7 @@ public class GrabObject : MonoBehaviour {
     void Update () {
         if (Controller.GetHairTriggerDown())
         {
-            if (collidingObject && collidingObject.gameObject.layer == interactionLayer)
+			if (collidingObject && interactionLayers == (interactionLayers | (1 << collidingObject.gameObject.layer)))
             {
                 selectedObject.Invoke();
                 if(interactionType == InteractionType.Selection) {
