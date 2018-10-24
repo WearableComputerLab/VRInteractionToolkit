@@ -46,9 +46,9 @@ public class FlashlightSelection : MonoBehaviour {
     public UnityEvent hovered; // Invoked when an object is hovered by technique
     public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
-    private GameObject objectInHand;
+	private GameObject objectInHand;
 
-    public List<int> layersOfObjectsToSelect;
+	public LayerMask interactionLayers;
 
     public GameObject objectHoveredOver;
 
@@ -92,7 +92,7 @@ public class FlashlightSelection : MonoBehaviour {
 
     public void OnTriggerEnter(Collider other)
     {
-        if(layersOfObjectsToSelect.Contains(other.gameObject.layer)) {
+		if(interactionLayers == (interactionLayers | (1 << other.gameObject.layer))) {
             SetCollidingObject(other);
         }     
     }
@@ -125,7 +125,7 @@ public class FlashlightSelection : MonoBehaviour {
         {
             
             // dont have to worry about executing twice as an object can only be on one layer
-            if (layersOfObjectsToSelect.Contains(potentialObject.layer))
+			if (interactionLayers == (interactionLayers | (1 << potentialObject.layer)))
             {
                 // Object can only have one layer so can do calculation for object here
                 Vector3 objectPosition = potentialObject.transform.position;

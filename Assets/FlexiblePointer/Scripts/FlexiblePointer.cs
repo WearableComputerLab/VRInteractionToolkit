@@ -59,6 +59,8 @@ public class FlexiblePointer : MonoBehaviour
 
     public GameObject selection;
 
+	public LayerMask interactionLayers;
+
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
     public InteractionType interactionType;
@@ -245,9 +247,9 @@ public class FlexiblePointer : MonoBehaviour
                     Vector3 dir = laserTransform[i - 1].forward;
                     RaycastHit hit;
                     if (Physics.Raycast(positionOfLastLaserPart, dir, out hit, distBetweenParts))
-                    {
+					{
                         // no object previouslly was highlighted so just highlight this one
-                        if(hit.transform.gameObject.layer == LayerMask.NameToLayer("PickableObject")) {
+						if(interactionLayers == (interactionLayers | (1 << hit.transform.gameObject.layer))) {
                             if(currentlyPointingAt != hit.transform.gameObject) {
                                 unHovered.Invoke(); // unhover old object
                             }
