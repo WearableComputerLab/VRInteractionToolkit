@@ -73,7 +73,7 @@ public class FishingReel : MonoBehaviour {
     }
 
     private float extendDistance = 0f;
-    private float cursorSpeed = 100f; // Decrease to make faster, Increase to make slower
+    public float reelSpeed = 40f; // Decrease to make faster, Increase to make slower
 
     private void PadScrolling(GameObject obj) {
         if (obj.transform.name == "Mirrored Cube") {
@@ -81,7 +81,7 @@ public class FishingReel : MonoBehaviour {
         }
         Vector3 controllerPos = trackedObj.transform.forward;
         if (controller.GetAxis().y != 0) {
-            extendDistance += controller.GetAxis().y / cursorSpeed;
+            extendDistance += controller.GetAxis().y / reelSpeed;
             reelObject(obj);
         }
     }
