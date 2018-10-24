@@ -92,6 +92,24 @@ public class WorldInMiniature : MonoBehaviour {
         //allSceneObjects = FindObjectsOfType<GameObject>();
         worldInMinParent.transform.SetParent(trackedObj.transform);
         resetAllProperties();
+
+		//adding colliders and collider scripts to controllers for WIM if they don't allready exist
+		SphereCollider col;
+		if ((col = trackedObj.transform.gameObject.GetComponent<SphereCollider> ()) == null) {
+			
+			col = trackedObj.transform.gameObject.AddComponent<SphereCollider> ();
+			col.isTrigger = true;
+			col.radius = 0.05f;
+			trackedObj.transform.gameObject.AddComponent<ControllerColliderWIM> ();
+		}
+		SphereCollider col0;
+		if((col0 = trackedObjO.transform.gameObject.GetComponent<SphereCollider> ()) == null) {
+			
+			col0 = trackedObjO.transform.gameObject.AddComponent<SphereCollider> ();
+			col0.isTrigger = true;
+			col0.radius = 0.05f;
+			trackedObjO.transform.gameObject.AddComponent<ControllerColliderWIM> ();
+		}
     }
 
     void Awake() {
