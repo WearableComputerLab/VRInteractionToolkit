@@ -12,7 +12,7 @@ using UnityEngine.Events;
 public class Hook : MonoBehaviour {
 
     // User can specify layers of objects that the hook will be able to select
-    public int[] layersOfObjectsToSelect;
+	public LayerMask interactionLayers;
 
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
@@ -123,7 +123,7 @@ public class Hook : MonoBehaviour {
         var allObjects = FindObjectsOfType<GameObject>();
         foreach (GameObject each in allObjects)
         {         
-            if (layersOfObjectsToSelect.Contains(each.layer)) //only works on selectable objects.
+			if (interactionLayers == (interactionLayers | (1 << each.layer))) //only works on selectable objects.
             {
                 nearbyObjects.Add(new HookObject(each));
             }
@@ -132,8 +132,7 @@ public class Hook : MonoBehaviour {
 
     // If for example new objects are spaned to the scene the user can access the hook with that object and add that object to the hook with this method
     public void addNewlySpawnedObjectToHook(GameObject newObject) {
-        newObject.layer = layersOfObjectsToSelect[0]; // adds the first layer of objects that can be selected so that it definately has one
-        nearbyObjects.Add(new HookObject(newObject));
+		nearbyObjects.Add(new HookObject(newObject));
     }
 
     private void GrabObject()

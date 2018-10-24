@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4881595777082578}
   - component: {fileID: 114437799562714686}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: LeftHook
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52,7 +52,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4571059004896418}
   - component: {fileID: 114053498027209546}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: RightHook
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,11 +111,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41bab0c2278ec7f439bb352060da71bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  layersOfObjectsToSelect: 08000000
+  interactionLayers:
+    serializedVersion: 2
+    m_Bits: 256
   interactionType: 1
   selection: {fileID: 0}
   trackedObj: {fileID: 0}
   checkForNewlySpawnedObjects: 1
+  selectedObject:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  hovered:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  unHovered:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  currentlyHovered: {fileID: 0}
 --- !u!114 &114437799562714686
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -127,11 +145,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41bab0c2278ec7f439bb352060da71bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  layersOfObjectsToSelect: 08000000
+  interactionLayers:
+    serializedVersion: 2
+    m_Bits: 256
   interactionType: 1
   selection: {fileID: 0}
   trackedObj: {fileID: 0}
   checkForNewlySpawnedObjects: 1
+  selectedObject:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  hovered:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  unHovered:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  currentlyHovered: {fileID: 0}
 --- !u!114 &114967255552651112
 MonoBehaviour:
   m_ObjectHideFlags: 1
