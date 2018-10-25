@@ -30,7 +30,9 @@ public class ControllerColliderWIM : MonoBehaviour {
             }
             if(worldInMin.controllerO.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && worldInMin.objectPicked == true) {
                 if(worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Movement) {
-                    this.GetComponent<SelectionManipulation>().selectedObject.transform.SetParent(null);
+                    if(worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Full) {
+                        this.GetComponent<SelectionManipulation>().selectedObject.transform.SetParent(null);
+                    }
                     worldInMin.objectPicked = false;
                 }
             }

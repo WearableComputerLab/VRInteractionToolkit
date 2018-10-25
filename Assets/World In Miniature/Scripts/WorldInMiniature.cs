@@ -14,7 +14,7 @@ public class WorldInMiniature : MonoBehaviour {
     internal SteamVR_TrackedObject trackedObjO; //tracked object other
     private SteamVR_Controller.Device controller;
     internal SteamVR_Controller.Device controllerO; //controller other
-    public GameObject worldInMinParent;
+    private GameObject worldInMinParent;
     GameObject[] allSceneObjects;
     
     private bool WiMAactive = false;
@@ -41,6 +41,7 @@ public class WorldInMiniature : MonoBehaviour {
                 for (int i = 0; i < allSceneObjects.Length; i++) {
                     if (!ignorableObjectsString.Contains(allSceneObjects[i].name)) {
                         GameObject cloneObject = Instantiate(allSceneObjects[i], new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
+                        cloneObject.transform.name = allSceneObjects[i].name;
                         cloneObject.transform.SetParent(worldInMinParent.transform, false);
                         if (cloneObject.gameObject.GetComponent<Rigidbody>() == null) {
                             cloneObject.gameObject.AddComponent<Rigidbody>();
@@ -113,6 +114,7 @@ public class WorldInMiniature : MonoBehaviour {
     }
 
     void Awake() {
+        worldInMinParent = this.transform.Find("WorldInMinParent").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
             trackedObjO = controllerLeft.GetComponent<SteamVR_TrackedObject>();

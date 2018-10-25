@@ -7,8 +7,9 @@ public class ControllerCollider : MonoBehaviour {
     private ScaledWorldGrab scaledWorldGrab;
 
     private void OnTriggerStay(Collider col) {
+        print(col.transform.name);
         if (scaledWorldGrab.objSelected == true) {
-            if (scaledWorldGrab.controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+            if (scaledWorldGrab.controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && scaledWorldGrab.objectGrabbed == false) {
                 if (scaledWorldGrab.interacionType == ScaledWorldGrab.InteractionType.Manipulation_Full || scaledWorldGrab.interacionType == ScaledWorldGrab.InteractionType.Manipulation_Movement) {
                     col.gameObject.transform.SetParent(scaledWorldGrab.trackedObj.gameObject.transform);
                     scaledWorldGrab.objectGrabbed = true;

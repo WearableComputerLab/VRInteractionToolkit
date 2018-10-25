@@ -98,19 +98,12 @@ public class ScaledWorldGrab : MonoBehaviour {
     }
 
     internal bool objectGrabbed = false;
+    public static int grabbedAmount;
 
-    private void OnTriggerStay(Collider col) {
-        if (objSelected == true) {
-            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
-                col.gameObject.transform.SetParent(trackedObj.gameObject.transform);
-                objectGrabbed = true;
-            }
-            if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && objectGrabbed == true) {
-                col.gameObject.transform.SetParent(null);
-                objectGrabbed = false;
-                resetProperties();
-            }
-        }
+    private GameObject entered;
+    private void OnTriggerEnter(Collider col) {
+        print("Entered" + col.name);
+        entered = col.gameObject;
     }
 
     private Vector3 cameraHeadLocalScaleOriginal;
@@ -138,11 +131,7 @@ public class ScaledWorldGrab : MonoBehaviour {
         */
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) { // temp
             //Resetting everything back to normal
-            objSelected = false;
-            selectedObject.transform.SetParent(oldParent);
-            cameraHead.transform.localScale = new Vector3(1f, 1f, 1f);
-            cameraRig.transform.localScale = new Vector3(1f, 1f, 1f);
-            cameraRig.transform.localPosition = new Vector3(0f, 0f, 0f);
+            resetProperties();
         }
     }
 
@@ -201,7 +190,13 @@ public class ScaledWorldGrab : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
+        //print(objectGrabbed + ", " + objSelected + ", " + selectedObject);
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+        if(controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && objectGrabbed == true && objSelected == true) {
+            selectedObject.gameObject.transform.SetParent(null);
+            objectGrabbed = false;
+            resetProperties();
+        }
         if (objSelected == false) {
             castRay();
         } else if (objSelected == true) {
