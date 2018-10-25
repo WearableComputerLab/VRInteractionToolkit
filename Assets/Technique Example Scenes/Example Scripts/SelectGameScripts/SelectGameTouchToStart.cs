@@ -17,6 +17,8 @@ public class SelectGameTouchToStart : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
-		controller.startTest();
+		if(other.GetComponent<CanResetSigns>() != null) {
+			controller.startTest();
+		}		
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 public class DepthRay : MonoBehaviour {
 
@@ -41,6 +42,11 @@ public class DepthRay : MonoBehaviour {
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
+
+    public UnityEvent selectedObject; // Invoked when an object is selected
+
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
@@ -94,6 +100,7 @@ public class DepthRay : MonoBehaviour {
                     objectSelected = true;
                     print("Selected object in pure selection mode:" + tempObjectStored.name);
                 }
+                selectedObject.Invoke();
             }
             if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {

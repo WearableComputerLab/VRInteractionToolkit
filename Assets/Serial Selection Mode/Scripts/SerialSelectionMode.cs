@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SerialSelectionMode : MonoBehaviour {
 
@@ -24,6 +25,8 @@ public class SerialSelectionMode : MonoBehaviour {
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
+
+    public UnityEvent selectedObject; // Invoked when an object is selected
 
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
@@ -80,6 +83,7 @@ public class SerialSelectionMode : MonoBehaviour {
                     obj.transform.GetComponent<Renderer>().material = outlineMaterial;
                     print("selected object:" + obj.name);
                     print("list size:" + selectedObjectsList.Count);
+                    selectedObject.Invoke();
                 } else {
                     for (int i=0; i<selectedObjectsList.Count; i++) {
                         selectedObjectsList[i].transform.GetComponent<Renderer>().material = rendererMaterialTrackerList[i];

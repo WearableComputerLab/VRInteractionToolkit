@@ -17,7 +17,9 @@ public class ResetDockerGame : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
-		restart();
+		if(other.GetComponent<CanResetSigns>() != null) {
+			restart();
+		}
 	}
 
 	void restart() {

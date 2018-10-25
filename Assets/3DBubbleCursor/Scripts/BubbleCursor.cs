@@ -24,9 +24,6 @@ public class BubbleCursor : MonoBehaviour {
     private GameObject objectBubble;
     public LayerMask interactableLayer;
 
-    public UnityEvent selectedObject; // Invoked when an object is selected
-    public UnityEvent droppedObject; // Invoked when an object is dropped
-
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
 
@@ -36,9 +33,15 @@ public class BubbleCursor : MonoBehaviour {
     public enum ControllerPicked { Left_Controller, Right_Controller, Head };
     public ControllerPicked controllerPicked;
 
+    public GameObject currentlyHovering = null;
+
     public GameObject controllerRight;
     public GameObject controllerLeft;
     public GameObject cameraHead;
+    public UnityEvent selectedObject; // Invoked when an object is selected
+    public UnityEvent droppedObject; // Invoked when an object is dropped
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     private readonly float bubbleOffset = 0.6f;
 
@@ -242,8 +245,13 @@ public class BubbleCursor : MonoBehaviour {
                 objectBubble.transform.position = interactableObjects[(int)lowestDistances[0][1]].transform.position;
                 objectBubble.transform.localScale = new Vector3(interactableObjects[(int)lowestDistances[0][1]].transform.localScale.x + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.y + bubbleOffset, interactableObjects[(int)lowestDistances[0][1]].transform.localScale.z + bubbleOffset);
                 PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
-
             }
+            if(currentlyHovering != interactableObjects[(int)lowestDistances[0][1]]) {
+                unHovered.Invoke();
+            }           
+            currentlyHovering = interactableObjects[(int)lowestDistances[0][1]];
+            hovered.Invoke();
+
         } else {
             print("ERROR: Unable to initialize bubble cursor - Current objects using interactable layer in scene is:" +interactableObjects.Length + " (Requires atleast 2 GameObjects in scene to use bubble cursor)");
             print("- Make sure to set the GameObjects layer type to the Interactable Layer type specified in the prefab settings...");

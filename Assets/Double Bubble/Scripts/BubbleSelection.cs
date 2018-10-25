@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Events;
 
 public class BubbleSelection : MonoBehaviour {
 
@@ -16,6 +17,13 @@ public class BubbleSelection : MonoBehaviour {
     private GameObject cameraHead;
     internal bool inBubbleSelection = false;
     public LayerMask interactableLayer;
+
+    public GameObject currentlyHovering = null;
+
+    public UnityEvent selectedObject; // Invoked when an object is selected
+    public UnityEvent droppedObject; // Invoked when an object is dropped
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     private GameObject tempObjectStored;
@@ -115,11 +123,8 @@ public class BubbleSelection : MonoBehaviour {
         inBubbleSelection = false;
     }
 
-    private GameObject selectedObject;
-
     public void disableMenuOnTrigger() {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && inBubbleSelection == true) {
-            print("Selected object:"+ selectedObject.name);
             clearList();
             destroyChildGameObjects();
             pickedObjects = null;
@@ -241,7 +246,7 @@ public class BubbleSelection : MonoBehaviour {
                 }
 
                 float closestValue = Mathf.Min(ClosestCircleRadius, SecondClosestCircleRadius);
-                selectedObject = pickedObjects[(int)lowestDistances[0][1]];
+
                // print("FIRST closest radius:" + ClosestCircleRadius + " | closest value:" + closestValue);
                // print("SECOND closest radius:" + SecondClosestCircleRadius + " | closest value:" + closestValue);
                 if (ClosestCircleRadius < SecondClosestCircleRadius) {
@@ -264,6 +269,11 @@ public class BubbleSelection : MonoBehaviour {
                     bubbleCursor.objectBubble.transform.position = findOriginalObject.position;
                     bubbleCursor.objectBubble.transform.localScale = new Vector3(findOriginalObject.localScale.x + bubbleCursor.bubbleOffset, findOriginalObject.localScale.y + bubbleCursor.bubbleOffset, findOriginalObject.transform.localScale.z + bubbleCursor.bubbleOffset);
                 }
+                if(currentlyHovering != pickedObjects[(int)lowestDistances[0][1]]) {
+                    unHovered.Invoke();
+                }           
+                currentlyHovering = pickedObjects[(int)lowestDistances[0][1]];
+                hovered.Invoke();
             }
             disableMenuOnTrigger();
         }

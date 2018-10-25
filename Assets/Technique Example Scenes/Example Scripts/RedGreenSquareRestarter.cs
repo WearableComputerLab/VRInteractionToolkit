@@ -17,6 +17,8 @@ public class RedGreenSquareRestarter : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
-		theGame.restartGame();
+		if(other.GetComponent<CanResetSigns>() != null) {
+			theGame.restartGame();
+		}
 	}
 }
