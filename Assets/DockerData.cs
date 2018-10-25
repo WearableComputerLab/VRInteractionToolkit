@@ -30,21 +30,23 @@ public class DockerData : MonoBehaviour {
 
 
     internal void incrementDockerCount() {
+        //print("Increment called..");
         dockerCount++;
-        totalDistL += trackedObjL.GetComponent<CountDistance>().totalDistance;
-        totalDistR += trackedObjR.GetComponent<CountDistance>().totalDistance;
-        totalDistH += trackedObjH.GetComponent<CountDistance>().totalDistance;
-        totalTime += trackedObjH.GetComponent<CountDistance>().countTimer;
-        print("Left Hand Movement:" + trackedObjL.GetComponent<CountDistance>().totalDistance);
-        print("Right Hand Movement:" + trackedObjR.GetComponent<CountDistance>().totalDistance);
-        print("Head Movement:" + trackedObjH.GetComponent<CountDistance>().totalDistance);
-        print("Time taken:" + trackedObjH.GetComponent<CountDistance>().countTimer);
         if (dockerCount == 1 && trackedObjL.GetComponent<CountDistance>().counting == false || dockerCount == 1 && trackedObjR.GetComponent<CountDistance>().counting == false) {
             trackedObjL.GetComponent<CountDistance>().counting = true;
             trackedObjR.GetComponent<CountDistance>().counting = true;
             trackedObjH.GetComponent<CountDistance>().counting = true;
         }
         if (dockerCount >= dockerObjects) {
+            totalDistL += trackedObjL.GetComponent<CountDistance>().totalDistance;
+            totalDistR += trackedObjR.GetComponent<CountDistance>().totalDistance;
+            totalDistH += trackedObjH.GetComponent<CountDistance>().totalDistance;
+            totalTime += trackedObjH.GetComponent<CountDistance>().countTimer;
+            print("Left Hand Movement:" + trackedObjL.GetComponent<CountDistance>().totalDistance);
+            print("Right Hand Movement:" + trackedObjR.GetComponent<CountDistance>().totalDistance);
+            print("Head Movement:" + trackedObjH.GetComponent<CountDistance>().totalDistance);
+            print("Time taken:" + trackedObjH.GetComponent<CountDistance>().countTimer);
+
             print("OVERALL Left Hand Movement:"+ totalDistL);
             print("OVERALL Right Hand Movement:"+ totalDistR);
             print("OVERALL Head Movement:" + totalDistH);

@@ -30,7 +30,7 @@ public class CountDistance : MonoBehaviour {
 	void Update () {
 		if (counting) {
             countTimer += Time.deltaTime;
-            //print(countTimer);
+            print(countTimer);
             addDistance ();
 		}
 	}
