@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4050285875023704}
   - component: {fileID: 114886267432800062}
-  - component: {fileID: 114957924899494076}
+  - component: {fileID: 114267475424214390}
   m_Layer: 0
   m_Name: ImagePlane_StickyHand_Technique 1
   m_TagString: Untagged
@@ -201,6 +201,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114267475424214390
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1181010411602198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4415bef50ec30694a9e92007664a2bf5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114886267432800062
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -221,17 +232,6 @@ MonoBehaviour:
   outlineMaterial: {fileID: 2100000, guid: 3d938759d8b7a414988ec3261fb5265d, type: 2}
   interacionType: 0
   controllerPicked: 1
---- !u!114 &114957924899494076
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1181010411602198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e452348f395aa046ad8dcfafb00574a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!135 &135681033768656142
 SphereCollider:
   m_ObjectHideFlags: 1
