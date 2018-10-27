@@ -14,12 +14,12 @@ public class WorldInMiniature : MonoBehaviour {
     internal SteamVR_TrackedObject trackedObjO; //tracked object other
     private SteamVR_Controller.Device controller;
     internal SteamVR_Controller.Device controllerO; //controller other
-    private GameObject worldInMinParent;
+    public GameObject worldInMinParent;
     GameObject[] allSceneObjects;
     
-    private bool WiMAactive = false;
+    public bool WiMactive = false;
     public List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light", "background"};
-    private float scaleAmount = 20f;
+    public float scaleAmount = 20f;
     public LayerMask interactableLayer;
     public Material outlineMaterial;
 
@@ -35,13 +35,13 @@ public class WorldInMiniature : MonoBehaviour {
 
     void createWiM() {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) {
-            if (WiMAactive == false) {
-                WiMAactive = true;
+            if (WiMactive == false) {
+                WiMactive = true;
                 print("Create world clone");
                 for (int i = 0; i < allSceneObjects.Length; i++) {
                     if (!ignorableObjectsString.Contains(allSceneObjects[i].name)) {
                         GameObject cloneObject = Instantiate(allSceneObjects[i], new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
-                        cloneObject.transform.name = allSceneObjects[i].name;
+                        //cloneObject.transform.name = allSceneObjects[i].name;
                         cloneObject.transform.SetParent(worldInMinParent.transform, false);
                         if (cloneObject.gameObject.GetComponent<Rigidbody>() == null) {
                             cloneObject.gameObject.AddComponent<Rigidbody>();
@@ -49,10 +49,10 @@ public class WorldInMiniature : MonoBehaviour {
                         cloneObject.gameObject.GetComponent<Rigidbody>().isKinematic = true;
                         //cloneObject.gameObject.AddComponent<Collider>();
                         //cloneObject.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
-                        cloneObject.transform.localScale = new Vector3(allSceneObjects[i].transform.localScale.x / scaleAmount, allSceneObjects[i].transform.localScale.y / scaleAmount, allSceneObjects[i].transform.localScale.z / scaleAmount);
+                        cloneObject.transform.localScale = new Vector3(allSceneObjects[i].transform.lossyScale.x / scaleAmount, allSceneObjects[i].transform.lossyScale.y / scaleAmount, allSceneObjects[i].transform.lossyScale.z / scaleAmount);
                         cloneObject.transform.localRotation = Quaternion.identity;
                         if (cloneObject.transform.GetComponent<Renderer>() != null) {
-                            cloneObject.transform.GetComponent<Renderer>().material.color = Color.red;
+                            //cloneObject.transform.GetComponent<Renderer>().material.color = Color.red;
                         }
                         float posX = allSceneObjects[i].transform.position.x / scaleAmount;
                         float posY = allSceneObjects[i].transform.position.y / scaleAmount;
@@ -65,8 +65,8 @@ public class WorldInMiniature : MonoBehaviour {
                 worldInMinParent.transform.localEulerAngles = new Vector3(0f, trackedObj.transform.localEulerAngles.y - 45f, 0f);
                 worldInMinParent.transform.Rotate(0, tiltAroundY, 0);
                 //worldInMinParent.transform.localPosition -= new Vector3(0f, worldInMinParent.transform.position.y / 1.25f, 0f);
-            } else if (WiMAactive == true) {
-                WiMAactive = false;
+            } else if (WiMactive == true) {
+                WiMactive = false;
                 foreach (Transform child in worldInMinParent.transform) {
                     Destroy(child.gameObject);
                 }
@@ -77,7 +77,11 @@ public class WorldInMiniature : MonoBehaviour {
         }
     }
 
-    internal GameObject selectedObject;
+    public GameObject selectedObject;
+
+    public GameObject currentObjectCollided;
+
+
     internal bool objectPicked = false;
     internal Transform oldParent;
 
@@ -133,17 +137,20 @@ public class WorldInMiniature : MonoBehaviour {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         controllerO = SteamVR_Controller.Input((int)trackedObjO.index);
         createWiM();
-        if (WiMAactive == true) {
+        if (WiMactive == true) {
             tiltAroundY = controller.GetAxis(Valve.VR.EVRButtonId.k_EButton_Axis0).y;
-            if (controller.GetTouch(SteamVR_Controller.ButtonMask.Touchpad)) {
+            if (controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad)) {
                 worldInMinParent.transform.Rotate(0, tiltAroundY* tiltSpeed, 0);
             }
         }
-        if (controllerO.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && selectedObject == true) {
+        if (controllerO.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && selectedObject == true) {
             selectedObject.transform.SetParent(oldParent);
             //print("changed pos:" + selectedObject.transform.localPosition);
             GameObject realObject = GameObject.Find(selectedObject.name);
+            print(realObject.transform.position + " | " + realObject.transform.localPosition);
+            print(selectedObject.transform.position + " | " + selectedObject.transform.localPosition);
             realObject.transform.localPosition = selectedObject.transform.localPosition;
+            //realObject.transform.localPosition = new Vector3(selectedObject.transform.localPosition.x*scaleAmount, selectedObject.transform.localPosition.y*scaleAmount, selectedObject.transform.localPosition.z*scaleAmount);
             realObject.transform.localEulerAngles = selectedObject.transform.localEulerAngles;
             objectPicked = false;
         }
