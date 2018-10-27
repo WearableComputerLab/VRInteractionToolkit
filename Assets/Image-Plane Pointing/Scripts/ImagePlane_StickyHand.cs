@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ImagePlane_StickyHand : MonoBehaviour {
     internal bool objSelected = false;
@@ -10,6 +11,12 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     /*public GameObject controllerRight = GameObject.Find("Controller (right)");
     public GameObject controllerLeft = GameObject.Find("Controller (left)");
     */
+
+    public LayerMask interactionLayers;
+    public GameObject lastSelectedObject; // holds the selected object
+
+    public GameObject currentlyPointingAt;
+    private Vector3 castingBezierFrom;
     public GameObject controllerRight = null;
     public GameObject controllerLeft = null;
 
@@ -25,12 +32,88 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     private Transform oldParent;
     public Material outlineMaterial;
 
+	public UnityEvent selectedObjectEvent; // Invoked when an object is selected
+
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+
     public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
     public InteractionType interacionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
 
+
+void checkSurroundingObjects()
+    {
+
+        Vector3 newForward = pointOfInteraction.transform.position - cameraHead.transform.position;
+
+        Vector3 forwardVectorFromRemote = newForward;
+        Vector3 positionOfRemote = cameraHead.transform.position;
+
+        // This way is quite innefficient but is the way described for the bendcast.
+        // Might make an example of a way that doesnt loop through everything
+        var allObjects = FindObjectsOfType<GameObject>();
+
+        float shortestDistance = float.MaxValue;
+
+        GameObject objectWithShortestDistance = null;
+        // Loop through objects and look for closest (if of a viable layer)
+        for (int i = 0; i < allObjects.Length; i++)
+        {
+            // dont have to worry about executing twice as an object can only be on one layer
+			if (interactionLayers == (interactionLayers | (1 << allObjects[i].layer)))
+            {
+                // Check if object is on plane projecting in front of VR remote. Otherwise ignore it. (we dont want our laser aiming backwards)
+                Vector3 forwardParallelToDirectionPointing = Vector3.Cross(forwardVectorFromRemote, cameraHead.transform.up);
+                Vector3 targObject = pointOfInteraction.transform.position-allObjects[i].transform.position;
+                Vector3 perp = Vector3.Cross(forwardParallelToDirectionPointing, targObject);
+                float side = Vector3.Dot(perp, cameraHead.transform.up);
+                if(side < 0) {
+                        // Object can only have one layer so can do calculation for object here
+                    Vector3 objectPosition = allObjects[i].transform.position;
+
+                    // Using vector algebra to get shortest distance between object and vector 
+                    Vector3 forwardControllerToObject = pointOfInteraction.transform.position - objectPosition;
+                    Vector3 controllerForward = forwardVectorFromRemote;
+                    float distanceBetweenRayAndPoint = Vector3.Magnitude(Vector3.Cross(forwardControllerToObject,controllerForward))/Vector3.Magnitude(controllerForward);
+                    
+        
+
+                    Vector3 newPoint = new Vector3(forwardVectorFromRemote.x * distanceBetweenRayAndPoint + positionOfRemote.x, forwardVectorFromRemote.y * distanceBetweenRayAndPoint + positionOfRemote.y
+                            , forwardVectorFromRemote.z * distanceBetweenRayAndPoint + positionOfRemote.z);
+
+                    if (distanceBetweenRayAndPoint < shortestDistance)
+                    {
+                        shortestDistance = distanceBetweenRayAndPoint;
+                        objectWithShortestDistance = allObjects[i];
+                    }
+                }
+                
+            }         
+        }
+        if (objectWithShortestDistance != null)
+        {
+            
+            // Invoke un-hover if object with shortest distance is now different to currently hovered
+            if(currentlyPointingAt != objectWithShortestDistance) {
+                unHovered.Invoke();
+            }
+
+            // setting the object that is being pointed at
+            currentlyPointingAt = objectWithShortestDistance;
+            
+            hovered.Invoke(); // Broadcasting that object is hovered
+
+            castingBezierFrom = trackedObj.transform.position;
+
+        } else {
+            // Laser didnt reach any object so will disable
+            currentlyPointingAt = null;
+            lastSelectedObject = null;
+        }
+    }
     private void ShowLaser(RaycastHit hit) {
 
         mirroredCube.SetActive(false);
@@ -38,13 +121,14 @@ public class ImagePlane_StickyHand : MonoBehaviour {
         laserTransform.position = Vector3.Lerp(pointOfInteraction.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
-        print(hit.transform.name);
-        PickupObject(hit.transform.gameObject);
+        //print(hit.transform.name);
+        //PickupObject(hit.transform.gameObject);
+        //PickupObject(currentlyPointingAt.gameObject);
     }
 
     private void interactionPosition() {
-        pointOfInteraction.transform.localPosition = trackedObj.transform.localPosition;
-        pointOfInteraction.transform.localRotation = trackedObj.transform.localRotation;
+        pointOfInteraction.transform.position = trackedObj.transform.position;
+        pointOfInteraction.transform.rotation = trackedObj.transform.rotation;
         pointOfInteraction.transform.localRotation *= Quaternion.Euler(75, 0, 0);
     }
 
@@ -91,6 +175,9 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     private void ShowLaser() {
         laser.SetActive(true);
         mirroredCube.SetActive(true);
+        
+        //print("not hitting..");
+        //laser.transform.localScale = new Vector3(laser.transform.localScale.x + 0.1f, laser.transform.localScale.y + 0.1f, laser.transform.localScale.z + 0.1f);
     }
 
     void extendDistance(float distance, GameObject obj) {
@@ -160,9 +247,15 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     }
 
     void castRay() {
+        checkSurroundingObjects();
+        print(currentlyPointingAt);
+        selectedObject = currentlyPointingAt;
+        if (currentlyPointingAt != null) {
+            PickupObject(currentlyPointingAt.gameObject);
+        }
         interactionPosition();
         mirroredObject();
-        ShowLaser();
+        
         Ray ray = Camera.main.ScreenPointToRay(cameraHead.transform.position);
 
         Vector3 newForward = pointOfInteraction.transform.position - cameraHead.transform.position;
@@ -170,10 +263,13 @@ public class ImagePlane_StickyHand : MonoBehaviour {
         if (Physics.Raycast(cameraHead.transform.position, newForward, out hit, 100)) {
             hitPoint = hit.point;
             ShowLaser(hit);
+        } else {
+            ShowLaser();
         }
     }
 
     void Update() {
+        
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         //if (objSelected == false) {
         castRay();

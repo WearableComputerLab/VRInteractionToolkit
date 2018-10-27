@@ -128,13 +128,13 @@ public class AppManagerVR : MonoBehaviour {
                 }
                 prevHitTime = 0f;
                 linkedButtons[target, 0].GetComponent<Renderer>().material.color = Color.red;
-                linkedButtons[target, 0].transform.SetSiblingIndex(16);
+                //linkedButtons[target, 0].transform.SetSiblingIndex(16);
                 selectionIndex = 1;
                 firstTarget = true;
             }
             if(target == 0) {
                 linkedButtons[target, 0].GetComponent<Renderer>().material.color = Color.red;
-                linkedButtons[target, 0].transform.SetSiblingIndex(16);
+                //linkedButtons[target, 0].transform.SetSiblingIndex(16);
                 selectionIndex = 1;
                 firstTarget = true;
             }
@@ -155,7 +155,7 @@ public class AppManagerVR : MonoBehaviour {
 
                 linkedButtons[target, 0].GetComponent<Renderer>().material.color = Color.white;
                 linkedButtons[target, 1].GetComponent<Renderer>().material.color = Color.red;
-                linkedButtons[target, 1].transform.SetSiblingIndex(16);
+                //linkedButtons[target, 1].transform.SetSiblingIndex(16);
                 //print("TARGET:" + linkedButtons[target, 0].name);
                 //print("SELECTED:" + currentSelectedObject);
                 selectionIndex = 0;
