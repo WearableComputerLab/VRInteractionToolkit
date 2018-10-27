@@ -204,6 +204,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4746224669821462}
   - component: {fileID: 114310980001949888}
+  - component: {fileID: 114143917734040440}
   m_Layer: 5
   m_Name: WorldInMiniature_Technique
   m_TagString: Untagged
@@ -527,6 +528,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114143917734040440
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1919732356685450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d6809d67b7bf9f43a3e167a4ca2836d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114147675461810228
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -565,12 +577,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3be4e9bfb092e439af70f30c88dbe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  worldInMinParent: {fileID: 0}
+  ignorableObjectsString:
+  - '[CameraRig]'
+  - Directional Light
+  - background
   interactableLayer:
     serializedVersion: 2
     m_Bits: 256
   outlineMaterial: {fileID: 2100000, guid: 3d938759d8b7a414988ec3261fb5265d, type: 2}
   interacionType: 0
   controllerPicked: 1
+  controllerRight: {fileID: 0}
+  controllerLeft: {fileID: 0}
+  cameraHead: {fileID: 0}
   tiltSpeed: 2
 --- !u!114 &114471609377390740
 MonoBehaviour:

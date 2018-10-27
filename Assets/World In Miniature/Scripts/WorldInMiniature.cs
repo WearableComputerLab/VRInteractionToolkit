@@ -16,7 +16,7 @@ public class WorldInMiniature : MonoBehaviour {
     internal SteamVR_Controller.Device controllerO; //controller other
     private GameObject worldInMinParent;
     GameObject[] allSceneObjects;
-    private GameObject cameraHead;
+    
     private bool WiMAactive = false;
     public List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light", "background"};
     private float scaleAmount = 20f;
@@ -29,6 +29,10 @@ public class WorldInMiniature : MonoBehaviour {
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
 
+	public GameObject controllerRight;
+	public GameObject controllerLeft;
+	public GameObject cameraHead;
+
     void createWiM() {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) {
             if (WiMAactive == false) {
@@ -37,6 +41,7 @@ public class WorldInMiniature : MonoBehaviour {
                 for (int i = 0; i < allSceneObjects.Length; i++) {
                     if (!ignorableObjectsString.Contains(allSceneObjects[i].name)) {
                         GameObject cloneObject = Instantiate(allSceneObjects[i], new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
+                        cloneObject.transform.name = allSceneObjects[i].name;
                         cloneObject.transform.SetParent(worldInMinParent.transform, false);
                         if (cloneObject.gameObject.GetComponent<Rigidbody>() == null) {
                             cloneObject.gameObject.AddComponent<Rigidbody>();
@@ -88,13 +93,27 @@ public class WorldInMiniature : MonoBehaviour {
         //allSceneObjects = FindObjectsOfType<GameObject>();
         worldInMinParent.transform.SetParent(trackedObj.transform);
         resetAllProperties();
+
+		//adding colliders and collider scripts to controllers for WIM if they don't allready exist
+		SphereCollider col;
+		if ((col = trackedObj.transform.gameObject.GetComponent<SphereCollider> ()) == null) {
+			
+			col = trackedObj.transform.gameObject.AddComponent<SphereCollider> ();
+			col.isTrigger = true;
+			col.radius = 0.05f;
+			trackedObj.transform.gameObject.AddComponent<ControllerColliderWIM> ();
+		}
+		SphereCollider col0;
+		if((col0 = trackedObjO.transform.gameObject.GetComponent<SphereCollider> ()) == null) {
+			
+			col0 = trackedObjO.transform.gameObject.AddComponent<SphereCollider> ();
+			col0.isTrigger = true;
+			col0.radius = 0.05f;
+			trackedObjO.transform.gameObject.AddComponent<ControllerColliderWIM> ();
+		}
     }
 
     void Awake() {
-        GameObject controllerRight = GameObject.Find(CONSTANTS.rightController);
-        GameObject controllerLeft = GameObject.Find(CONSTANTS.leftController);
-        cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
-
         worldInMinParent = this.transform.Find("WorldInMinParent").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();

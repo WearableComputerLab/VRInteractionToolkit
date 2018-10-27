@@ -29,6 +29,8 @@ public class GoGoShadow : MonoBehaviour
 
     private SteamVR_Controller.Device device;
     
+	public float extensionVariable = 10f; // this variable in the equation controls the multiplier for how far the arm can extend with small movements
+
     bool calibrated = false;
     Vector3 chestPosition;
     Vector3 relativeChestPos;
@@ -73,14 +75,12 @@ public class GoGoShadow : MonoBehaviour
 
         float distChestPos = Vector3.Distance(trackedObj.transform.position, chestPosition);
 
-        float k = 10f;  // Important for how far can extend
-
         float D = (2f * armLength) / 3f; // 2/3 of users arm length
 
         //D = 0;
         if (distChestPos >= D)
         {
-            float extensionDistance = distChestPos + (k * (float)Math.Pow(distChestPos - D, 2));
+			float extensionDistance = distChestPos + (extensionVariable * (float)Math.Pow(distChestPos - D, 2));
             // Dont need both here as we only want the distance to extend by not the full distance
             // but we want to keep the above formula matching the original papers formula so will then calculate just the distance to extend below
             return extensionDistance - distChestPos;

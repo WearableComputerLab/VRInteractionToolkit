@@ -38,7 +38,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4299249319350412}
   - component: {fileID: 114664885942566006}
-  - component: {fileID: 114856011569782454}
+  - component: {fileID: 114153317066652322}
   m_Layer: 0
   m_Name: ImagePlane_Framing_Hands_Technique
   m_TagString: Untagged
@@ -287,6 +287,17 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114153317066652322
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1380345831698614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dc175a8e75029f4a89e593da9e1d472, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114664885942566006
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -298,24 +309,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87b0cf474a29ac742bea7e8bfe79e32e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interacionType: 0
+  controllerPicked: 0
   controllerRight: {fileID: 0}
   controllerLeft: {fileID: 0}
   cameraHead: {fileID: 0}
   cameraRig: {fileID: 0}
   laserPrefab: {fileID: 1552384495066432, guid: 29b17e4a694b3c048b64f2a565ceabc5,
     type: 2}
-  pointOfInteraction: {fileID: 1932305739767334}
---- !u!114 &114856011569782454
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1380345831698614}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44c93ef8ef26fa34d82de09371368382, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!135 &135474488772693906
 SphereCollider:
   m_ObjectHideFlags: 1

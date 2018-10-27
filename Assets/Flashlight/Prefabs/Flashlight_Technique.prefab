@@ -312,7 +312,9 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  layersOfObjectsToSelect: 08000000
+  interactionLayers:
+    serializedVersion: 2
+    m_Bits: 256
   objectHoveredOver: {fileID: 0}
 --- !u!114 &114390609378747924
 MonoBehaviour:
@@ -343,7 +345,9 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  layersOfObjectsToSelect: 08000000
+  interactionLayers:
+    serializedVersion: 2
+    m_Bits: 256
   objectHoveredOver: {fileID: 0}
 --- !u!114 &114624464056501392
 MonoBehaviour:

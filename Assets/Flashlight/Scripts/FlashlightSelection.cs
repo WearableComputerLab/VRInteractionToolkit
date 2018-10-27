@@ -30,27 +30,21 @@ using UnityEngine.Events;
 */
 public class FlashlightSelection : MonoBehaviour {
 
+	public LayerMask interactionLayers;
 
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
     public InteractionType interactionType;
     public GameObject selection; // holds the selected object
-
     public SteamVR_TrackedObject theController;
-
     private GameObject trackedObj;
     private List<GameObject> collidingObjects;
-
-    public UnityEvent selectedObject; // Invoked when an object is selected
-
-    public UnityEvent hovered; // Invoked when an object is hovered by technique
-    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
-
-    private GameObject objectInHand;
-
-    public List<int> layersOfObjectsToSelect;
-
+	private GameObject objectInHand;
     public GameObject objectHoveredOver;
+
+	public UnityEvent selectedObject; // Invoked when an object is selected
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     private SteamVR_Controller.Device Controller
     {
@@ -92,7 +86,7 @@ public class FlashlightSelection : MonoBehaviour {
 
     public void OnTriggerEnter(Collider other)
     {
-        if(layersOfObjectsToSelect.Contains(other.gameObject.layer)) {
+		if(interactionLayers == (interactionLayers | (1 << other.gameObject.layer))) {
             SetCollidingObject(other);
         }     
     }
@@ -125,7 +119,7 @@ public class FlashlightSelection : MonoBehaviour {
         {
             
             // dont have to worry about executing twice as an object can only be on one layer
-            if (layersOfObjectsToSelect.Contains(potentialObject.layer))
+			if (interactionLayers == (interactionLayers | (1 << potentialObject.layer)))
             {
                 // Object can only have one layer so can do calculation for object here
                 Vector3 objectPosition = potentialObject.transform.position;

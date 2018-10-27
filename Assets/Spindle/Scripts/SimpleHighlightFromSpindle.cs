@@ -24,8 +24,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SimpleHighlightFromSpindle : MonoBehaviour {
-
-
 	public Material highlightMaterial;
 	private Material defaultMaterial;
 
@@ -40,21 +38,21 @@ public class SimpleHighlightFromSpindle : MonoBehaviour {
 	}
 
 	void highlight() {
-		if(selectObject.collidingObjectHighlighted == this.gameObject && selectObject.objectInHand == null) {
+		if(selectObject.collidingObject == this.gameObject && selectObject.objectInHand == null) {
 			print("highlight");
 			this.GetComponent<Renderer>().material = highlightMaterial;
 		}		
 	}
 
 	void unHighlight() {
-		if(selectObject.collidingObjectHighlighted == this.gameObject) {
+		if(selectObject.collidingObject == this.gameObject) {
 			print("unhighlight");
 			this.GetComponent<Renderer>().material = defaultMaterial;
 		}		
 	}
 
 	void playSelectSound() {
-		if(selectObject.collidingObjectHighlighted == this.gameObject) {
+		if(selectObject.collidingObject == this.gameObject) {
 			this.GetComponent<AudioSource>().Play();
 		}	
 	}

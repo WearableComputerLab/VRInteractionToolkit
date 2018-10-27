@@ -29,6 +29,8 @@ using System;
 
 public class BendCast : MonoBehaviour
 {
+	public LayerMask interactionLayers;
+
     public GameObject leftController; // Reference to the steam VR left controller
     public GameObject rightController; // Reference to the steam VR right controller
 
@@ -42,12 +44,6 @@ public class BendCast : MonoBehaviour
     public InteractionType interactionType;
     public GameObject lastSelectedObject; // holds the selected object
 
-    
-    public UnityEvent selectedObject; // Invoked when an object is selected
-
-    public UnityEvent hovered; // Invoked when an object is hovered by technique
-    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
-    
     public GameObject currentlyPointingAt;
     private Vector3 castingBezierFrom;
 
@@ -60,7 +56,12 @@ public class BendCast : MonoBehaviour
 
     private Vector3 p1PointLocation; // used fot the bezier curve
 
-    public List<int> layersOfObjectsToBendTo;
+	public UnityEvent selectedObject; // Invoked when an object is selected
+
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+
+
 
     private SteamVR_Controller.Device Controller
     {
@@ -160,10 +161,6 @@ public class BendCast : MonoBehaviour
 
     void checkSurroundingObjects()
     {
-        if (layersOfObjectsToBendTo.Count == 0)
-        {
-            return;
-        }
 
         Vector3 forwardVectorFromRemote = trackedObj.transform.forward;
         Vector3 positionOfRemote = trackedObj.transform.position;
@@ -179,7 +176,7 @@ public class BendCast : MonoBehaviour
         for (int i = 0; i < allObjects.Length; i++)
         {
             // dont have to worry about executing twice as an object can only be on one layer
-            if (layersOfObjectsToBendTo.Contains(allObjects[i].layer))
+			if (interactionLayers == (interactionLayers | (1 << allObjects[i].layer)))
             {
                 // Check if object is on plane projecting in front of VR remote. Otherwise ignore it. (we dont want our laser aiming backwards)
                 Vector3 forwardParallelToDirectionPointing = Vector3.Cross(forwardVectorFromRemote, trackedObj.transform.up);

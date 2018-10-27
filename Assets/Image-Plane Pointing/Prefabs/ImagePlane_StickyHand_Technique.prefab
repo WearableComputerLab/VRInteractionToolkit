@@ -56,7 +56,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4446583107811018}
   - component: {fileID: 114851066506807876}
-  - component: {fileID: 114646371971749996}
+  - component: {fileID: 114678250992354284}
   m_Layer: 0
   m_Name: ImagePlane_StickyHand_Technique
   m_TagString: Untagged
@@ -201,7 +201,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &114646371971749996
+--- !u!114 &114678250992354284
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -209,7 +209,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1948240450740508}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24429acd7aeee344e8c2004934f4ecd0, type: 3}
+  m_Script: {fileID: 11500000, guid: 4415bef50ec30694a9e92007664a2bf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &114851066506807876
@@ -229,7 +229,6 @@ MonoBehaviour:
   controllerLeft: {fileID: 0}
   laserPrefab: {fileID: 1552384495066432, guid: cf0250ce7c1fcbd4fae4a3bef99bba22,
     type: 2}
-  pointOfInteraction: {fileID: 1199665550826966}
   outlineMaterial: {fileID: 2100000, guid: 3d938759d8b7a414988ec3261fb5265d, type: 2}
   interacionType: 1
   controllerPicked: 1

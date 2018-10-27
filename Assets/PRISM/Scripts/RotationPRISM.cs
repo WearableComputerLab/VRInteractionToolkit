@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class RotationPRISM : MonoBehaviour {
+	public LayerMask interactionLayers;
+
 	public SteamVR_TrackedObject trackedObj;
 
 	private GameObject collidingObject;
@@ -63,15 +65,15 @@ public class RotationPRISM : MonoBehaviour {
 		*/
 	}
 
-	private void SetCollidingObject(Collider col)
+	private void SetCollidingObject(Collider other)
     {
 
-        if (collidingObject || !col.GetComponent<Rigidbody>())
+		if (collidingObject || !other.GetComponent<Rigidbody>() || interactionLayers != (interactionLayers | (1 << other.gameObject.layer)))
         {
             return;
         }
 
-        collidingObject = col.gameObject;
+        collidingObject = other.gameObject;
     }
 
     public void OnTriggerEnter(Collider other)
@@ -86,7 +88,7 @@ public class RotationPRISM : MonoBehaviour {
 
     public void OnTriggerExit(Collider other)
     {
-        if (!collidingObject)
+		if (!collidingObject || interactionLayers != (interactionLayers | (1 << other.gameObject.layer)))
         {
             return;
         }    

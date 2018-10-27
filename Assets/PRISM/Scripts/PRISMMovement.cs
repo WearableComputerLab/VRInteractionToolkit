@@ -5,6 +5,8 @@ using UnityEngine.Events;
 
 public class PRISMMovement : MonoBehaviour {
 
+	public LayerMask interactionLayers;
+
 	public SteamVR_TrackedObject trackedObj;
 	//public GameObject theController;
 
@@ -71,14 +73,14 @@ public class PRISMMovement : MonoBehaviour {
 	}
 
 
-	private void SetCollidingObject(Collider col)
+	private void SetCollidingObject(Collider other)
     {
 		
-        if (collidingObject || !col.GetComponent<Rigidbody>())
+		if (collidingObject || !other.GetComponent<Rigidbody>() || interactionLayers != (interactionLayers | (1 << other.gameObject.layer)))
         {
             return;
         }
-        collidingObject = col.gameObject;		
+        collidingObject = other.gameObject;		
 		hovered.Invoke();
     }
 
@@ -95,7 +97,7 @@ public class PRISMMovement : MonoBehaviour {
 
     public void OnTriggerExit(Collider other)
     {
-        if (!collidingObject)
+		if (!collidingObject || interactionLayers != (interactionLayers | (1 << other.gameObject.layer)))
         {
             return;
         }    

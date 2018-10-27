@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 23901444688925060}
   - component: {fileID: 114873487976939316}
   - component: {fileID: 54974644205402574}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: MovingSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -112,6 +112,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b74e0df9d0c50940a4bd740eaceac8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bounds: 25
 --- !u!135 &135636592752482592
 SphereCollider:
   m_ObjectHideFlags: 1

@@ -5,6 +5,7 @@ using UnityEngine.Events;
 
 public class iSithGrabObject : MonoBehaviour {
 
+	public LayerMask interactionLayers;
     public SteamVR_TrackedObject trackedObj;
     public GameObject collidingObject;
     public GameObject objectInHand;
@@ -13,7 +14,6 @@ public class iSithGrabObject : MonoBehaviour {
 
     public UnityEvent hovered; // Invoked when an object is hovered by technique
     public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
-    
 
     private SteamVR_Controller.Device Controller
     {
@@ -30,35 +30,34 @@ public class iSithGrabObject : MonoBehaviour {
         }
     }
 
-    private void SetCollidingObject(Collider col)
+    private void SetCollidingObject(Collider other)
     {
 
-        if (collidingObject || !col.GetComponent<Rigidbody>())
+		if (collidingObject || !other.GetComponent<Rigidbody>() || interactionLayers != (interactionLayers | (1 << other.gameObject.layer)))
         {
             return;
         }
 
-        collidingObject = col.gameObject;
+		collidingObject = other.gameObject;
         hovered.Invoke();
     }
 
 
     public void OnTriggerEnter(Collider other)
     {
-        
-        SetCollidingObject(other);
+			SetCollidingObject(other);     
     }
 
 
     public void OnTriggerStay(Collider other)
     {
-        SetCollidingObject(other);
+			SetCollidingObject(other);
     }
 
 
     public void OnTriggerExit(Collider other)
     {
-        if (!collidingObject)
+		if (!collidingObject || interactionLayers != (interactionLayers | (1 << other.gameObject.layer)))
         {
             return;
         }

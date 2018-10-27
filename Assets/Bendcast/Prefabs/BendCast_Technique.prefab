@@ -56,7 +56,7 @@ MonoBehaviour:
   rightController: {fileID: 0}
   setController: 0
   interactionType: 0
-  selection: {fileID: 0}
+  lastSelectedObject: {fileID: 0}
   selectedObject:
     m_PersistentCalls:
       m_Calls: []
@@ -72,9 +72,12 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+  currentlyPointingAt: {fileID: 0}
   laserPrefab: {fileID: 1376165757804452, guid: 40ee1cc06a4f7de4eaeb3c5399cf09cd,
     type: 2}
-  layersOfObjectsToBendTo: 08000000
+  interactionLayers:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &114695581637879810
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -86,5 +89,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f474e31af379cce44b60ead832eb9933, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controller: 1
-  interactionType: 0

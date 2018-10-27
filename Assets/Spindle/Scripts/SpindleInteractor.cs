@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 public class SpindleInteractor : MonoBehaviour {
+	public LayerMask interactionLayers;
 
     public SteamVR_TrackedObject trackedObj1;
     public SteamVR_TrackedObject trackedObj2;
@@ -22,8 +23,7 @@ public class SpindleInteractor : MonoBehaviour {
     }
 
     // Pickup Vars
-    private GameObject collidingObject;
-    public GameObject collidingObjectHighlighted;
+    public GameObject collidingObject;
     public GameObject objectInHand;
     private bool pickedUpWith1 = false;
     private bool pickedUpWith2 = false;
@@ -112,25 +112,20 @@ public class SpindleInteractor : MonoBehaviour {
     }
 
     // Pickup methods
-    private void SetCollidingObject(Collider col)
+    private void SetCollidingObject(Collider other)
     {
 
-        if (collidingObject || !col.GetComponent<Rigidbody>())
+		if (collidingObject || !other.GetComponent<Rigidbody>() || interactionLayers != (interactionLayers | (1 << other.gameObject.layer)))
         {
             return;
         }
-
-        collidingObject = col.gameObject;
+        collidingObject = other.gameObject;
+		hovered.Invoke ();
     }
 
 
     public void OnTriggerEnter(Collider other)
     {
-        collidingObjectHighlighted = other.transform.gameObject;
-        if (collidingObjectHighlighted != null)
-        {
-            hovered.Invoke();
-        }
         SetCollidingObject(other);
     }
 
@@ -143,17 +138,11 @@ public class SpindleInteractor : MonoBehaviour {
 
     public void OnTriggerExit(Collider other)
     {
-        if (!collidingObject)
+		if (!collidingObject || interactionLayers != (interactionLayers | (1 << other.gameObject.layer)))
         {
             return;
         }
-
-        if (collidingObjectHighlighted != null)
-        {
-            unHovered.Invoke();
-            collidingObjectHighlighted = null;
-        }
-
+		unHovered.Invoke ();
         collidingObject = null;
     }
 
