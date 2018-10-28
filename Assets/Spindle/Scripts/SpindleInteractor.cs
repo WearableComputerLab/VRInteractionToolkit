@@ -33,6 +33,7 @@ public class SpindleInteractor : MonoBehaviour {
 
     public UnityEvent hovered; // Invoked when an object is hovered by technique
     public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+    public UnityEvent droppedObject;
     
 
     // Use this for initialization
@@ -177,7 +178,7 @@ public class SpindleInteractor : MonoBehaviour {
             objectInHand.GetComponent<Rigidbody>().velocity = Controller1.velocity;
             objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller1.angularVelocity;
         }
-
+        droppedObject.Invoke();
         objectInHand = null;
     }
 }

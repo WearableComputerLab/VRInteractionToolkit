@@ -199,11 +199,13 @@ public class FlexiblePointer : MonoBehaviour
                 // Pure Selection
                 selection = currentlyPointingAt;
                 selectedObject.Invoke();
-                print("selected" + currentlyPointingAt);
+
                 
             } else if(interactionType == InteractionType.Manipulation) {
                 // Currently no manipulation
+                selection = currentlyPointingAt;
             }
+            selectedObject.Invoke();
         }
     }
 
