@@ -67,11 +67,13 @@ public class Flashlight : MonoBehaviour
     }
 
     void translateConeDistanceAlongForward(float theDistance) {
+        
         this.transform.position = this.transform.position+trackedObj.transform.forward*theDistance;
     }
 
     void checkForInput()
     {
+        return;
         //Dont allow size to change if object is in hand - check by getting child object
         device = SteamVR_Controller.Input((int)trackedObj.index);
         FlashlightSelection childSelector = this.transform.GetComponent<FlashlightSelection>();
