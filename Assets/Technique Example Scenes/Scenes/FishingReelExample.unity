@@ -999,7 +999,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &22643180
 GameObject:
   m_ObjectHideFlags: 0
@@ -1709,7 +1709,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &32891153
 GameObject:
   m_ObjectHideFlags: 0
@@ -2074,7 +2074,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &42385317
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2850,7 +2850,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!4 &65762968
 Transform:
   m_ObjectHideFlags: 0
@@ -3022,7 +3022,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &65762974
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5235,7 +5235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &155706556
 GameObject:
   m_ObjectHideFlags: 0
@@ -8114,7 +8114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &270963312
 GameObject:
   m_ObjectHideFlags: 0
@@ -8314,7 +8314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &273218048
 GameObject:
   m_ObjectHideFlags: 0
@@ -9275,7 +9275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &286177350
 GameObject:
   m_ObjectHideFlags: 0
@@ -12942,7 +12942,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &431794467
 GameObject:
   m_ObjectHideFlags: 0
@@ -13304,7 +13304,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &443891178
 GameObject:
   m_ObjectHideFlags: 0
@@ -13688,7 +13688,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &456021791
 GameObject:
   m_ObjectHideFlags: 0
@@ -17528,161 +17528,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectObject: {fileID: 7547294}
---- !u!43 &552617010
-Mesh:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: 
-  serializedVersion: 9
-  m_SubMeshes:
-  - serializedVersion: 2
-    firstByte: 0
-    indexCount: 24
-    topology: 0
-    baseVertex: 0
-    firstVertex: 0
-    vertexCount: 8
-    localAABB:
-      m_Center: {x: 0, y: 0.01, z: 0}
-      m_Extent: {x: 1.65, y: 0, z: 1.275}
-  m_Shapes:
-    vertices: []
-    shapes: []
-    channels: []
-    fullWeights: []
-  m_BindPose: []
-  m_BoneNameHashes: 
-  m_RootBoneNameHash: 0
-  m_MeshCompression: 0
-  m_IsReadable: 1
-  m_KeepVertices: 1
-  m_KeepIndices: 1
-  m_IndexFormat: 0
-  m_IndexBuffer: 000004000100010004000500010005000200020005000600020006000300030006000700030007000000000007000400
-  m_VertexData:
-    serializedVersion: 2
-    m_VertexCount: 8
-    m_Channels:
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 3
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 12
-      format: 0
-      dimension: 4
-    - stream: 0
-      offset: 28
-      format: 0
-      dimension: 2
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    - stream: 0
-      offset: 0
-      format: 0
-      dimension: 0
-    m_DataSize: 288
-    _typelessdata: 0000c03f0ad7233c000090bf000000000000803f0000803f0000803f00000000000000000000c0bf0ad7233c000090bf000000000000803f0000803f0000803f0000803f000000000000c0bf0ad7233c0000903f000000000000803f0000803f0000803f00000000000000000000c03f0ad7233c0000903f000000000000803f0000803f0000803f0000803f000000003333d33f0ad7233c3333a3bf000000000000803f0000803f00000000000000000000803f3333d3bf0ad7233c3333a3bf000000000000803f0000803f000000000000803f0000803f3333d3bf0ad7233c3333a33f000000000000803f0000803f00000000000000000000803f3333d33f0ad7233c3333a33f000000000000803f0000803f000000000000803f0000803f
-  m_CompressedMesh:
-    m_Vertices:
-      m_NumItems: 0
-      m_Range: 0
-      m_Start: 0
-      m_Data: 
-      m_BitSize: 0
-    m_UV:
-      m_NumItems: 0
-      m_Range: 0
-      m_Start: 0
-      m_Data: 
-      m_BitSize: 0
-    m_Normals:
-      m_NumItems: 0
-      m_Range: 0
-      m_Start: 0
-      m_Data: 
-      m_BitSize: 0
-    m_Tangents:
-      m_NumItems: 0
-      m_Range: 0
-      m_Start: 0
-      m_Data: 
-      m_BitSize: 0
-    m_Weights:
-      m_NumItems: 0
-      m_Data: 
-      m_BitSize: 0
-    m_NormalSigns:
-      m_NumItems: 0
-      m_Data: 
-      m_BitSize: 0
-    m_TangentSigns:
-      m_NumItems: 0
-      m_Data: 
-      m_BitSize: 0
-    m_FloatColors:
-      m_NumItems: 0
-      m_Range: 0
-      m_Start: 0
-      m_Data: 
-      m_BitSize: 0
-    m_BoneIndices:
-      m_NumItems: 0
-      m_Data: 
-      m_BitSize: 0
-    m_Triangles:
-      m_NumItems: 0
-      m_Data: 
-      m_BitSize: 0
-    m_UVInfo: 0
-  m_LocalAABB:
-    m_Center: {x: 0, y: 0.01, z: 0}
-    m_Extent: {x: 1.65, y: 0, z: 1.275}
-  m_MeshUsageFlags: 0
-  m_BakedConvexCollisionMesh: 
-  m_BakedTriangleCollisionMesh: 
-  m_MeshMetrics[0]: 1
-  m_MeshMetrics[1]: 1
-  m_MeshOptimized: 0
 --- !u!1 &553997713
 GameObject:
   m_ObjectHideFlags: 0
@@ -17854,7 +17699,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &553997719
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -18114,7 +17959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1001 &574417719
 Prefab:
   m_ObjectHideFlags: 0
@@ -18743,7 +18588,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &618791863
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -19678,7 +19523,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &643619522
 GameObject:
   m_ObjectHideFlags: 0
@@ -20204,7 +20049,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &662581653
 GameObject:
   m_ObjectHideFlags: 0
@@ -20902,7 +20747,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &691175120
 GameObject:
   m_ObjectHideFlags: 0
@@ -21595,7 +21440,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &722473405
 GameObject:
   m_ObjectHideFlags: 0
@@ -22711,7 +22556,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &759078571
 GameObject:
   m_ObjectHideFlags: 0
@@ -22981,7 +22826,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &768087003
 GameObject:
   m_ObjectHideFlags: 0
@@ -23362,7 +23207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &777162809
 GameObject:
   m_ObjectHideFlags: 0
@@ -24386,7 +24231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &797269771
 GameObject:
   m_ObjectHideFlags: 0
@@ -27269,7 +27114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &888353964
 GameObject:
   m_ObjectHideFlags: 0
@@ -28027,7 +27872,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &894678090
 GameObject:
   m_ObjectHideFlags: 0
@@ -30770,7 +30615,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &961458627
 GameObject:
   m_ObjectHideFlags: 0
@@ -30942,7 +30787,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &961458633
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -31677,7 +31522,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &991336378
 GameObject:
   m_ObjectHideFlags: 0
@@ -32463,6 +32308,161 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1010745129}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!43 &1016010080
+Mesh:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: 
+  serializedVersion: 9
+  m_SubMeshes:
+  - serializedVersion: 2
+    firstByte: 0
+    indexCount: 24
+    topology: 0
+    baseVertex: 0
+    firstVertex: 0
+    vertexCount: 8
+    localAABB:
+      m_Center: {x: 0, y: 0.01, z: 0}
+      m_Extent: {x: 1.65, y: 0, z: 1.275}
+  m_Shapes:
+    vertices: []
+    shapes: []
+    channels: []
+    fullWeights: []
+  m_BindPose: []
+  m_BoneNameHashes: 
+  m_RootBoneNameHash: 0
+  m_MeshCompression: 0
+  m_IsReadable: 1
+  m_KeepVertices: 1
+  m_KeepIndices: 1
+  m_IndexFormat: 0
+  m_IndexBuffer: 000004000100010004000500010005000200020005000600020006000300030006000700030007000000000007000400
+  m_VertexData:
+    serializedVersion: 2
+    m_VertexCount: 8
+    m_Channels:
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 3
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 12
+      format: 0
+      dimension: 4
+    - stream: 0
+      offset: 28
+      format: 0
+      dimension: 2
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    m_DataSize: 288
+    _typelessdata: 0000c03f0ad7233c000090bf000000000000803f0000803f0000803f00000000000000000000c0bf0ad7233c000090bf000000000000803f0000803f0000803f0000803f000000000000c0bf0ad7233c0000903f000000000000803f0000803f0000803f00000000000000000000c03f0ad7233c0000903f000000000000803f0000803f0000803f0000803f000000003333d33f0ad7233c3333a3bf000000000000803f0000803f00000000000000000000803f3333d3bf0ad7233c3333a3bf000000000000803f0000803f000000000000803f0000803f3333d3bf0ad7233c3333a33f000000000000803f0000803f00000000000000000000803f3333d33f0ad7233c3333a33f000000000000803f0000803f000000000000803f0000803f
+  m_CompressedMesh:
+    m_Vertices:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UV:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Normals:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Tangents:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Weights:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_NormalSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_TangentSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_FloatColors:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_BoneIndices:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Triangles:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UVInfo: 0
+  m_LocalAABB:
+    m_Center: {x: 0, y: 0.01, z: 0}
+    m_Extent: {x: 1.65, y: 0, z: 1.275}
+  m_MeshUsageFlags: 0
+  m_BakedConvexCollisionMesh: 
+  m_BakedTriangleCollisionMesh: 
+  m_MeshMetrics[0]: 1
+  m_MeshMetrics[1]: 1
+  m_MeshOptimized: 0
 --- !u!1 &1016579072
 GameObject:
   m_ObjectHideFlags: 0
@@ -32987,7 +32987,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1023956615
 GameObject:
   m_ObjectHideFlags: 0
@@ -35007,7 +35007,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &1090248583
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -36155,7 +36155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &1134857455
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -36415,7 +36415,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1144958296
 GameObject:
   m_ObjectHideFlags: 0
@@ -38443,7 +38443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1199727775
 GameObject:
   m_ObjectHideFlags: 0
@@ -38902,6 +38902,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectObject: {fileID: 7547294}
+--- !u!21 &1214081900
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1223188944
 GameObject:
   m_ObjectHideFlags: 0
@@ -39510,7 +39543,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1258773980
 GameObject:
   m_ObjectHideFlags: 0
@@ -39853,7 +39886,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1269160809
 GameObject:
   m_ObjectHideFlags: 0
@@ -40263,7 +40296,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1284678091
 GameObject:
   m_ObjectHideFlags: 0
@@ -40512,7 +40545,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1287600601
 GameObject:
   m_ObjectHideFlags: 0
@@ -41790,7 +41823,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &1340546575
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -43500,7 +43533,7 @@ MeshFilter:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1390756073}
-  m_Mesh: {fileID: 552617010}
+  m_Mesh: {fileID: 1016010080}
 --- !u!23 &1390756077
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -43517,7 +43550,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 0
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 1956858985}
+  - {fileID: 1214081900}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -44001,7 +44034,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1400469515
 GameObject:
   m_ObjectHideFlags: 0
@@ -44247,7 +44280,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &1401045149
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -44847,7 +44880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1425932305
 GameObject:
   m_ObjectHideFlags: 0
@@ -46098,7 +46131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1483622318
 GameObject:
   m_ObjectHideFlags: 0
@@ -46497,7 +46530,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1494880872
 GameObject:
   m_ObjectHideFlags: 0
@@ -47314,7 +47347,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1508620103
 GameObject:
   m_ObjectHideFlags: 0
@@ -47806,7 +47839,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1524299457
 GameObject:
   m_ObjectHideFlags: 0
@@ -48506,7 +48539,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &1535296994
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -49130,7 +49163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1550164805
 GameObject:
   m_ObjectHideFlags: 0
@@ -49604,7 +49637,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1556050110
 GameObject:
   m_ObjectHideFlags: 0
@@ -50794,7 +50827,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1593758120
 GameObject:
   m_ObjectHideFlags: 0
@@ -51403,7 +51436,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &1614431735
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -52422,7 +52455,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1634700190
 GameObject:
   m_ObjectHideFlags: 0
@@ -53599,7 +53632,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1664812406
 GameObject:
   m_ObjectHideFlags: 0
@@ -53845,7 +53878,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1670139126
 GameObject:
   m_ObjectHideFlags: 0
@@ -54045,7 +54078,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &1677431093
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -54261,7 +54294,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &1682926037
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -56506,7 +56539,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1764112575
 GameObject:
   m_ObjectHideFlags: 0
@@ -57059,7 +57092,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &1772423393
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -58526,7 +58559,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1805758455
 GameObject:
   m_ObjectHideFlags: 0
@@ -58728,7 +58761,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1812063434
 GameObject:
   m_ObjectHideFlags: 0
@@ -60073,7 +60106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1838648488
 GameObject:
   m_ObjectHideFlags: 0
@@ -61163,7 +61196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1900701697
 GameObject:
   m_ObjectHideFlags: 0
@@ -61842,7 +61875,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1924979633
 GameObject:
   m_ObjectHideFlags: 0
@@ -62962,40 +62995,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
---- !u!21 &1956858985
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+  reel: {fileID: 7547294}
 --- !u!1 &1960752632
 GameObject:
   m_ObjectHideFlags: 0
@@ -63198,7 +63198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1965270701
 GameObject:
   m_ObjectHideFlags: 0
@@ -63414,7 +63414,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &1967005660
 GameObject:
   m_ObjectHideFlags: 0
@@ -63743,7 +63743,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &1971450432
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -65120,7 +65120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &2031920278
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -66654,7 +66654,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &2072774823
 GameObject:
   m_ObjectHideFlags: 0
@@ -67394,7 +67394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &2087032444
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -68026,7 +68026,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!1 &2106588834
 GameObject:
   m_ObjectHideFlags: 0
@@ -68431,7 +68431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80ce5e8d53c637428edd017cdc066aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bubble: {fileID: 7547294}
+  reel: {fileID: 7547294}
 --- !u!23 &2124644783
 MeshRenderer:
   m_ObjectHideFlags: 0

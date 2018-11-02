@@ -88,7 +88,7 @@ public class DepthRay : MonoBehaviour {
     }
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
-    internal GameObject tempObjectStored;
+    private GameObject tempObjectStored;
     void PickupObject(GameObject obj) {
         if (interactionLayers != (interactionLayers | (1 << obj.layer))) {
             // check if is an interactable object if not return 
@@ -113,9 +113,9 @@ public class DepthRay : MonoBehaviour {
                     pickedUpObject = false;
                 } else if (interacionType == InteractionType.Selection) {
                     objectSelected = false;
-                }
-                }
+                }              
                 droppedObject.Invoke();
+            }
         }
     }
 
@@ -217,7 +217,7 @@ public class DepthRay : MonoBehaviour {
     }
     float distance = 0f;
     Vector3 forward;
-    private GameObject currentClosestObject;
+    public GameObject currentClosestObject;
     public Material outlineMaterial;
     public Material defaultMat;
     private Material currentClosestObjectMaterial;
