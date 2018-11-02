@@ -23,6 +23,8 @@ public class AperatureSelectionSelector : MonoBehaviour {
 	public UnityEvent hovered; // Invoked when an object is hovered by technique
 	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
+    public GameObject orientationPlates;
+
     private SteamVR_Controller.Device Controller
     {
         get { return SteamVR_Controller.Input((int)theController.index); }
@@ -82,8 +84,21 @@ public class AperatureSelectionSelector : MonoBehaviour {
         collidingObjects.Remove(other.gameObject);
     }
 
+    // Attempts to get object in selection by its orientation, if it fails will return null
+    public GameObject getByOrientation() {
+        // TODO: add orientational check
+        return null;
+    }
+
     private GameObject getObjectHoveringOver()
     {
+        // Attempt to select the object by its orientation, if that fails it will return null and in that case select via 
+        // closest object cone algorithm below it
+        GameObject orientationSelection;
+        if((orientationSelection = getByOrientation()) != null) {
+            return orientationSelection;
+        }
+
         List<double> distancesFromCenterOfCone = new List<double>();
         List<GameObject> viableObjects = new List<GameObject>();
 
@@ -93,7 +108,7 @@ public class AperatureSelectionSelector : MonoBehaviour {
         foreach (GameObject potentialObject in collidingObjects)
         {
             
-            // dont have to worry about executing twice as an object can only be on one layer
+            // Only check for objects on the interaction layer
 			if (interactionLayers == (interactionLayers | (1 << potentialObject.layer)))
             {
                 // Object can only have one layer so can do calculation for object here

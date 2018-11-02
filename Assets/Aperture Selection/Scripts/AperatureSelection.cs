@@ -22,9 +22,11 @@ public class AperatureSelection : MonoBehaviour {
 
 	public float amplificationOfLength = 5f; // multiple the distance so that the cone can reach further
 
+    public GameObject orientationPlates;
 
-	void OnEnable() {
-		     
+	void setPlatesRotation() {
+		orientationPlates.transform.localEulerAngles = new Vector3(orientationPlates.transform.localEulerAngles.x, 
+									orientationPlates.transform.localEulerAngles.y, controllerTrackedObj.transform.localEulerAngles.z*-1);
 	}
 
 	void translateConeDistanceAlongForward(float theDistance) {
@@ -55,6 +57,7 @@ public class AperatureSelection : MonoBehaviour {
 	void Update () {
 		ShowLaser();
 		setSizeAperature();
+		setPlatesRotation();
 	}
 
 	void setSizeAperature() {
