@@ -16,8 +16,8 @@ public class DepthRay : MonoBehaviour {
     public GameObject controllerRight;
     public GameObject controllerLeft;
 
-    //private GameObject[] interactableObject;
-    public List<GameObject> interactableObject;
+    public LayerMask interactionLayers;
+
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
     private GameObject mirroredCube;
@@ -91,6 +91,10 @@ public class DepthRay : MonoBehaviour {
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     internal GameObject tempObjectStored;
     void PickupObject(GameObject obj) {
+        if (interactionLayers != (interactionLayers | (1 << obj.layer))) {
+            // check if is an interactable object if not return 
+            return;
+        }
         if (trackedObj != null) {
             if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
                 if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
@@ -200,8 +204,6 @@ public class DepthRay : MonoBehaviour {
     }
 
     void Start() {
-        GameObject[] interactObjects = GameObject.FindGameObjectsWithTag("InteractableObjects");
-        interactableObject = new List<GameObject>(interactObjects);
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
         cubeAssister.transform.position = trackedObj.transform.position;
