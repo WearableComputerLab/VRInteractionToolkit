@@ -2,25 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FishingReelDisableEnableRigidOnPickup : MonoBehaviour {
-	public FishingReel reel;
+public class DepthRayDisableEnableRigidOnPickup : MonoBehaviour {
+
+	public DepthRay ray;
 	// Use this for initialization
 	void Start () {
-		reel.selectedObject.AddListener(setRigidKinematic);
-		reel.droppedObject.AddListener(setRigidNotKinematic);
+		ray.selectedObject.AddListener(setRigidKinematic);
+		ray.droppedObject.AddListener(setRigidNotKinematic);
 	}
 	
 
 
 	void setRigidKinematic() {
-		if(reel.lastSelectedObject == this.gameObject) {
+		if(ray.currentClosestObject == this.gameObject) {
 			this.GetComponent<Rigidbody>().isKinematic = true;
 		}
 		
 	}
 
 	void setRigidNotKinematic() {
-		if(reel.lastSelectedObject == this.gameObject) {
+		if(ray.currentClosestObject == this.gameObject) {
 			this.GetComponent<Rigidbody>().isKinematic = false;
 		}
 	}

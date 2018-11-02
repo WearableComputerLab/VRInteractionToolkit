@@ -196,7 +196,7 @@ BoxCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1925953733812924}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
@@ -232,7 +232,6 @@ MonoBehaviour:
   laserPrefab: {fileID: 1159488217044914, guid: aa39209a076fe1041bdd5666839efc44,
     type: 2}
   interacionType: 1
-  selectionType: 1
   controllerPicked: 1
   selectedObject:
     m_PersistentCalls:
@@ -254,6 +253,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+  tempObjectStored: {fileID: 0}
   thickness: 0.002
   outlineMaterial: {fileID: 2100000, guid: 3d938759d8b7a414988ec3261fb5265d, type: 2}
   defaultMat: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
