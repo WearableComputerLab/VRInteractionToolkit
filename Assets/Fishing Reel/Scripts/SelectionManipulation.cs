@@ -38,7 +38,8 @@ public class SelectionManipulation : MonoBehaviour {
             }
         }
         manipulationIcons.SetActive(false);
-	}
+        manipulationIcons.transform.SetParent(null);
+    }
 
     private void resetManipulationMenu() {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu) && inManipulationMode == true) {
@@ -48,6 +49,7 @@ public class SelectionManipulation : MonoBehaviour {
             print(startParent);
             manipulationIcons.transform.SetParent(startParent);
             manipulationIcons.SetActive(false);
+            manipulationIcons.transform.SetParent(null);
             iconHighlighter.transform.localPosition = new Vector3(-1f, 0f, 0f);
             index = 0;
         }
@@ -61,6 +63,7 @@ public class SelectionManipulation : MonoBehaviour {
             changeSizeEnabled = false;
             manipulationIcons.transform.SetParent(startParent);
             manipulationIcons.SetActive(false);
+            manipulationIcons.transform.SetParent(null);
             inManipulationMode = false;
         } else if (index == 1) { // Regular movement
             print("Moving object");
@@ -76,6 +79,7 @@ public class SelectionManipulation : MonoBehaviour {
             changeSizeEnabled = false;
             manipulationIcons.transform.SetParent(startParent);
             manipulationIcons.SetActive(false);
+            manipulationIcons.transform.SetParent(null);
             iconHighlighter.transform.localPosition = new Vector3(-1f, 0f, 0f);
             index = 0;
         } else if (index == 3) { // Change colour
@@ -180,11 +184,14 @@ public class SelectionManipulation : MonoBehaviour {
             if (inManipulationMode == false && selectedObject != null && selectedObject.name != "Mirrored Cube" && manipulationIcons.activeInHierarchy == false) {
                 print(selectedObject);
                 this.GetComponent<ColorPicker>().selectedObj = selectedObject;
-                manipulationIcons.transform.position = new Vector3(selectedObject.transform.position.x, selectedObject.transform.position.y * 2.2f, selectedObject.transform.position.z);
+                print("position set:" + manipulationIcons.transform.position);
                 manipulationIcons.transform.localEulerAngles = Camera.main.transform.localEulerAngles;
                 inManipulationMode = true;
                 manipulationIcons.SetActive(true);
                 manipulationIcons.transform.SetParent(selectedObject.transform);
+                //manipulationIcons.transform.position = new Vector3(selectedObject.transform.position.x, selectedObject.transform.position.y * 2.2f, selectedObject.transform.position.z);
+                manipulationIcons.transform.localPosition = new Vector3(0f, 1f, 0f);
+                manipulationIcons.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
             } else if (inManipulationMode == true && manipulationIcons.activeInHierarchy == true) {
                 selectIcon();
             }
