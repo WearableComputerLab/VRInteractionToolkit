@@ -177,7 +177,7 @@ GameObject:
   - component: {fileID: 187878922}
   - component: {fileID: 187878921}
   - component: {fileID: 187878920}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: SphereObject 2
   m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
@@ -314,7 +314,7 @@ GameObject:
   - component: {fileID: 443469961}
   - component: {fileID: 443469960}
   - component: {fileID: 443469959}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Cube (5)
   m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
@@ -388,6 +388,39 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 443469957}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!21 &851322091
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &883861157
 GameObject:
   m_ObjectHideFlags: 0
@@ -487,7 +520,7 @@ GameObject:
   - component: {fileID: 1047250994}
   - component: {fileID: 1047250993}
   - component: {fileID: 1047250992}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Cube (3)
   m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
@@ -572,7 +605,7 @@ GameObject:
   - component: {fileID: 1087596194}
   - component: {fileID: 1087596193}
   - component: {fileID: 1087596192}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: SphereObject 1
   m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
@@ -821,7 +854,7 @@ GameObject:
   - component: {fileID: 1169511064}
   - component: {fileID: 1169511063}
   - component: {fileID: 1169511062}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Cube (2)
   m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
@@ -907,7 +940,7 @@ GameObject:
   - component: {fileID: 1195253567}
   - component: {fileID: 1195253566}
   - component: {fileID: 1195253569}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Cube
   m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
@@ -1038,40 +1071,7 @@ Transform:
   m_Father: {fileID: 1701461987}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!21 &1296168156
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
---- !u!43 &1315655286
+--- !u!43 &1347040800
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1237,7 +1237,7 @@ GameObject:
   - component: {fileID: 1374315015}
   - component: {fileID: 1374315014}
   - component: {fileID: 1374315013}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Cube (1)
   m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
@@ -1384,7 +1384,7 @@ GameObject:
   - component: {fileID: 1575213300}
   - component: {fileID: 1575213299}
   - component: {fileID: 1575213298}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Capsule
   m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
@@ -1513,7 +1513,7 @@ MeshFilter:
     type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1701461982}
-  m_Mesh: {fileID: 1315655286}
+  m_Mesh: {fileID: 1347040800}
 --- !u!23 &1701461985
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1530,7 +1530,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 0
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 1296168156}
+  - {fileID: 851322091}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1594,7 +1594,7 @@ GameObject:
   - component: {fileID: 1725919622}
   - component: {fileID: 1725919621}
   - component: {fileID: 1725919620}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: SphereObject 1 (1)
   m_TagString: InteractableObjects
   m_Icon: {fileID: 0}
@@ -1838,7 +1838,7 @@ GameObject:
   - component: {fileID: 1874296781}
   - component: {fileID: 1874296780}
   - component: {fileID: 1874296779}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Cube (4)
   m_TagString: InteractableObjects
   m_Icon: {fileID: 0}

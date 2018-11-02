@@ -38,7 +38,6 @@ public class DepthRay : MonoBehaviour {
 
     
     public InteractionType interacionType;
-    public SelectionAssister selectionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
@@ -233,52 +232,18 @@ public class DepthRay : MonoBehaviour {
             raycastObjects = hits;
             int closestVal = ClosestObject();
             if (raycastObjects[closestVal].transform.name != "Mirrored Cube") {
-                if (selectionType == SelectionAssister.Hide_All_But_Closest) {
+				
                     if (currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
                         currentClosestObject = raycastObjects[closestVal].transform.gameObject;
-                        PickupObject(raycastObjects[closestVal].transform.gameObject);
                     }
-                } else if (selectionType == SelectionAssister.Hide_Closest_Only) {
-                    if (currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
-                        //print("new closest object");
-                        if (currentClosestObject != null) {
-                            if (currentClosestObjectMaterial != null) {
-                                currentClosestObject.transform.GetComponent<Renderer>().material = defaultMat;
-                            }
-                            currentClosestObjectMaterial = currentClosestObject.transform.GetComponent<Renderer>().material;
-                        }
-                        currentClosestObject = raycastObjects[closestVal].transform.gameObject;
-                    } else {
-                        currentClosestObject.transform.GetComponent<Renderer>().material = outlineMaterial;
-                    }
-                    PickupObject(raycastObjects[closestVal].transform.gameObject);
-                }
-            } else {
-                if (currentClosestObject != null) {
-                    currentClosestObject.transform.GetComponent<Renderer>().material = defaultMat;
-                }
+				//print ("closest obj:"+currentClosestObject);
+				PickupObject(currentClosestObject);
             }
         }
 
         //print("hit length:" + hits.Length);
         for (int i = 0; i < hits.Length; i++) {
             RaycastHit hit = hits[i];
-            if (selectionType == SelectionAssister.Hide_All_But_Closest) {
-                if (oldHits != null) {
-                    if (hit.transform.gameObject != mirroredCube && hits.Length != 1) {
-                        if (Contains(oldHits[i].transform.gameObject, hits) == true) {
-                            if (hit.transform.gameObject != currentClosestObject) {
-                                hit.transform.gameObject.transform.GetComponent<Renderer>().material = outlineMaterial;
-                                print(hits[0].transform.gameObject.name);
-                            }
-                        }
-                    } else if (hits.Length == 1) {
-                        ResetAllMaterials();
-                    }
-                }
-            } else if (selectionType == SelectionAssister.Hide_Closest_Only) {
-
-            }
 
                 //print("hit:" + hit.transform.name + " index:"+i);
             distance = hit.distance;
