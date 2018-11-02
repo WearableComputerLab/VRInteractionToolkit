@@ -6,6 +6,8 @@ public class translatePosition : MonoBehaviour {
 
 	private WorldInMiniature worldInMin;
 	private GameObject clonedObject;
+	public static int globalID;
+	public string ID;
 
 	void Awake() {
 		worldInMin = GameObject.Find("WorldInMiniature_Technique").GetComponent<WorldInMiniature>();
@@ -13,8 +15,10 @@ public class translatePosition : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+		globalID++;
+		ID = "WIM_ID:"+globalID;
 	}
+
 	private List<GameObject> listOfChildren = new List<GameObject>();
 	private void findClonedObject(GameObject obj){
 		if (null == obj)

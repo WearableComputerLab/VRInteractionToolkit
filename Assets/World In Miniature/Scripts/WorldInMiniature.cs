@@ -33,6 +33,21 @@ public class WorldInMiniature : MonoBehaviour {
 	public GameObject controllerLeft;
 	public GameObject cameraHead;
 
+	private List<GameObject> listOfChildren = new List<GameObject>();
+	private void findClonedObject(GameObject obj){
+		if (null == obj)
+			return;
+		foreach (Transform child in obj.transform){
+			if (null == child)
+				continue;
+			if (child.gameObject.GetComponent<Rigidbody> () != null) {
+				child.gameObject.GetComponent<Rigidbody> ().isKinematic = true;
+			}
+			listOfChildren.Add(child.gameObject);
+			findClonedObject(child.gameObject);
+		}
+	}
+
     void createWiM() {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) {
             if (WiMactive == false) {
@@ -60,6 +75,7 @@ public class WorldInMiniature : MonoBehaviour {
                         cloneObject.transform.localPosition = new Vector3(posX, posY, posZ);
                     }
                 }
+				findClonedObject (worldInMinParent);
                 //worldInMinParent.transform.SetParent(null);
                 //worldInMinParent.transform.localEulerAngles = new Vector3(0f, cameraHead.transform.localEulerAngles.y-45f, 0f);
                 worldInMinParent.transform.localEulerAngles = new Vector3(0f, trackedObj.transform.localEulerAngles.y - 45f, 0f);

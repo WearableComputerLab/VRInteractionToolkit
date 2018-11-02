@@ -58,7 +58,7 @@ public class Dock : MonoBehaviour {
 	}
 
 	bool checkWithinSpread() {
-		print("checking");
+		//print("checking");
 		// check if matches
 		Vector3 otherPos = dockObject.gameObject.transform.position;
 		Vector3 otherRot = dockObject.gameObject.transform.eulerAngles;
@@ -82,10 +82,10 @@ public class Dock : MonoBehaviour {
 		float zRotMin = thisRot.z - rotSpread;
 		float zRotMax = thisRot.z + rotSpread;
 
-		print("xposMin " + xPosMin);
-		print("xPosMax " + xPosMax);
-		print("xrotMin " + xRotMin);
-		print("XrtMax" + xRotMax);
+		//print("xposMin " + xPosMin);
+		//print("xPosMax " + xPosMax);
+		//print("xrotMin " + xRotMin);
+		//print("XrtMax" + xRotMax);
 		// Checking within all spreads
 		if(otherPos.x > xPosMin && otherPos.x < xPosMax && otherPos.y > yPosMin 
 			&& otherPos.y < yPosMax && otherPos.z > zPosMin && otherPos.z < zPosMax
