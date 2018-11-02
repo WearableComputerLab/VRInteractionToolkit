@@ -16,7 +16,6 @@ public class WorldInMiniature : MonoBehaviour {
     internal SteamVR_Controller.Device controllerO; //controller other
     public GameObject worldInMinParent;
     GameObject[] allSceneObjects;
-    
     public bool WiMactive = false;
     public List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light", "background"};
     public float scaleAmount = 20f;
@@ -45,6 +44,21 @@ public class WorldInMiniature : MonoBehaviour {
 			}
 			listOfChildren.Add(child.gameObject);
 			findClonedObject(child.gameObject);
+		}
+	}
+
+	private List<GameObject> listOfIDs = new List<GameObject>();
+	private void setIDObject(GameObject obj){
+		if (null == obj)
+			return;
+		foreach (Transform child in obj.transform){
+			if (null == child)
+				continue;
+			//if (child.gameObject.GetComponent<Rigidbody> () != null) {
+				this.GetComponent<WIM_IDHandler> ().addID (child.gameObject);
+			//}
+			listOfIDs.Add(child.gameObject);
+			setIDObject(child.gameObject);
 		}
 	}
 
@@ -109,8 +123,12 @@ public class WorldInMiniature : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		
         allSceneObjects = SceneManager.GetActiveScene().GetRootGameObjects();
-        //allSceneObjects = FindObjectsOfType<GameObject>();
+		for (int i = 0; i<allSceneObjects.Length; i++) {
+			setIDObject (allSceneObjects[i]);
+		}
+        
         worldInMinParent.transform.SetParent(trackedObj.transform);
         resetAllProperties();
 
@@ -133,6 +151,16 @@ public class WorldInMiniature : MonoBehaviour {
 		}
     }
 
+	public GameObject findRealObject(GameObject selectedObject) {
+		for (int i = 0; i < listOfIDs.Count; i++) {
+			//print("looking for:" + )
+			if (selectedObject.GetComponent<ObjectID> ().ID == listOfIDs [i].GetComponent<ObjectID> ().ID) {
+				return listOfIDs [i];
+			}
+		}
+		return null;
+	}
+
     void Awake() {
         worldInMinParent = this.transform.Find("WorldInMinParent").gameObject;
         if (controllerPicked == ControllerPicked.Right_Controller) {
@@ -146,10 +174,28 @@ public class WorldInMiniature : MonoBehaviour {
             Application.Quit();
         }
     }
+
+	public bool isMoving() {
+		if (realObject != null && realObject.transform.GetComponent<Rigidbody> () != null) {
+			return !realObject.transform.GetComponent<Rigidbody> ().IsSleeping ();
+		}
+		return false;
+	}
+
+	private GameObject realObject;
     private float tiltAroundY = 0f;
     public float tiltSpeed = 2f; //2x quicker than normal
+	private bool startedMoving = false;
     // Update is called once per frame
     void Update () {
+		//print (isMoving ());
+		if (isMoving () == true) {
+			startedMoving = true;
+			selectedObject.transform.localPosition = realObject.transform.localPosition;
+			selectedObject.transform.localEulerAngles = realObject.transform.localEulerAngles;
+		} else if (isMoving() == false && startedMoving == true) {
+			startedMoving = false;
+		}
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         controllerO = SteamVR_Controller.Input((int)trackedObjO.index);
         createWiM();
@@ -162,9 +208,10 @@ public class WorldInMiniature : MonoBehaviour {
         if (controllerO.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && selectedObject == true) {
             selectedObject.transform.SetParent(oldParent);
             //print("changed pos:" + selectedObject.transform.localPosition);
-            GameObject realObject = GameObject.Find(selectedObject.name);
-            print(realObject.transform.position + " | " + realObject.transform.localPosition);
-            print(selectedObject.transform.position + " | " + selectedObject.transform.localPosition);
+			realObject = findRealObject(selectedObject);
+			//print ("Found:" + realObject);
+            //print(realObject.transform.position + " | " + realObject.transform.localPosition);
+            //print(selectedObject.transform.position + " | " + selectedObject.transform.localPosition);
             realObject.transform.localPosition = selectedObject.transform.localPosition;
             //realObject.transform.localPosition = new Vector3(selectedObject.transform.localPosition.x*scaleAmount, selectedObject.transform.localPosition.y*scaleAmount, selectedObject.transform.localPosition.z*scaleAmount);
             realObject.transform.localEulerAngles = selectedObject.transform.localEulerAngles;

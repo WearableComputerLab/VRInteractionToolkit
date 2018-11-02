@@ -120,7 +120,7 @@ public class SphereCasting : MonoBehaviour {
         Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
-            //print("hit:" + hit.transform.name);
+			print("hit:" + hit.transform.gameObject);
             hitPoint = hit.point;
             ShowLaser(hit);
             if (squadEnabled == false) {

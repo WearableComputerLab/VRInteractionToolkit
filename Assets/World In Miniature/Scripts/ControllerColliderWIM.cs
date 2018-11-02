@@ -37,7 +37,7 @@ public class ControllerColliderWIM : MonoBehaviour {
 	}
 
     private void OnTriggerStay(Collider col) {
-        if(col.gameObject.layer == Mathf.Log(worldInMin.interactableLayer.value, 2)) {
+		if(col.gameObject.layer == Mathf.Log(worldInMin.interactableLayer.value, 2) && worldInMin.isMoving () == false) {
             //Debug.Log("You have collided with " + col.name + " and activated OnTriggerStay");
             if (worldInMin.controllerO.GetPress(SteamVR_Controller.ButtonMask.Trigger) && worldInMin.objectPicked == false) {
                 Debug.Log("You have collided with " + col.name + " while holding down Touch");
@@ -65,8 +65,8 @@ public class ControllerColliderWIM : MonoBehaviour {
                 worldInMin.currentObjectCollided = null;
 
                 if(worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Movement) {
-					col.attachedRigidbody.isKinematic = false;
-					enableRigidBody (worldInMin.worldInMinParent);
+					//col.attachedRigidbody.isKinematic = false;
+					//enableRigidBody (worldInMin.worldInMinParent);
                     if(worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Full) {
                         this.GetComponent<SelectionManipulation>().selectedObject.transform.SetParent(null);
                     }
@@ -76,8 +76,9 @@ public class ControllerColliderWIM : MonoBehaviour {
         }
     }
 
-	private bool isMoving() {
+	/*private bool isMoving() {
 		if (worldInMin.selectedObject != null && worldInMin.selectedObject.GetComponent<Rigidbody> () != null) {
+			print ("moving:" + worldInMin.selectedObject.GetComponent<Rigidbody> ().velocity);
 			return !worldInMin.selectedObject.transform.GetComponent<Rigidbody> ().IsSleeping ();
 		}
 		return false;
@@ -85,7 +86,7 @@ public class ControllerColliderWIM : MonoBehaviour {
 
 	void Update() {
 		print (isMoving ());
-	}
+	}*/
 
     private GameObject manipulationIcons;
 
