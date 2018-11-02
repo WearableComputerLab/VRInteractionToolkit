@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 
 public class FishingReel : MonoBehaviour {
 
@@ -6,6 +7,8 @@ public class FishingReel : MonoBehaviour {
      * University of South Australia
      * 
      * */
+
+    public LayerMask interactionLayers;
 
     public GameObject controllerRight = null;
     public GameObject controllerLeft = null;
@@ -27,6 +30,13 @@ public class FishingReel : MonoBehaviour {
 
     internal bool objectSelected = false;
 
+    public UnityEvent selectedObject; // Invoked when an object is selected
+
+    public UnityEvent droppedObject; // Invoked when object is dropped
+
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
         laser.SetActive(true);
@@ -43,8 +53,17 @@ public class FishingReel : MonoBehaviour {
     private Valve.VR.EVRButtonId trigger = Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger;
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
-    internal GameObject lastSelectedObject;
+    public GameObject lastSelectedObject;
     public void PickupObject(GameObject obj) {
+        if (interactionLayers != (interactionLayers | (1 << obj.layer))) {
+            // object is wrong layer so return immediately 
+            return;
+        }
+        if(lastSelectedObject != obj) {
+            // is a different object from the currently highlighted so unhover
+            unHovered.Invoke();
+        }
+        hovered.Invoke();
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
             if (controller.GetPressDown(trigger) && pickedUpObject == false) {
@@ -61,13 +80,15 @@ public class FishingReel : MonoBehaviour {
                     lastSelectedObject = obj;
                     objectSelected = true;
                 }
+                selectedObject.Invoke();
             }
             if (controller.GetPressUp(trigger) && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement) {
                     lastSelectedObject.transform.SetParent(null);
                     pickedUpObject = false;
+                    droppedObject.Invoke();
                 }
-                objectSelected = false;
+                objectSelected = false;               
             }
         }
     }
@@ -153,7 +174,7 @@ public class FishingReel : MonoBehaviour {
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             hitPoint = hit.point;
                 PickupObject(hit.transform.gameObject);
-                if (pickedUpObject == true) {
+                if (pickedUpObject == true && lastSelectedObject == hit.transform.gameObject) {
                     PadScrolling(hit.transform.gameObject);
                 }
             ShowLaser(hit);

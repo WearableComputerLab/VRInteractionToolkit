@@ -45,6 +45,8 @@ public class DepthRay : MonoBehaviour {
 
     public UnityEvent selectedObject; // Invoked when an object is selected
 
+    public UnityEvent droppedObject; // Invoked when an object is dropped
+
     public UnityEvent hovered; // Invoked when an object is hovered by technique
     public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
@@ -110,6 +112,7 @@ public class DepthRay : MonoBehaviour {
                     objectSelected = false;
                 }
                 }
+                droppedObject.Invoke();
         }
     }
 

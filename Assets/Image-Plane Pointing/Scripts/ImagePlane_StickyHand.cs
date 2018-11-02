@@ -28,12 +28,12 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     private Vector3 hitPoint;
     private GameObject mirroredCube;
     private GameObject pointOfInteraction;
-    internal GameObject selectedObject;
+    public GameObject selectedObject;
     private Transform oldParent;
     public Material outlineMaterial;
 
 	public UnityEvent selectedObjectEvent; // Invoked when an object is selected
-
+    public UnityEvent droppedObject;
 	public UnityEvent hovered; // Invoked when an object is hovered by technique
 	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
@@ -153,11 +153,13 @@ void checkSurroundingObjects()
                     obj.transform.localScale = new Vector3(obj.transform.localScale.x / dist, obj.transform.localScale.y / dist, obj.transform.localScale.z / dist);
                     obj.transform.SetParent(trackedObj.transform);
                     objSelected = true;
+                    selectedObjectEvent.Invoke();
                 } else if(interacionType == InteractionType.Selection) {
                     if(selectedObject != null && oldMaterial != null) {
                         selectedObject.transform.GetComponent<Renderer>().material = oldMaterial;
                     }
                     selectedObject = obj;
+                    selectedObjectEvent.Invoke();
                     //oldMaterial = obj.transform.GetComponent<Renderer>().material;
                     //obj.transform.GetComponent<Renderer>().material = outlineMaterial;
 
@@ -167,6 +169,7 @@ void checkSurroundingObjects()
                     //print("reset.."+oldParent+" | obj:"+ selectedObject);
                     selectedObject.transform.SetParent(oldParent);
                     objSelected = false;
+                    droppedObject.Invoke();
                 }
             }
         }

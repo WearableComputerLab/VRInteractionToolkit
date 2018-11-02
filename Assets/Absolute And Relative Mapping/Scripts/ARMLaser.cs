@@ -217,7 +217,9 @@ public class ARMLaser : MonoBehaviour {
                 } else if (interactionType == InteractionType.Manipulation) 
                 {
                     // No manipualtion implemented for this currently
+                    lastSelectedObject = currentlyPointingAt;
                 }
+                selectedObject.Invoke();
             }
         }
         

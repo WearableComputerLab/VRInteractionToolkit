@@ -110,12 +110,20 @@ public class PRISMMovement : MonoBehaviour {
     {
         
         objectInHand = collidingObject;
+		Rigidbody bod;
+		if((bod = objectInHand.GetComponent<Rigidbody>()) != null) {
+			bod.isKinematic = true;
+		}
 		selectedObject.Invoke();
         collidingObject = null;
 	}
 
 	private void ReleaseObject()
     {  
+		Rigidbody bod;
+		if((bod = objectInHand.GetComponent<Rigidbody>()) != null) {
+			bod.isKinematic = false;
+		}
         objectInHand = null;
     }
 	

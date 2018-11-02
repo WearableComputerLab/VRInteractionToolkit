@@ -30,6 +30,7 @@ public class TesterController : MonoBehaviour {
 		foreach(Transform each in this.transform) {
 			testobjects.Add(each.gameObject);
 		}
+		disableAllTestObjectComponentsNotMesh ();
 	}
 	
 	// Update is called once per frame
@@ -53,6 +54,9 @@ public class TesterController : MonoBehaviour {
 				if(goal != null) {
 					goal.GetComponent<Renderer>().material = goalDefaultMaterial;
 				}
+				// Disables all components except for meshrenderer
+				disableAllTestObjectComponentsNotMesh();
+
 			} else {
 				// do test stuff
 				// must select new goal
@@ -68,9 +72,34 @@ public class TesterController : MonoBehaviour {
 		}
 	}
 
+	public void disableAllTestObjectComponentsNotMesh() {
+		foreach (Transform child in this.transform) {
+			// Disables all test object components except for meshrenderer
+			MonoBehaviour[] comps = child.GetComponents<MonoBehaviour> ();
+			foreach (MonoBehaviour c in comps) {
+				c.enabled = false;
+			}
+			child.GetComponent<Renderer> ().enabled = true;
+		}
+	}
+
+	public void enableAllTestObjectComponents() {
+		foreach (Transform child in this.transform) {
+			// Disables all test object components except for meshrenderer
+			MonoBehaviour[] comps = child.GetComponents<MonoBehaviour> ();
+			foreach (MonoBehaviour c in comps) {
+				c.enabled = true;
+			}
+		}
+	}
+
 	public void startTest() {
 		if(!testRunning) {
 			testRunning = true;
+
+			// Enables all components in test objects
+			enableAllTestObjectComponents();
+
 
 			// reset score
 			score = 0;

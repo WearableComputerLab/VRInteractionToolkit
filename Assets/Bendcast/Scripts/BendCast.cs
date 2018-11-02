@@ -106,16 +106,37 @@ public class BendCast : MonoBehaviour
         castLaserCurve();
 
         if(Controller.GetHairTriggerDown() && currentlyPointingAt != null) {
-            
+            lastSelectedObject = currentlyPointingAt;
             if(interactionType == InteractionType.Selection) {
-                // Pure Selection
-                lastSelectedObject = currentlyPointingAt;
-                selectedObject.Invoke();
+                // Pure Selection            
+                
                 print("selected" + currentlyPointingAt);
                 
             } else if(interactionType == InteractionType.Manipulation) {
-                // Currently no manipulation
+
             }
+            selectedObject.Invoke();
+        }
+        if (Controller.GetHairTriggerUp())
+        {
+            if (lastSelectedObject != null)
+            {
+                ReleaseObject();
+            }
+        }
+    }
+
+    private void ReleaseObject()
+    {
+
+        if (GetComponent<FixedJoint>())
+        {
+ 
+            GetComponent<FixedJoint>().connectedBody = null;
+            Destroy(GetComponent<FixedJoint>());
+       
+            lastSelectedObject.GetComponent<Rigidbody>().velocity = Controller.velocity;
+            lastSelectedObject.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }
     }
 

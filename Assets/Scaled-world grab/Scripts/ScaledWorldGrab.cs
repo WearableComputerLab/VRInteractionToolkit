@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ScaledWorldGrab : MonoBehaviour {
 
@@ -10,6 +11,8 @@ public class ScaledWorldGrab : MonoBehaviour {
      * The Scaled-world grab algorithm I wrote is based off: (pg 37) https://people.cs.vt.edu/~bowman/3dui.org/course_notes/siggraph2001/basic_techniques.pdf 
      *      - The initial selection technique used in this implementation is ray-casting
      * */
+    public GameObject controllerCollider;
+    public LayerMask interactionLayers;
 
     public GameObject controllerRight;
     public GameObject controllerLeft;
@@ -31,12 +34,15 @@ public class ScaledWorldGrab : MonoBehaviour {
     public ControllerPicked controllerPicked;
 
     private void ShowLaser(RaycastHit hit) {
-        mirroredCube.SetActive(false);
-        laser.SetActive(true);
-        laserTransform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
-        laserTransform.LookAt(hitPoint);
-        laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
-        InstantiateObject(hit.transform.gameObject);
+        if (isInteractionlayer(hit.transform.gameObject))
+        {
+            mirroredCube.SetActive(false);
+            laser.SetActive(true);
+            laserTransform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
+            laserTransform.LookAt(hitPoint);
+            laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
+            InstantiateObject(hit.transform.gameObject);
+        }
     }
 
 
@@ -44,7 +50,7 @@ public class ScaledWorldGrab : MonoBehaviour {
     public GameObject cameraHead;
     public  GameObject cameraRig;
     //private GameObject virtualHand;
-    private GameObject selectedObject;
+    public GameObject selectedObject;
     private Transform oldParent;
     float Disteh;
     float Disteo;
@@ -64,8 +70,8 @@ public class ScaledWorldGrab : MonoBehaviour {
     }
 
     private void InstantiateObject(GameObject obj) {
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
-            if (objSelected == false && obj.transform.name != "Mirrored Cube") {
+        if (controller.GetHairTriggerDown()) {
+            if (!objSelected && obj.transform.name != "Mirrored Cube") {             
                 selectedObject = obj;
                 oldParent = selectedObject.transform.parent;
                 objSelected = true;
@@ -102,8 +108,20 @@ public class ScaledWorldGrab : MonoBehaviour {
 
     private GameObject entered;
     private void OnTriggerEnter(Collider col) {
-        print("Entered" + col.name);
-        entered = col.gameObject;
+        if(isInteractionlayer(col.gameObject)) {
+            print("Entered" + col.name);
+            entered = col.gameObject;
+        }        
+    }
+
+    private void OnTriggerExit(Collider col) {
+        if(isInteractionlayer(col.gameObject)) {
+
+        }
+    }
+
+    private bool isInteractionlayer(GameObject obj) {
+        return interactionLayers == (interactionLayers | (1 << obj.layer));
     }
 
     private Vector3 cameraHeadLocalScaleOriginal;
@@ -143,7 +161,7 @@ public class ScaledWorldGrab : MonoBehaviour {
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             hitPoint = hit.point;
             ShowLaser(hit);
-        }
+        } 
     }
 
     void mirroredObject() {
@@ -162,8 +180,21 @@ public class ScaledWorldGrab : MonoBehaviour {
     private void ShowLaser() {
         laser.SetActive(true);
         mirroredCube.SetActive(true);
-    }
+        Vector3 theVector = trackedObj.transform.forward;
+        hitPoint = trackedObj.transform.position;
+        float distance_formula_on_vector = Mathf.Sqrt(theVector.x * theVector.x + theVector.y * theVector.y + theVector.z * theVector.z);
+        // Using formula to find a point which lies at distance on a 3D line from vector and direction
+        hitPoint.x = hitPoint.x + (100 / (distance_formula_on_vector)) * theVector.x;
+        hitPoint.y = hitPoint.y + (100 / (distance_formula_on_vector)) * theVector.y;
+        hitPoint.z = hitPoint.z + (100 / (distance_formula_on_vector)) * theVector.z;
 
+        laser.SetActive(true);
+        laserTransform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
+        laserTransform.LookAt(hitPoint);
+        laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y,
+           100);
+    }
+    
     void Awake() {      
         cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
         cameraRig = GameObject.Find(CONSTANTS.cameraRig);
@@ -176,10 +207,7 @@ public class ScaledWorldGrab : MonoBehaviour {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }
-        trackedObj.gameObject.AddComponent<ControllerCollider>();
-        SphereCollider col = trackedObj.gameObject.AddComponent<SphereCollider>();
-        col.isTrigger = true;
-        col.radius = 0.05f;
+        controllerCollider.transform.parent = trackedObj.transform;
     }
 
     // Use this for initialization
@@ -190,16 +218,15 @@ public class ScaledWorldGrab : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        //print(objectGrabbed + ", " + objSelected + ", " + selectedObject);
         controller = SteamVR_Controller.Input((int)trackedObj.index);
-        if(controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && objectGrabbed == true && objSelected == true) {
+        if(controller.GetHairTriggerUp() && objectGrabbed && objSelected) {          
             selectedObject.gameObject.transform.SetParent(null);
             objectGrabbed = false;
-            resetProperties();
+            resetProperties();            
         }
         if (objSelected == false) {
             castRay();
-        } else if (objSelected == true) {
+        } else if (objSelected) {
             WorldGrab();
         }
     }
