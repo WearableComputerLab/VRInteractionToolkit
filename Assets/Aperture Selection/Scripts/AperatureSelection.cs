@@ -20,7 +20,7 @@ public class AperatureSelection : MonoBehaviour {
 	
 	private float minimumDistanceOfIntersection = 2f;
 
-	public float amplificationOfLength = 4f; // multiple the distance so that the cone can reach further
+	public float amplificationOfLength = 5f; // multiple the distance so that the cone can reach further
 
 
 	void OnEnable() {
@@ -54,59 +54,34 @@ public class AperatureSelection : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		ShowLaser();
-		getIntersectionLocation();
-
+		setSizeAperature();
 	}
 
-	Vector3 getIntersectionLocation() {
-		// gets the intersection between the controller laser and the forward of the headset
-		// assuming 1 is pointing controller for test
-        Vector3 d1 = controllerTrackedObj.transform.forward;
-        Vector3 d2 = headsetTrackedObj.transform.forward;
+	void setSizeAperature() {
 
-        Vector3 p1 = controllerTrackedObj.transform.position;
-        Vector3 p2 = headsetTrackedObj.transform.position;
+		// Getting distance between controller and headset
+		float distance = Vector3.Distance(controllerTrackedObj.transform.position, headsetTrackedObj.transform.position)*amplificationOfLength;
 
-        // as these two vectors will probably create skew lines (on different planes) have to calculate the points on the lines that are
-        // closest to eachother and then getting the midpoint between them giving a fake 'intersection'
-        // This is achieved by utilizing parts of the fromula to find the shortest distance between two skew lines
-        Vector3 n1 = Vector3.Cross(d1, (Vector3.Cross(d2, d1)));
-        Vector3 n2 = Vector3.Cross(d2, (Vector3.Cross(d1, d2)));
+		aperatureVolume.transform.localScale = new Vector3(aperatureVolume.transform.localScale.x, aperatureVolume.transform.localScale.y, distance*100);
+		translateConeDistanceAlongForward(distance+0.01f);
 
-        // Figuring out point 1
-        Vector3 localPoint1 = p1 + ((Vector3.Dot((p2 - p1), n2)) / (Vector3.Dot(d1, n2))) * d1;
-
-        // Figuring out point 2
-        Vector3 localPoint2 = p2 + ((Vector3.Dot((p1 - p2), n1)) / (Vector3.Dot(d2, n1))) * d2;
-
-
-        float distanceBetweenPoints = Vector3.Distance(localPoint1, localPoint2);
-
-		float lengthOfCone = Vector3.Distance(headsetTrackedObj.transform.position, localPoint2);
-		lengthOfCone = lengthOfCone*amplificationOfLength;
-
-		// Reszing the volume to match the location
-		aperatureVolume.transform.localScale = new Vector3(aperatureVolume.transform.localScale.x, aperatureVolume.transform.localScale.y, lengthOfCone*100);
-		translateConeDistanceAlongForward(lengthOfCone+0.1f);
-
-		return localPoint2;
 	}
 
 	private void ShowLaser()
     {
-        // This is to make it extend infinite. There is DEFINATELY an easier way to do this. Find it later!
+        // Laser shows which controller is controlling
         Vector3 theVector = controllerTrackedObj.transform.forward;
         hitPoint = controllerTrackedObj.transform.position;
         float distance_formula_on_vector = Mathf.Sqrt(theVector.x * theVector.x + theVector.y * theVector.y + theVector.z * theVector.z);
         // Using formula to find a point which lies at distance on a 3D line from vector and direction
-        hitPoint.x = hitPoint.x + (100 / (distance_formula_on_vector)) * theVector.x;
-        hitPoint.y = hitPoint.y + (100 / (distance_formula_on_vector)) * theVector.y;
-        hitPoint.z = hitPoint.z + (100 / (distance_formula_on_vector)) * theVector.z;
+        hitPoint.x = hitPoint.x + (0.05f / (distance_formula_on_vector)) * theVector.x;
+        hitPoint.y = hitPoint.y + (0.05f / (distance_formula_on_vector)) * theVector.y;
+        hitPoint.z = hitPoint.z + (0.05f / (distance_formula_on_vector)) * theVector.z;
 
         laser.SetActive(true);
         laserTransform.position = Vector3.Lerp(controllerTrackedObj.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y,
-           100);
+           0.05f);
     }
 }
