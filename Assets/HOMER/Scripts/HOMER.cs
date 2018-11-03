@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class HOMER : MonoBehaviour {
 
@@ -10,6 +11,7 @@ public class HOMER : MonoBehaviour {
      * The HOMER algorithm I wrote is based off: (pg 34-35) https://people.cs.vt.edu/~bowman/3dui.org/course_notes/siggraph2001/basic_techniques.pdf 
      * 
      * */
+	public LayerMask interactionLayers;
 
     public GameObject controllerRight;
     public GameObject controllerLeft;
@@ -28,13 +30,23 @@ public class HOMER : MonoBehaviour {
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
 
+	public UnityEvent selectedObjectEvent; // Invoked when an object is selected
+	public UnityEvent droppedObject; // Invoked when an object is dropped
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
         laser.SetActive(true);
         laserTransform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
-        InstantiateObject(hit.transform.gameObject);
+		if (interactionLayers == (interactionLayers | (1 << hit.transform.gameObject.layer))) {
+			hoveredObject = hit.transform.gameObject;
+			unHovered.Invoke ();
+			hovered.Invoke ();
+			InstantiateObject(hit.transform.gameObject);
+		}
     }
 
     float Disth = 0f;
@@ -42,12 +54,13 @@ public class HOMER : MonoBehaviour {
     bool objSelected = false;
     private GameObject cameraHead; // t
     private GameObject virtualHand;
-    private GameObject selectedObject;
+	public GameObject selectedObject;
     public GameObject handPrefab;
     private Transform oldParent;
+	public GameObject hoveredObject;
 
     private void InstantiateObject(GameObject obj) {
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+		if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
             virtualHand = Instantiate(new GameObject("hand"));
             virtualHand.transform.position = obj.transform.position;
             virtualHand.SetActive(true);
@@ -56,6 +69,7 @@ public class HOMER : MonoBehaviour {
             objSelected = true;
             selectedObject.transform.SetParent(virtualHand.transform);
             laser.SetActive(false);
+			selectedObjectEvent.Invoke ();
 
             Disth = Vector3.Distance(trackedObj.transform.position, cameraHead.transform.position);
             Disto = Vector3.Distance(obj.transform.position, cameraHead.transform.position);
@@ -77,6 +91,7 @@ public class HOMER : MonoBehaviour {
             objSelected = false;
             Destroy(virtualHand);
             selectedObject.transform.SetParent(oldParent);
+			droppedObject.Invoke ();
         }
     }
 
@@ -84,10 +99,12 @@ public class HOMER : MonoBehaviour {
         Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         ShowLaser();
         RaycastHit hit;
-        if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
-            hitPoint = hit.point;
-            ShowLaser(hit);
-        }
+		if (Physics.Raycast (trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
+			hitPoint = hit.point;
+			ShowLaser (hit);
+		} else {
+			unHovered.Invoke ();
+		}
     }
 
     void moveMirroredCube() {

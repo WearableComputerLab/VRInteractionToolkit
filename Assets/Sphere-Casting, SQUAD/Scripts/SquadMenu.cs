@@ -265,7 +265,7 @@ public class SquadMenu : MonoBehaviour {
             pickedObj2D.name = pickedObject[i].name;
 			//pickedObj2D.layer = 99;
             pickedObj2D.transform.SetParent(panel.transform, false);
-			/pickedObj2D.transform.localScale = new Vector3(pickedObject[i].transform.lossyScale.x / scaleAmount, pickedObject[i].transform.lossyScale.y / scaleAmount, pickedObject[i].transform.lossyScale.z / scaleAmount);
+			//pickedObj2D.transform.localScale = new Vector3(pickedObject[i].transform.lossyScale.x / scaleAmount, pickedObject[i].transform.lossyScale.y / scaleAmount, pickedObject[i].transform.lossyScale.z / scaleAmount);
 			print (pickedObject[i].transform.lossyScale.x + " | " + pickedObject[i].transform.name);
             //pickedObj2D.transform.localScale = new Vector3(0.0625f, 0.0625f, 0f);
             pickedObj2D.transform.localRotation = Quaternion.identity;
