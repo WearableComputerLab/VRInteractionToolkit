@@ -223,8 +223,7 @@ public class FlashlightSelection : MonoBehaviour {
         if (Controller.GetHairTriggerDown())
         {
             if (collidingObjects.Count > 0)
-            {
-                selectedObject.Invoke();
+            {              
                 if(interactionType == InteractionType.Selection) {
                     // Pure selection
                     print("selected " + objectHoveredOver);
@@ -233,7 +232,8 @@ public class FlashlightSelection : MonoBehaviour {
                     //Manipulation
                     GrabObject();
                 }         
-                selection = objectHoveredOver;    
+                selection = objectHoveredOver;  
+				selectedObject.Invoke();
             }
         }
 
