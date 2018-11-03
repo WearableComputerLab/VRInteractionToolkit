@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SphereCasting : MonoBehaviour {
 
@@ -25,6 +26,12 @@ public class SphereCasting : MonoBehaviour {
     private GameObject mirroredCube;
     private GameObject sphereObject;
     public bool squadEnabled = true;
+
+	public LayerMask interactableLayer;
+	public UnityEvent selectedObject; // Invoked when an object is selected
+	public UnityEvent droppedObject; // Invoked when an object is dropped
+	public UnityEvent hovered; // Invoked when an object is hovered by technique
+	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
     public InteractionType interacionType;
@@ -88,6 +95,7 @@ public class SphereCasting : MonoBehaviour {
         pickupObjs = sphereObject.AddComponent<PickupObjects>();
         if (squadEnabled == true) {
             menu = sphereObject.GetComponent<SquadMenu>();
+			//menu.panel
         }
     }
 
@@ -120,7 +128,7 @@ public class SphereCasting : MonoBehaviour {
         Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
-			print("hit:" + hit.transform.gameObject);
+			//print("hit:" + hit.transform.gameObject);
             hitPoint = hit.point;
             ShowLaser(hit);
             if (squadEnabled == false) {

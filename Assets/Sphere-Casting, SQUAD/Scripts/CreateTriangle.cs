@@ -12,11 +12,11 @@ public class CreateTriangle : MonoBehaviour {
     public Material material;
     //public Material blendMaterial;
     private GameObject triangle = null;
-    public GameObject newTriangle;
+    public GameObject cameraHead;
 
     // Use this for initialization
     void Start () {
-        newTriangle = new GameObject();
+        GameObject newTriangle = new GameObject();
         newTriangle.AddComponent<MeshFilter>();
         meshRenderer = newTriangle.AddComponent<MeshRenderer>();
 
@@ -24,7 +24,8 @@ public class CreateTriangle : MonoBehaviour {
 
         mesh = new Mesh();
         newTriangle.GetComponent<MeshFilter>().mesh = mesh;
-        newTriangle.AddComponent<MeshCollider>().sharedMesh = mesh;
+		newTriangle.AddComponent<MeshCollider> ().convex = true;
+		//newTriangle.GetComponent<MeshCollider> ().convex = true;
         vertices = new[] {
             new Vector3(0,0,0),
             new Vector3(0,1,0),
@@ -65,6 +66,11 @@ public class CreateTriangle : MonoBehaviour {
         triangle.transform.SetParent(this.transform, false);
         //triangle.AddComponent<Renderer>().material = blendMaterial;
         //triangle.GetComponent<Renderer>().material.color = Color.clear;
+
+		this.transform.SetParent (cameraHead.transform);
+		this.gameObject.SetActive (false);
+		this.transform.localEulerAngles = new Vector3 (0f, 0f, 0f);
+		this.transform.localPosition = new Vector3 (0f, 0f, 1f);
     }
 	
 	// Update is called once per frame
