@@ -27,8 +27,7 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     private Transform laserTransform;
     private Vector3 hitPoint;
     private GameObject mirroredCube;
-    private GameObject pointOfInteraction;
-    public GameObject selectedObject;
+    private GameObject pointOfInteraction;   
     private Transform oldParent;
     public Material outlineMaterial;
 
@@ -36,6 +35,7 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     public UnityEvent droppedObject;
 	public UnityEvent hovered; // Invoked when an object is hovered by technique
 	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+	public GameObject selectedObject;
 
     public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
     public InteractionType interacionType;

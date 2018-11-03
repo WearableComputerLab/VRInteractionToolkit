@@ -20,14 +20,19 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     public GameObject currentlyPointingAt;
     private Vector3 castingBezierFrom;
 	public LayerMask interactionLayers;
-	public UnityEvent selectedObjectEvent; // Invoked when an object is selected
+
 
 	
     public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
     public InteractionType interacionType;
 
+	public UnityEvent selectedObjectEvent; // Invoked when an object is selected
+	public UnityEvent droppedObject;
 	public UnityEvent hovered; // Invoked when an object is hovered by technique
 	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+	public GameObject selectedObject;
+
+
 	private SteamVR_TrackedObject trackedObjL;
 	private SteamVR_TrackedObject trackedObjR;
 	private SteamVR_Controller.Device controllerL;
@@ -38,11 +43,11 @@ public class ImagePlane_FramingHands : MonoBehaviour {
 	private Vector3 hitPoint;
 	private GameObject mirroredCube;
 	public GameObject pointOfInteraction;
-	internal GameObject selectedObject;
+
 	private Transform oldParent;
 	public GameObject lastSelectedObject; // holds the selected object
 
-
+	private Vector3 positionBeforeScale; // The position of camerarig when entering scaled mode
 
 
 
@@ -84,7 +89,7 @@ public class ImagePlane_FramingHands : MonoBehaviour {
 		selectedObject.transform.SetParent(oldParent);
 		cameraHead.transform.localScale = new Vector3(1f, 1f, 1f);
 		cameraRig.transform.localScale = new Vector3(1f, 1f, 1f);
-		cameraRig.transform.localPosition = new Vector3(0f, 0f, 0f);
+		cameraRig.transform.localPosition = positionBeforeScale;
 	}
 
 	//Tham's scale method
@@ -107,9 +112,11 @@ public class ImagePlane_FramingHands : MonoBehaviour {
 			if (objSelected == false && obj.transform.name != "Mirrored Cube") {
 				if(interacionType == InteractionType.Selection) {
 				selectedObject = obj;
+				selectedObjectEvent.Invoke();
 				objSelected = true;
 				} else if(interacionType == InteractionType.Manipulation_Movement) {
 					selectedObject = obj;
+					selectedObjectEvent.Invoke();
 					oldParent = selectedObject.transform.parent;
 					float dist = Vector3.Distance(pointOfInteraction.transform.position, selectedObject.transform.position);
 					selectedObject.transform.SetParent(pointOfInteraction.transform);
@@ -132,6 +139,8 @@ public class ImagePlane_FramingHands : MonoBehaviour {
 					objSelected = true;
 					laser.SetActive(false);
 
+					positionBeforeScale = cameraRig.transform.localPosition;
+
 					Disteh = Vector3.Distance(cameraHead.transform.position, pointOfInteraction.transform.position);
 					Disteo = Vector3.Distance(cameraHead.transform.position, obj.transform.position);
 					print("cameraHead:" + cameraHead.transform.position);
@@ -148,12 +157,14 @@ public class ImagePlane_FramingHands : MonoBehaviour {
 					//Keep eye distance proportionate to original position
 					cameraHead.transform.localScale = eyeProportion;
 				}
+
 			} else if (objSelected == true) {
 				if(interacionType == InteractionType.Manipulation_Movement) {
 					resetProperties();
 				} if(interacionType == InteractionType.Selection) {
 					objSelected = false;
 				}
+				droppedObject.Invoke();
 			}
 		}
 	}
