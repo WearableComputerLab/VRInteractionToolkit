@@ -45,7 +45,7 @@ public class ImagePlane_FramingHands : MonoBehaviour {
 	public GameObject pointOfInteraction;
 
 	private Transform oldParent;
-	public GameObject lastSelectedObject; // holds the selected object
+	private GameObject lastSelectedObject; // holds the selected object
 
 	private Vector3 positionBeforeScale; // The position of camerarig when entering scaled mode
 
