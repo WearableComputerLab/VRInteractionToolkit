@@ -13,7 +13,7 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     */
 
     public LayerMask interactionLayers;
-    public GameObject lastSelectedObject; // holds the selected object
+    private GameObject lastSelectedObject; // holds the selected object
 
     public GameObject currentlyPointingAt;
     private Vector3 castingBezierFrom;

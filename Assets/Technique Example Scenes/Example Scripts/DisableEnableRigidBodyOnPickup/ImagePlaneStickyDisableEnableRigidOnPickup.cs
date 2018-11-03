@@ -14,14 +14,14 @@ public class ImagePlaneStickyDisableEnableRigidOnPickup : MonoBehaviour {
 
 
 	void setRigidKinematic() {
-		if(hand.lastSelectedObject == this.gameObject) {
+		if(hand.selectedObject == this.gameObject) {
 			this.GetComponent<Rigidbody>().isKinematic = true;
 		}
 		
 	}
 
 	void setRigidNotKinematic() {
-		if(hand.lastSelectedObject == this.gameObject) {
+		if(hand.selectedObject == this.gameObject) {
 			this.GetComponent<Rigidbody>().isKinematic = false;
 		}
 	}

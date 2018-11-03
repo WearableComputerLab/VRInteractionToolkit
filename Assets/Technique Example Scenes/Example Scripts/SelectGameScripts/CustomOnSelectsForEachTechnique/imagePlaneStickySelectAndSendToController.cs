@@ -27,6 +27,13 @@ public class imagePlaneStickySelectAndSendToController : MonoBehaviour {
 		if(selectObject.selectedObject == this.gameObject) {
 			print("success");
 			controller.objectSelected(this.gameObject);
+
+			// Due to hand trying to grab with parent can cancel out with this
+			Rigidbody bod;
+			if((bod = this.GetComponent<Rigidbody>()) != null) {
+				bod.isKinematic = false;
+				this.transform.parent = originalParent.transform;
+			}
 		}	
 	}
 }
