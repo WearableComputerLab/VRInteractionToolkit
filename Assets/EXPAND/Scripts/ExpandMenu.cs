@@ -13,7 +13,7 @@ public class ExpandMenu : MonoBehaviour {
 
     public List<GameObject> selectableObjects = new List<GameObject>();
     private GameObject[] pickedObjects;
-    public GameObject panel;
+    private GameObject panel;
     public GameObject cameraHead;
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
@@ -41,8 +41,10 @@ public class ExpandMenu : MonoBehaviour {
             pickedObj = pickedObject[i];
             pickedObj2D = Instantiate(pickedObject[i], new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
             pickedObj2D.transform.SetParent(panel.transform, false);
-            pickedObj2D.gameObject.AddComponent<Rigidbody>();
-            pickedObj2D.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
+            if(pickedObj2D.GetComponent<Rigidbody>() == null) {
+                pickedObj2D.gameObject.AddComponent<Rigidbody>();
+            }
+            pickedObj2D.GetComponent<Rigidbody>().isKinematic = true;
             pickedObj2D.transform.localScale = new Vector3(pickedObject[i].transform.localScale.x / scaleAmount, pickedObject[i].transform.localScale.y / scaleAmount, pickedObject[i].transform.localScale.z / scaleAmount);
             pickedObj2D.transform.localRotation = Quaternion.identity;
 
@@ -101,6 +103,9 @@ public class ExpandMenu : MonoBehaviour {
     public void disableEXPAND() {
         clearList();
         panel.transform.SetParent(cameraHead.transform);
+        panel.transform.localPosition = new Vector3(0f, 0f, 1f);
+        panel.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
+        panel.transform.localScale = new Vector3(1f, 1f, 1f);
         panel.SetActive(false);
         SphereCastingExp.inMenu = false;
         pickedObject = null;
@@ -112,6 +117,10 @@ public class ExpandMenu : MonoBehaviour {
     public void enableEXPAND() {
         panel.SetActive(true);
         SphereCastingExp.inMenu = true;
+    }
+
+    private void Awake() {
+        panel = GameObject.Find("menuPanel");
     }
 
     private void Start() {
