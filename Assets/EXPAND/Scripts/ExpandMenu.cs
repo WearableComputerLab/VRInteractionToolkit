@@ -16,6 +16,7 @@ public class ExpandMenu : MonoBehaviour {
     private GameObject panel;
     public GameObject cameraHead;
 
+	public LayerMask interactableLayer;
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     private GameObject tempObjectStored;
 
@@ -29,14 +30,17 @@ public class ExpandMenu : MonoBehaviour {
                                                 { -0.3f, -0.6f  }, { -0.1f, -0.6f  }, { 0.1f, -0.6f }, { 0.3f, -0.6f },
                                                 { -0.3f, -0.8f }, { -0.1f, -0.8f }, { 0.1f, -0.8f }, { 0.3f, -0.8f }};
 
-    private float scaleAmount = 10f;
+    public float scaleAmount = 10f;
     void generate2DObjects(List<GameObject> pickedObject) {
         pickedObjects = new GameObject[pickedObject.Count];
         pickedObject.CopyTo(pickedObjects);
         print("generate2DObjectsSIZE:" + pickedObjects.Length);
+		if (pickedObjects.Length == 0) {
+			return;
+		}
         panel.transform.SetParent(null);
         print("Amount of objects selected:" + pickedObject.Count);
-        for (int i = 0; i < pickedObject.Count; i++) {
+		for (int i = 0; i < pickedObject.Count && pickedObject[i].layer == Mathf.Log(interactableLayer.value, 2) && i < 27; i++) {
             print("object:" + pickedObject[i].name + " | count:" + (i + 1));
             pickedObj = pickedObject[i];
             pickedObj2D = Instantiate(pickedObject[i], new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
@@ -45,7 +49,7 @@ public class ExpandMenu : MonoBehaviour {
                 pickedObj2D.gameObject.AddComponent<Rigidbody>();
             }
             pickedObj2D.GetComponent<Rigidbody>().isKinematic = true;
-            pickedObj2D.transform.localScale = new Vector3(pickedObject[i].transform.localScale.x / scaleAmount, pickedObject[i].transform.localScale.y / scaleAmount, pickedObject[i].transform.localScale.z / scaleAmount);
+			pickedObj2D.transform.localScale = new Vector3(pickedObject[i].transform.lossyScale.x / scaleAmount, pickedObject[i].transform.lossyScale.y / scaleAmount, pickedObject[i].transform.lossyScale.z / scaleAmount);
             pickedObj2D.transform.localRotation = Quaternion.identity;
 
             int pos = 0;
@@ -75,8 +79,10 @@ public class ExpandMenu : MonoBehaviour {
             pickedObject = GameObject.Find(objName);
             lastPickedObject = pickedObject;
             print("Final picked object:" + objName);
-            oldPickedObjectMaterial = pickedObject.transform.GetComponent<Renderer>().material;
-            pickedObject.transform.GetComponent<Renderer>().material = selectedMaterial;
+			if (pickedObject.transform.GetComponent<Renderer> () != null) {
+				oldPickedObjectMaterial = pickedObject.transform.GetComponent<Renderer> ().material;
+				pickedObject.transform.GetComponent<Renderer> ().material = selectedMaterial;
+			}
             disableEXPAND();
         }
     }
@@ -141,7 +147,7 @@ public class ExpandMenu : MonoBehaviour {
     }
 
     private void OnTriggerStay(Collider collider) {
-        if (collider.gameObject.layer != LayerMask.NameToLayer("Ignore Raycast")) {
+		if (collider.gameObject.layer != LayerMask.NameToLayer("Ignore Raycast") && collider.gameObject.layer == Mathf.Log(interactableLayer.value, 2)) {
             selectableObjects.Add(collider.gameObject);
         }
     }

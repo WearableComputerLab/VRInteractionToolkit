@@ -38,7 +38,7 @@ public class BubbleSelection : MonoBehaviour {
                                                 { -0.3f, -0.2f  }, { -0.1f, -0.2f  }, { 0.1f, -0.2f }, { 0.3f, -0.2f },
                                                 { -0.3f, -0.3f }, { -0.1f, -0.3f }, { 0.1f, -0.3f }, { 0.3f, -0.3f }};
 
-    private float scaleAmount = 10f;
+    public float scaleAmount = 10f;
     void generate2DObjects(List<GameObject> pickedObject) {
         pickedObjects = new GameObject[pickedObject.Count];
         pickedObject.CopyTo(pickedObjects);
@@ -53,7 +53,7 @@ public class BubbleSelection : MonoBehaviour {
             pickedObj2D.gameObject.AddComponent<Rigidbody>();
             pickedObj2D.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
             //pickedObj2D.transform.localScale = new Vector3(0.0625f, 0.0625f, 0f);
-            pickedObj2D.transform.localScale = new Vector3(pickedObject[i].transform.localScale.x / scaleAmount, pickedObject[i].transform.localScale.y / scaleAmount, pickedObject[i].transform.localScale.z / scaleAmount);
+			pickedObj2D.transform.localScale = new Vector3(pickedObject[i].transform.lossyScale.x / scaleAmount, pickedObject[i].transform.lossyScale.y / scaleAmount, pickedObject[i].transform.lossyScale.z / scaleAmount);
             pickedObj2D.transform.localRotation = Quaternion.identity;
             pickedObj2D.name = pickedObject[i].name + " (Clone)";
             int pos = 0;

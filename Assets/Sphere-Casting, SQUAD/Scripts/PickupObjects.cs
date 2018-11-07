@@ -12,6 +12,7 @@ public class PickupObjects : MonoBehaviour {
 
     public List<GameObject> selectableObjects = new List<GameObject>();
     public static GameObject currentObject;
+	public LayerMask interactableLayer;
 
     /*public PickupObjects() {
         print("declared");
@@ -24,7 +25,7 @@ public class PickupObjects : MonoBehaviour {
         if (trackedObj != null) {
             if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
                 for (int i = 0; i < obj.Count; i++) {
-                    if (obj[i].layer != LayerMask.NameToLayer("Ignore Raycast")) {
+					if (obj[i].layer != LayerMask.NameToLayer("Ignore Raycast") && obj[i].layer == Mathf.Log(interactableLayer.value, 2)) {
                         obj[i].transform.SetParent(trackedObj.transform);
                         pickedUpObject = true;
                     }
@@ -32,7 +33,7 @@ public class PickupObjects : MonoBehaviour {
             }
             if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
                 for (int i = 0; i < obj.Count; i++) {
-                    if (obj[i].layer != LayerMask.NameToLayer("Ignore Raycast")) {
+					if (obj[i].layer != LayerMask.NameToLayer("Ignore Raycast") && obj[i].layer == Mathf.Log(interactableLayer.value, 2)) {
                         obj[i].transform.SetParent(null);
                         pickedUpObject = false;
                         /*if (i == obj.Count-1) {

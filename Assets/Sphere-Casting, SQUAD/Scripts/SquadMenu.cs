@@ -10,8 +10,6 @@ public class SquadMenu : MonoBehaviour {
     * 
     * -SQUAD is an extension of Sphere-Casting which places selected objects into a QUAD menu for more precise selection
     * 
-    * TODO
-    * -Refactor code
     */
 
     public GameObject panel;
@@ -22,6 +20,7 @@ public class SquadMenu : MonoBehaviour {
     public GameObject cameraHead;
     private bool quadrantPicked = false;
     private Transform[] TriangleQuadrant = new Transform[4];
+	public bool enableText = false;
 
     public List<GameObject> selectableObjects = new List<GameObject>();
 
@@ -71,6 +70,7 @@ public class SquadMenu : MonoBehaviour {
 
     public void disableSQUAD() {
         clearList();
+		initialLoop = false;
         //showAllGameObjects();
         panel.transform.SetParent(cameraHead.transform);
         panel.SetActive(false);
@@ -106,9 +106,11 @@ public class SquadMenu : MonoBehaviour {
             pickedObject = GameObject.Find(objName);
             lastPickedObject = pickedObject;
             print("Final picked object:" + objName);
-            oldPickedObjectMaterial = pickedObject.transform.GetComponent<Renderer>().material;
-            pickedObject.transform.GetComponent<Renderer>().material = outlineMaterial;
-            disableSQUAD();
+			if (pickedObject.transform.GetComponent<Renderer> () != null) {
+				oldPickedObjectMaterial = pickedObject.transform.GetComponent<Renderer> ().material;
+				pickedObject.transform.GetComponent<Renderer> ().material = outlineMaterial;
+			}
+			disableSQUAD();
         }
     }
 
@@ -140,6 +142,7 @@ public class SquadMenu : MonoBehaviour {
         if(count == 1) {
             selectObject(controller, quadObjs[0]);
         } else {
+			initialLoop = true;
             generate2DObjects(quadObjs);
         }
     }
@@ -242,6 +245,7 @@ public class SquadMenu : MonoBehaviour {
                                          { -0.1f, -0.2f }, { 0f, -0.2f }, { 0.1f, -0.2f }};
 
 	private float scaleAmount = 10f;
+	private bool initialLoop = false;
     void generate2DObjects(List<GameObject> pickedObject) {
         imageSlots = new int[9];
         panel.transform.SetParent(null);
@@ -259,33 +263,30 @@ public class SquadMenu : MonoBehaviour {
             } if ((i + 1) % 4 == 0) {
                 stage = 4;
             }
-            
             //print("object:" + pickedObject[i].name + " | count:" + (i + 1) + " | stage:"+stage);
             pickedObj2D = Instantiate(pickedObject[i], new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
             pickedObj2D.name = pickedObject[i].name;
 			//pickedObj2D.layer = 99;
             pickedObj2D.transform.SetParent(panel.transform, false);
-			//pickedObj2D.transform.localScale = new Vector3(pickedObject[i].transform.lossyScale.x / scaleAmount, pickedObject[i].transform.lossyScale.y / scaleAmount, pickedObject[i].transform.lossyScale.z / scaleAmount);
+			if (initialLoop == false) {
+				pickedObj2D.transform.localScale = new Vector3 (pickedObject [i].transform.lossyScale.x / scaleAmount, pickedObject [i].transform.lossyScale.y / scaleAmount, pickedObject [i].transform.lossyScale.z / scaleAmount);
+			}
 			print (pickedObject[i].transform.lossyScale.x + " | " + pickedObject[i].transform.name);
             //pickedObj2D.transform.localScale = new Vector3(0.0625f, 0.0625f, 0f);
             pickedObj2D.transform.localRotation = Quaternion.identity;
-            print("New object generated:" + pickedObj2D.name);
-            prefabText.GetComponent<TextMesh>().text = pickedObj.gameObject.name;
-            pickedObjText = Instantiate(prefabText, new Vector3(0f, 0f, 0f), Quaternion.identity) as GameObject;
-            pickedObjText.transform.SetParent(pickedObj2D.transform, false);
+			if (pickedObj2D.GetComponent<Collider> () != null) { Destroy (pickedObj2D.GetComponent<Collider> ());	}
 			if (pickedObj2D.GetComponent<Rigidbody> () == null) {
 				pickedObj2D.gameObject.AddComponent<Rigidbody> ();
 			}
 			pickedObj2D.GetComponent<Rigidbody>().isKinematic = true;
-			if (pickedObj2D.GetComponent<Collider> () != null) {
-				Destroy (pickedObj2D.GetComponent<Collider> ());
+            print("New object generated:" + pickedObj2D.name);
+            prefabText.GetComponent<TextMesh>().text = pickedObj.gameObject.name;
+			if (enableText == true) {
+				pickedObjText = Instantiate (prefabText, new Vector3 (0f, 0f, 0f), Quaternion.identity) as GameObject;
+				pickedObjText.transform.SetParent (pickedObj2D.transform, false);
+				pickedObjText.GetComponent<TextMesh> ().fontSize = 250;
+				pickedObjText.transform.localRotation = Quaternion.identity;
 			}
-            pickedObjText.GetComponent<TextMesh>().fontSize = 250;
-            //pickedObjText.transform.localScale = new Vector3(0f, -0.7f, 0f);
-            //pickedObjText.gameObject.AddComponent<Rigidbody>();
-            //pickedObjText.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
-            //pickedObj2D.transform.localScale = new Vector3(0.01f, 0.01f, 0f);
-            pickedObjText.transform.localRotation = Quaternion.identity;
 
             int pos = 0;
             float posX = 0;
@@ -296,33 +297,40 @@ public class SquadMenu : MonoBehaviour {
                 posX = left[pos, 0];
                 posY = left[pos, 1];
                 pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
-                //pickedObjText.transform.localPosition = new Vector3(posX-0.01f, posY - 0.04f, -0.00001f);
-                pickedObjText.transform.localPosition = new Vector3(0f, -0.6f, 0f);
                 pickedObj2D.transform.SetParent(TriangleQuadrant[3], true);
+				if (enableText == true) {
+					pickedObjText.transform.localPosition = new Vector3 (0f, -0.6f, 0f);
+				}
             } else if (stage == 2) {
                 imageSlots[1]++;
                 pos = imageSlots[1]-1;
                 posX = right[pos, 0];
                 posY = right[pos, 1];
                 pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
-                pickedObjText.transform.localPosition = new Vector3(0f, -0.6f, 0f);
                 pickedObj2D.transform.SetParent(TriangleQuadrant[2], true);
+				if (enableText == true) {
+					pickedObjText.transform.localPosition = new Vector3 (0f, -0.6f, 0f);
+				}
             } else if (stage == 3) {
                 imageSlots[2]++;
                 pos = imageSlots[2] - 1;
                 posX = up[pos, 0];
                 posY = up[pos, 1];
                 pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
-                pickedObjText.transform.localPosition = new Vector3(0f, -0.6f, 0f);
                 pickedObj2D.transform.SetParent(TriangleQuadrant[0], true);
+				if (enableText == true) {
+					pickedObjText.transform.localPosition = new Vector3 (0f, -0.6f, 0f);
+				}
             } else if (stage == 4) {
                 imageSlots[3]++;
                 pos = imageSlots[3] - 1;
                 posX = down[pos, 0];
                 posY = down[pos, 1];
                 pickedObj2D.transform.localPosition = new Vector3(posX, posY, -0.00001f);
-                pickedObjText.transform.localPosition = new Vector3(0f, -0.6f, 0f);
                 pickedObj2D.transform.SetParent(TriangleQuadrant[1], true);
+				if (enableText == true) {
+					pickedObjText.transform.localPosition = new Vector3 (0f, -0.6f, 0f);
+				}
             }
             //pickedObj2D.transform.localPosition = Vector3.zero;
         }
@@ -346,7 +354,7 @@ public class SquadMenu : MonoBehaviour {
     }
 
     private void OnTriggerStay(Collider collider) {
-        if (collider.gameObject.layer != LayerMask.NameToLayer("Ignore Raycast") && !selectableObjects.Contains(collider.gameObject)) {
+		if (collider.gameObject.layer != LayerMask.NameToLayer("Ignore Raycast") && !selectableObjects.Contains(collider.gameObject) && collider.gameObject.layer == Mathf.Log(this.transform.parent.GetComponent<SphereCasting>().interactableLayer.value, 2)) {
             selectableObjects.Add(collider.gameObject);
         }
     }

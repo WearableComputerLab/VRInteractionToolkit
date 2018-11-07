@@ -113,7 +113,7 @@ public class SphereCastingExp : MonoBehaviour {
             //print("hit:" + hit.transform.name);
             hitPoint = hit.point;
             ShowLaser(hit);
-            if (menu.isActive() == false) {
+			if (menu.isActive() == false && menu.getSelectableObjects().Count > 0) {
                 menu.enableEXPAND(controller, trackedObj, menu.getSelectableObjects());
                 menu.clearList();
             } else if (menu.isActive() == true) {
