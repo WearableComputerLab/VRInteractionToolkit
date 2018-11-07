@@ -189,7 +189,7 @@ public class WorldInMiniature : MonoBehaviour {
     // Update is called once per frame
     void Update () {
 		//print (isMoving ());
-		if (isMoving () == true) {
+		if (WiMactive == true && isMoving() == true && selectedObject != null && selectedObject.GetComponent<ObjectID>() != null && realObject != null && realObject.GetComponent<ObjectID>() != null && selectedObject.GetComponent<ObjectID>().ID == realObject.GetComponent<ObjectID>().ID) {
 			startedMoving = true;
 			selectedObject.transform.localPosition = realObject.transform.localPosition;
 			selectedObject.transform.localEulerAngles = realObject.transform.localEulerAngles;
@@ -201,7 +201,7 @@ public class WorldInMiniature : MonoBehaviour {
         createWiM();
         if (WiMactive == true) {
             tiltAroundY = controller.GetAxis(Valve.VR.EVRButtonId.k_EButton_Axis0).y;
-            if (controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad)) {
+            if (controller.GetTouch(SteamVR_Controller.ButtonMask.Touchpad)) {
                 worldInMinParent.transform.Rotate(0, tiltAroundY* tiltSpeed, 0);
             }
         }

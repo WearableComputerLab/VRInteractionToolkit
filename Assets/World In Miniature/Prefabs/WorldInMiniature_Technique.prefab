@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4394246978830076}
   - component: {fileID: 114401744854850670}
   - component: {fileID: 114991273285484468}
+  - component: {fileID: 114482401389664588}
   m_Layer: 5
   m_Name: WorldInMiniature_Technique
   m_TagString: Untagged
@@ -98,20 +99,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   worldInMinParent: {fileID: 1688358885498130}
+  WiMactive: 0
   ignorableObjectsString:
   - '[CameraRig]'
   - Directional Light
   - background
+  scaleAmount: 20
   interactableLayer:
     serializedVersion: 2
     m_Bits: 256
   outlineMaterial: {fileID: 2100000, guid: 3d938759d8b7a414988ec3261fb5265d, type: 2}
-  interacionType: 0
+  interacionType: 1
   controllerPicked: 1
   controllerRight: {fileID: 0}
   controllerLeft: {fileID: 0}
   cameraHead: {fileID: 0}
+  selectedObject: {fileID: 0}
+  currentObjectCollided: {fileID: 0}
   tiltSpeed: 2
+--- !u!114 &114482401389664588
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1518146467238566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5514b139244571c4280d6f4ffee7b89a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ID: 0
 --- !u!114 &114991273285484468
 MonoBehaviour:
   m_ObjectHideFlags: 1

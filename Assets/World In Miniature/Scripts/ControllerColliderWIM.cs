@@ -37,7 +37,7 @@ public class ControllerColliderWIM : MonoBehaviour {
 	}
 
     private void OnTriggerStay(Collider col) {
-		if(col.gameObject.layer == Mathf.Log(worldInMin.interactableLayer.value, 2) && worldInMin.isMoving () == false) {
+		if(col.gameObject.layer == Mathf.Log(worldInMin.interactableLayer.value, 2)) {
             //Debug.Log("You have collided with " + col.name + " and activated OnTriggerStay");
             if (worldInMin.controllerO.GetPress(SteamVR_Controller.ButtonMask.Trigger) && worldInMin.objectPicked == false) {
                 Debug.Log("You have collided with " + col.name + " while holding down Touch");
