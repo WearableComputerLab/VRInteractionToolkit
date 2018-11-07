@@ -9,6 +9,9 @@ public class WIM_IDHandler : MonoBehaviour {
 	public void addID(GameObject obj) {
 		ID++;
 		obj.AddComponent<ObjectID> ().ID = ID;
+        if (obj.GetComponent<Rigidbody>() != null && obj.GetComponent<Rigidbody>().isKinematic == false) {
+            obj.GetComponent<ObjectID>().movableObject = true;
+        }
 		print ("Added object ID:" + ID + " to object:" + obj.name);
 	}
 

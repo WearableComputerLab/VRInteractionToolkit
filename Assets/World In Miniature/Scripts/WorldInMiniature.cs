@@ -16,6 +16,7 @@ public class WorldInMiniature : MonoBehaviour {
     internal SteamVR_Controller.Device controllerO; //controller other
     public GameObject worldInMinParent;
     GameObject[] allSceneObjects;
+    public static bool WiMrunning = false;
     public bool WiMactive = false;
     public List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light", "background"};
     public float scaleAmount = 20f;
@@ -31,6 +32,7 @@ public class WorldInMiniature : MonoBehaviour {
 	public GameObject controllerRight;
 	public GameObject controllerLeft;
 	public GameObject cameraHead;
+    private int counter = 0;
 
 	private List<GameObject> listOfChildren = new List<GameObject>();
 	private void findClonedObject(GameObject obj){
@@ -42,7 +44,14 @@ public class WorldInMiniature : MonoBehaviour {
 			if (child.gameObject.GetComponent<Rigidbody> () != null) {
 				child.gameObject.GetComponent<Rigidbody> ().isKinematic = true;
 			}
-			listOfChildren.Add(child.gameObject);
+            if(child.GetComponent<ObjectID>() != null) {
+                listOfIDs[child.GetComponent<ObjectID>().ID-1].GetComponent<ObjectID>().clonedObject = child.gameObject;
+            }
+            //listOfIDs[child.gameObject.GetComponent<ObjectID>().ID].GetComponent<ObjectID>().clonedObject = child.gameObject;
+            //listOfIDs[child.gameObject.GetComponent]
+            //listOfIDs[counter].GetComponent<ObjectID>().clonedObject = child.gameObject;
+            counter++;
+            listOfChildren.Add(child.gameObject);
 			findClonedObject(child.gameObject);
 		}
 	}
@@ -66,6 +75,7 @@ public class WorldInMiniature : MonoBehaviour {
         if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) {
             if (WiMactive == false) {
                 WiMactive = true;
+                WiMrunning = true;
                 print("Create world clone");
                 for (int i = 0; i < allSceneObjects.Length; i++) {
                     if (!ignorableObjectsString.Contains(allSceneObjects[i].name)) {
@@ -74,7 +84,11 @@ public class WorldInMiniature : MonoBehaviour {
                         cloneObject.transform.SetParent(worldInMinParent.transform, false);
                         if (cloneObject.gameObject.GetComponent<Rigidbody>() == null) {
                             cloneObject.gameObject.AddComponent<Rigidbody>();
-                        }
+                        }/* else {
+                            if (cloneObject.gameObject.GetComponent<Rigidbody>().isKinematic == false) {
+
+                            }
+                        }*/
                         cloneObject.gameObject.GetComponent<Rigidbody>().isKinematic = true;
                         //cloneObject.gameObject.AddComponent<Collider>();
                         //cloneObject.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
@@ -97,6 +111,7 @@ public class WorldInMiniature : MonoBehaviour {
                 //worldInMinParent.transform.localPosition -= new Vector3(0f, worldInMinParent.transform.position.y / 1.25f, 0f);
             } else if (WiMactive == true) {
                 WiMactive = false;
+                WiMrunning = false;
                 foreach (Transform child in worldInMinParent.transform) {
                     Destroy(child.gameObject);
                 }
@@ -139,6 +154,7 @@ public class WorldInMiniature : MonoBehaviour {
 			col = trackedObj.transform.gameObject.AddComponent<SphereCollider> ();
 			col.isTrigger = true;
 			col.radius = 0.05f;
+            col.center = new Vector3(0f,-0.05f,0f);
 			trackedObj.transform.gameObject.AddComponent<ControllerColliderWIM> ();
 		}
 		SphereCollider col0;
@@ -147,7 +163,8 @@ public class WorldInMiniature : MonoBehaviour {
 			col0 = trackedObjO.transform.gameObject.AddComponent<SphereCollider> ();
 			col0.isTrigger = true;
 			col0.radius = 0.05f;
-			trackedObjO.transform.gameObject.AddComponent<ControllerColliderWIM> ();
+            col0.center = new Vector3(0f, -0.05f, 0f);
+            trackedObjO.transform.gameObject.AddComponent<ControllerColliderWIM> ();
 		}
     }
 
@@ -207,13 +224,8 @@ public class WorldInMiniature : MonoBehaviour {
         }
         if (controllerO.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && selectedObject == true) {
             selectedObject.transform.SetParent(oldParent);
-            //print("changed pos:" + selectedObject.transform.localPosition);
 			realObject = findRealObject(selectedObject);
-			//print ("Found:" + realObject);
-            //print(realObject.transform.position + " | " + realObject.transform.localPosition);
-            //print(selectedObject.transform.position + " | " + selectedObject.transform.localPosition);
             realObject.transform.localPosition = selectedObject.transform.localPosition;
-            //realObject.transform.localPosition = new Vector3(selectedObject.transform.localPosition.x*scaleAmount, selectedObject.transform.localPosition.y*scaleAmount, selectedObject.transform.localPosition.z*scaleAmount);
             realObject.transform.localEulerAngles = selectedObject.transform.localEulerAngles;
             objectPicked = false;
         }
