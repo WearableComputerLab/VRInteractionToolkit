@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ScaledWorldSelectAndSendToController : MonoBehaviour {
 
-	public ControllerCollider selectObject;
+	public ControllerColliderSWG selectObject;
 
 	private TesterController controller;
 

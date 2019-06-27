@@ -5,7 +5,7 @@ using UnityEngine.Events;
 public class ScaledWorldDisableEnableRigidOnPickup : MonoBehaviour {
 
 
-	public ControllerCollider grab;
+	public ControllerColliderSWG grab;
 	// Use this for initialization
 	void Awake () {
 		grab.selectedObject.AddListener(setRigidKinematic);
