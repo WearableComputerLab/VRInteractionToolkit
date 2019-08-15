@@ -12,8 +12,11 @@ public class FishingReel : MonoBehaviour {
 
     public GameObject controllerRight = null;
     public GameObject controllerLeft = null;
-
+#if SteamVR_Legacy
     private SteamVR_TrackedObject trackedObj;
+#elif SteamVR_2
+    errors aren't visible to script..
+#endif
     private SteamVR_Controller.Device controller;
 
     public GameObject laserPrefab;
@@ -135,11 +138,14 @@ public class FishingReel : MonoBehaviour {
 
     private GameObject manipulationIcons;
 
-    void Awake() {
-        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+    private void initializeControllers() {
         if (controllerPicked == ControllerPicked.Right_Controller) {
             print(controllerRight);
+#if SteamVR_Legacy
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedController>(); .. etc
+#endif
         } else if (controllerPicked == ControllerPicked.Left_Controller) {
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
         } else {
@@ -147,6 +153,11 @@ public class FishingReel : MonoBehaviour {
             Application.Quit();
         }
 
+    }
+
+    void Awake() {
+        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        initializeControllers();
         if (interacionType == InteractionType.Manipulation_Full) {
 
             //this.gameObject.AddComponent<ColorPicker>();
