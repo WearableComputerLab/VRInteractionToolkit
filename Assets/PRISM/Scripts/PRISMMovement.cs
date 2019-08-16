@@ -2,21 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class PRISMMovement : MonoBehaviour {
 
-	public LayerMask interactionLayers;
+#if SteamVR_Legacy
+    	public SteamVR_TrackedObject trackedObj;
+    	private SteamVR_Controller.Device Controller
+	{
+		get { return SteamVR_Controller.Input((int)trackedObj.index); }
+	}
+#elif SteamVR_2
+    public SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_controllerPress;
+#endif
 
-	public SteamVR_TrackedObject trackedObj;
+    public LayerMask interactionLayers;
+
 	//public GameObject theController;
 
 	public GameObject collidingObject;
 	public GameObject objectInHand = null;
-	
-	private SteamVR_Controller.Device Controller
-	{
-		get { return SteamVR_Controller.Input((int)trackedObj.index); }
-	}
 
 	// Track last position of controller to get the direction it is moving
 	private Vector3 lastPosition;
@@ -223,9 +229,30 @@ public class PRISMMovement : MonoBehaviour {
 		return Mathf.Abs(trackedObj.transform.position.z - lastPosition.z);
 	}
 
-	// Update is called once per frame
-	void Update () {
-		if (Controller.GetHairTriggerDown())
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (Controller.GetHairTriggerDown()) {
+            return ControllerState.TRIGGER_DOWN;
+        } if (Controller.GetHairTriggerUp()) {
+            return ControllerState.TRIGGER_UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#endif
+        return ControllerState.NONE;
+    }
+    // Update is called once per frame
+    void Update () {
+		if (controllerEvents() == ControllerState.TRIGGER_DOWN)
         {	
             if (collidingObject)
             {
@@ -234,7 +261,7 @@ public class PRISMMovement : MonoBehaviour {
         }
 
 
-        if (Controller.GetHairTriggerUp())
+        if (controllerEvents() == ControllerState.TRIGGER_UP)
         {
             if (objectInHand)
             {

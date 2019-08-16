@@ -5,9 +5,10 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using Valve.VR;
 
 public class BubbleCursor3D : MonoBehaviour {
-    
+
     /* 3D Bubble Cursor implementation by Kieran May
      * University of South Australia
      * 
@@ -15,13 +16,21 @@ public class BubbleCursor3D : MonoBehaviour {
      * -IMPORTANT: Found out scaling issue: fix is (scale/radius) ex (1.0 scale / 0.5f radius) = 2f (use this value to divide by the overall dist)
      * */
 
+#if SteamVR_Legacy
+    private SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device controller;
+#elif SteamVR_2
+    private SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_controllerPress;
+    public SteamVR_Action_Boolean m_touchpad;
+    public SteamVR_Action_Vector2 m_touchpadAxis;
+#endif
+
     private GameObject[] interactableObjects; // In-game objects
     internal GameObject cursor;
     private float minRadius = 1f;
     private GameObject radiusBubble;
     internal GameObject objectBubble;
-    private SteamVR_TrackedObject trackedObj;
-    private SteamVR_Controller.Device controller;
     public BubbleSelection bubbleSelection;
     public LayerMask interactableLayer;
 	public UnityEvent selectedObject; // Invoked when an object is selected
@@ -52,21 +61,37 @@ public class BubbleCursor3D : MonoBehaviour {
         return interactableObjects.ToArray();
     }
 
-    void Awake() {
-        cursor = this.transform.Find("BubbleCursor").gameObject;
-        radiusBubble = cursor.transform.Find("RadiusBubble").gameObject;
-        objectBubble = this.transform.Find("ObjectBubble").gameObject;
-
+    private void initializeControllers() {
         if (controllerPicked == ControllerPicked.Right_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else if (controllerPicked == ControllerPicked.Left_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else if (controllerPicked == ControllerPicked.Head) {
+#if SteamVR_Legacy
             trackedObj = cameraHead.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = cameraHead.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }
+
+    }
+
+    void Awake() {
+        cursor = this.transform.Find("BubbleCursor").gameObject;
+        radiusBubble = cursor.transform.Find("RadiusBubble").gameObject;
+        objectBubble = this.transform.Find("ObjectBubble").gameObject;
+        initializeControllers();
     }
 
     // Use this for initialization
@@ -75,7 +100,8 @@ public class BubbleCursor3D : MonoBehaviour {
 		extendDistance = Vector3.Distance(trackedObj.transform.position, cursor.transform.position);
 		SetCursorParent();
 		moveCursorPosition();
-	}
+        bubbleSelection.trackedObj = trackedObj;
+    }
 
 	void SetCursorParent() {
 		cursor.transform.SetParent(trackedObj.transform);
@@ -137,18 +163,48 @@ public class BubbleCursor3D : MonoBehaviour {
     public float cursorSpeed = 20f; // Decrease to make faster, Increase to make slower
 
 	private void PadScrolling() {
+#if SteamVR_Legacy
 		if (controller.GetAxis().y != 0) {
 			extendDistance += controller.GetAxis().y / cursorSpeed;
 			moveCursorPosition();
 		}
-	}
+#elif SteamVR_2
+        if (m_touchpadAxis.GetAxis(trackedObj.inputSource).y != 0) {
+			extendDistance += m_touchpadAxis.GetAxis(trackedObj.inputSource).y / cursorSpeed;
+			moveCursorPosition();
+        }
+#endif
+    }
 
-	private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, NONE
+    }
+
+    public ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#endif
+        return ControllerState.NONE;
+    }
+
+    private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
 	internal GameObject lastSelectedObject;
 
 	void PickupObject(GameObject obj) {
 		if (trackedObj != null) {
-			if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+			if (controllerEvents() == ControllerState.TRIGGER_DOWN && pickedUpObject == false) {
 				if(interactionType == InteractionType.Manipulation_Movement) {
 					//obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
 					obj.transform.SetParent(cursor.transform);
@@ -160,7 +216,7 @@ public class BubbleCursor3D : MonoBehaviour {
 				}
 				selectedObject.Invoke();
 			}
-			if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
+			if (controllerEvents() == ControllerState.TRIGGER_UP && pickedUpObject == true) {
 				if(interactionType == InteractionType.Manipulation_Movement) {
 					//obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
 					lastSelectedObject.transform.SetParent(null);
@@ -188,9 +244,10 @@ public class BubbleCursor3D : MonoBehaviour {
     // Update is called once per frame
     void Update() {
 		if (bubbleSelection.inBubbleSelection == false) {
+            #if SteamVR_Legacy
 			controller = SteamVR_Controller.Input ((int)trackedObj.index);
+#endif
 			PadScrolling ();
-			//}
 
 			float[][] lowestDistances = FindClosestObjects ();
 
@@ -217,7 +274,7 @@ public class BubbleCursor3D : MonoBehaviour {
 					//PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
 					//bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
 					if (bubbleSelection.getSelectableObjects ().Count > 1) {
-						bubbleSelection.enableMenu (controller, trackedObj, bubbleSelection.getSelectableObjects ());
+						bubbleSelection.enableMenu (bubbleSelection.getSelectableObjects ());
 						bubbleSelection.clearList ();
 					} else {
 						PickupObject (interactableObjects [(int)lowestDistances [0] [1]]);
@@ -237,7 +294,7 @@ public class BubbleCursor3D : MonoBehaviour {
 					//PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
 					//bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
 					if (bubbleSelection.getSelectableObjects ().Count > 1) {
-						bubbleSelection.enableMenu (controller, trackedObj, bubbleSelection.getSelectableObjects ());
+						bubbleSelection.enableMenu (bubbleSelection.getSelectableObjects ());
 						bubbleSelection.clearList ();
 					} else {
 						PickupObject (interactableObjects [(int)lowestDistances [0] [1]]);

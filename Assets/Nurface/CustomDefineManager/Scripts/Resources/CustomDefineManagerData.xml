@@ -3,13 +3,13 @@
   <Directive>
     <name>SteamVR_Legacy</name>
     <targets>Standalone</targets>
-    <enabled>true</enabled>
+    <enabled>false</enabled>
     <sortOrder>0</sortOrder>
   </Directive>
   <Directive>
     <name>SteamVR_2</name>
     <targets>Standalone</targets>
-    <enabled>true</enabled>
+    <enabled>false</enabled>
     <sortOrder>1</sortOrder>
   </Directive>
 </ArrayOfDirective>

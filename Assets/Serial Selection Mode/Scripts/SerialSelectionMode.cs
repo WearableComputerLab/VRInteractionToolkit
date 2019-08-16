@@ -2,14 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class SerialSelectionMode : MonoBehaviour {
+
+    /* Serial Selection Mode implementation by Kieran May
+    * University of South Australia
+    * 
+    * */
+
+#if SteamVR_Legacy
+    private SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device controller;
+#elif SteamVR_2
+    private SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_controllerPress;
+    public SteamVR_Action_Boolean m_applicationMenu;
+#endif
 
     public GameObject controllerRight;
     public GameObject controllerLeft;
 
-    private SteamVR_TrackedObject trackedObj;
-    private SteamVR_Controller.Device controller;
     private GameObject mirroredCube;
 
     public GameObject laserPrefab;
@@ -40,16 +53,29 @@ public class SerialSelectionMode : MonoBehaviour {
         mirroredCube.SetActive(true);
     }
 
-    void Awake() {
-        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+    private void initializeControllers() {
         if (controllerPicked == ControllerPicked.Right_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else if (controllerPicked == ControllerPicked.Left_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }
+
+    }
+
+    void Awake() {
+        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        initializeControllers();
     }
 
     void Start() {
@@ -69,14 +95,41 @@ public class SerialSelectionMode : MonoBehaviour {
         mirroredCube.transform.position = mirroredPos;
         mirroredCube.transform.rotation = trackedObj.transform.rotation;
     }
-    
+
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, NONE, APPLICATION_MENU
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_DOWN;
+        } if (controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_UP;
+        } if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) {
+            return ControllerState.APPLICATION_MENU;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        } if (m_applicationMenu.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.APPLICATION_MENU;
+        }
+#endif
+
+        return ControllerState.NONE;
+    }
+
     private List<GameObject> selectedObjectsList = new List<GameObject>();
     private List<Material> rendererMaterialTrackerList = new List<Material>();
 
     void selectObject(GameObject obj) {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null && pickUpObjectsActive == false) {
-            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+            if (controllerEvents() == ControllerState.TRIGGER_DOWN) {
                 if (obj != null && obj.name != "Mirrored Cube" && !selectedObjectsList.Contains(obj)) {
                     selectedObjectsList.Add(obj);
                     rendererMaterialTrackerList.Add(obj.transform.GetComponent<Renderer>().material);
@@ -98,12 +151,12 @@ public class SerialSelectionMode : MonoBehaviour {
     private bool objectsSelected = false;
 
     void activatePickupObjects() {
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) {
+        if (controllerEvents() == ControllerState.APPLICATION_MENU) {
             pickUpObjectsActive = !pickUpObjectsActive;
             print("pick up objects set to:" + pickUpObjectsActive);
         }
         if (pickUpObjectsActive == true) {
-            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && objectsSelected == false && interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+            if (controllerEvents() == ControllerState.TRIGGER_DOWN && objectsSelected == false && interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
                 for (int i = 0; i < selectedObjectsList.Count; i++) {
                     if (selectedObjectsList[i].layer != LayerMask.NameToLayer("Ignore Raycast")) {
                         selectedObjectsList[i].transform.SetParent(trackedObj.transform);
@@ -111,7 +164,7 @@ public class SerialSelectionMode : MonoBehaviour {
                     }
                 }
             }
-            if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && objectsSelected == true) {
+            if (controllerEvents() == ControllerState.TRIGGER_UP && objectsSelected == true) {
                 for (int i = 0; i < selectedObjectsList.Count; i++) {
                     if (selectedObjectsList[i].layer != LayerMask.NameToLayer("Ignore Raycast")) {
                         selectedObjectsList[i].transform.SetParent(null);
@@ -123,11 +176,12 @@ public class SerialSelectionMode : MonoBehaviour {
     }
 
     void Update() {
+        #if SteamVR_Legacy
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+#endif
         activatePickupObjects();
         mirroredObject();
         ShowLaser();
-        Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             hitPoint = hit.point;

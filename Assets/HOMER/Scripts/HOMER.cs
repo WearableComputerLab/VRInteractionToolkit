@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class HOMER : MonoBehaviour {
 
@@ -11,12 +12,19 @@ public class HOMER : MonoBehaviour {
      * The HOMER algorithm I wrote is based off: (pg 34-35) https://people.cs.vt.edu/~bowman/3dui.org/course_notes/siggraph2001/basic_techniques.pdf 
      * 
      * */
-	public LayerMask interactionLayers;
+
+#if SteamVR_Legacy
+    private SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device controller;
+#elif SteamVR_2
+    private SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_controllerPress;
+#endif
+
+    public LayerMask interactionLayers;
 
     public GameObject controllerRight;
     public GameObject controllerLeft;
-    SteamVR_TrackedObject trackedObj;
-    SteamVR_Controller.Device controller;
 
     private GameObject mirroredCube;
     public GameObject laserPrefab;
@@ -30,10 +38,10 @@ public class HOMER : MonoBehaviour {
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
 
-	public UnityEvent selectedObjectEvent; // Invoked when an object is selected
-	public UnityEvent droppedObject; // Invoked when an object is dropped
-	public UnityEvent hovered; // Invoked when an object is hovered by technique
-	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+    public UnityEvent selectedObjectEvent; // Invoked when an object is selected
+    public UnityEvent droppedObject; // Invoked when an object is dropped
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
@@ -41,12 +49,35 @@ public class HOMER : MonoBehaviour {
         laserTransform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
-		if (interactionLayers == (interactionLayers | (1 << hit.transform.gameObject.layer))) {
-			hoveredObject = hit.transform.gameObject;
-			unHovered.Invoke ();
-			hovered.Invoke ();
-			InstantiateObject(hit.transform.gameObject);
-		}
+        if (interactionLayers == (interactionLayers | (1 << hit.transform.gameObject.layer))) {
+            hoveredObject = hit.transform.gameObject;
+            unHovered.Invoke();
+            hovered.Invoke();
+            InstantiateObject(hit.transform.gameObject);
+        }
+    }
+
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#endif
+        return ControllerState.NONE;
     }
 
     float Disth = 0f;
@@ -54,13 +85,13 @@ public class HOMER : MonoBehaviour {
     bool objSelected = false;
     private GameObject cameraHead; // t
     private GameObject virtualHand;
-	public GameObject selectedObject;
+    public GameObject selectedObject;
     public GameObject handPrefab;
     private Transform oldParent;
-	public GameObject hoveredObject;
+    public GameObject hoveredObject;
 
     private void InstantiateObject(GameObject obj) {
-		if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+        if (controllerEvents() == ControllerState.TRIGGER_DOWN) {
             virtualHand = Instantiate(new GameObject("hand"));
             virtualHand.transform.position = obj.transform.position;
             virtualHand.SetActive(true);
@@ -69,7 +100,7 @@ public class HOMER : MonoBehaviour {
             objSelected = true;
             selectedObject.transform.SetParent(virtualHand.transform);
             laser.SetActive(false);
-			selectedObjectEvent.Invoke ();
+            selectedObjectEvent.Invoke();
 
             Disth = Vector3.Distance(trackedObj.transform.position, cameraHead.transform.position);
             Disto = Vector3.Distance(obj.transform.position, cameraHead.transform.position);
@@ -87,24 +118,23 @@ public class HOMER : MonoBehaviour {
         virtualHand.transform.position = VirtualHandPos;
         virtualHand.transform.position = new Vector3(virtualHand.transform.position.x, virtualHand.transform.position.y, virtualHand.transform.position.z);
 
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+        if (controllerEvents() == ControllerState.TRIGGER_DOWN) {
             objSelected = false;
             Destroy(virtualHand);
             selectedObject.transform.SetParent(oldParent);
-			droppedObject.Invoke ();
+            droppedObject.Invoke();
         }
     }
 
     private void castRay() {
-        Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         ShowLaser();
         RaycastHit hit;
-		if (Physics.Raycast (trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
-			hitPoint = hit.point;
-			ShowLaser (hit);
-		} else {
-			unHovered.Invoke ();
-		}
+        if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
+            hitPoint = hit.point;
+            ShowLaser(hit);
+        } else {
+            unHovered.Invoke();
+        }
     }
 
     void moveMirroredCube() {
@@ -125,17 +155,30 @@ public class HOMER : MonoBehaviour {
         mirroredCube.SetActive(true);
     }
 
-    void Awake() {
-        cameraHead = GameObject.Find("Camera (eye)");
-        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+    private void initializeControllers() {
         if (controllerPicked == ControllerPicked.Right_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else if (controllerPicked == ControllerPicked.Left_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }
+
+    }
+
+    void Awake() {
+        cameraHead = GameObject.Find("Camera (eye)");
+        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        initializeControllers();
     }
 
     // Use this for initialization
@@ -146,7 +189,9 @@ public class HOMER : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
+#if SteamVR_Legacy
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+#endif
         if (objSelected == false) {
             moveMirroredCube();
             castRay();

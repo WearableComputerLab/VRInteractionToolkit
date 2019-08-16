@@ -1,10 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR;
 
 public class nonHMDCam : MonoBehaviour {
     public Camera cam;
-    public SteamVR_TrackedObject trackedObj;
+#if SteamVR_Legacy
+     public SteamVR_TrackedObject trackedObj;
+#elif SteamVR_2
+    public SteamVR_Behaviour_Pose trackedObj;
+#endif
+
 
     // Use this for initialization
     void Start () {

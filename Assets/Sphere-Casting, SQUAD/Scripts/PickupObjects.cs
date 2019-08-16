@@ -13,25 +13,22 @@ public class PickupObjects : MonoBehaviour {
     public List<GameObject> selectableObjects = new List<GameObject>();
     public static GameObject currentObject;
 	public LayerMask interactableLayer;
-
-    /*public PickupObjects() {
-        print("declared");
-    }*/
+    internal SphereCasting sphereCasting;
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     private GameObject tempObjectStored;
 
-    public void PickupObject(SteamVR_Controller.Device controller, SteamVR_TrackedObject trackedObj, List<GameObject> obj) {
-        if (trackedObj != null) {
-            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+    public void PickupObject(List<GameObject> obj) {
+        if (sphereCasting.trackedObj != null) {
+            if (sphereCasting.controllerEvents() == SphereCasting.ControllerState.TRIGGER_DOWN && pickedUpObject == false) {
                 for (int i = 0; i < obj.Count; i++) {
 					if (obj[i].layer != LayerMask.NameToLayer("Ignore Raycast") && obj[i].layer == Mathf.Log(interactableLayer.value, 2)) {
-                        obj[i].transform.SetParent(trackedObj.transform);
+                        obj[i].transform.SetParent(sphereCasting.trackedObj.transform);
                         pickedUpObject = true;
                     }
                 }
             }
-            if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
+            if (sphereCasting.controllerEvents() == SphereCasting.ControllerState.TRIGGER_UP && pickedUpObject == true) {
                 for (int i = 0; i < obj.Count; i++) {
 					if (obj[i].layer != LayerMask.NameToLayer("Ignore Raycast") && obj[i].layer == Mathf.Log(interactableLayer.value, 2)) {
                         obj[i].transform.SetParent(null);

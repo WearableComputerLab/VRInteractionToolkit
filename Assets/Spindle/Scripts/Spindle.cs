@@ -1,22 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR;
 
 public class Spindle : MonoBehaviour {
 
-    public bool spindleAndWheel = false;
-
+#if SteamVR_Legacy
     public SteamVR_TrackedObject trackedObj1;
     public SteamVR_TrackedObject trackedObj2;
+#elif SteamVR_2
+    public SteamVR_Behaviour_Pose trackedObj1;
+    public SteamVR_Behaviour_Pose trackedObj2;
+#endif
+
+    public bool spindleAndWheel = false;
     public GameObject interactionObject;
 
-    // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update () {
         setPositionOfInteraction();
 
     }

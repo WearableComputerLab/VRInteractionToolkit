@@ -25,12 +25,16 @@ using Valve.VR;
 
 // Must be parented to a steam controller to can access controls to change size
 
-public class Flashlight : MonoBehaviour
-{
-    public GameObject objectAttachedTo;
+public class Flashlight : MonoBehaviour {
 
+#if SteamVR_Legacy
     public SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device device;
+#elif SteamVR_2
+    public SteamVR_Behaviour_Pose trackedObj;
+#endif
+
+    public GameObject objectAttachedTo;
 
     public float transparency = 0.5f;
     public Color theColor = new Color(1f, 1f, 1f, 1f);
@@ -38,8 +42,7 @@ public class Flashlight : MonoBehaviour
     public float resizeSpeed = 0.01f;
 
     // Use this for initialization
-    void Start()
-    {
+    void Start() {
         // Mesh render wasnt enabled outside of game so as not to be annoying. Must now enable
         this.GetComponent<Renderer>().enabled = true;
 
@@ -50,14 +53,14 @@ public class Flashlight : MonoBehaviour
         this.transform.localPosition = new Vector3(0, 0, 0);
 
         // Translates the cone so that whatever size it is as long as it is at position 0,0,0 if contoller it will jump to the origin point for flashlight
-        translateConeDistanceAlongForward(this.GetComponent<Renderer>().bounds.size.z/2f);
-
+        translateConeDistanceAlongForward(this.GetComponent<Renderer>().bounds.size.z / 2f);
+#if SteamVR_Legacy
         device = SteamVR_Controller.Input((int)trackedObj.index);
+#endif
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
         checkForInput();
 
         //this.transform.position = objectAttachedTo.transform.position;
@@ -67,15 +70,14 @@ public class Flashlight : MonoBehaviour
     }
 
     void translateConeDistanceAlongForward(float theDistance) {
-        
-        this.transform.position = this.transform.position+trackedObj.transform.forward*theDistance;
+
+        this.transform.position = this.transform.position + trackedObj.transform.forward * theDistance;
     }
 
-    void checkForInput()
-    {
+    void checkForInput() {
         return;
         //Dont allow size to change if object is in hand - check by getting child object
-        device = SteamVR_Controller.Input((int)trackedObj.index);
+        /*device = SteamVR_Controller.Input((int)trackedObj.index);
         FlashlightSelection childSelector = this.transform.GetComponent<FlashlightSelection>();
         if (!childSelector.holdingObject())
         {
@@ -110,6 +112,6 @@ public class Flashlight : MonoBehaviour
                     //this.transform.localPosition = anchorPoint;
                 }     
             }
-        }
+        }*/
     }
 }

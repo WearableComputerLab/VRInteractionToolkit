@@ -21,7 +21,7 @@ public class SquadMenu : MonoBehaviour {
     private bool quadrantPicked = false;
     private Transform[] TriangleQuadrant = new Transform[4];
 	public bool enableText = false;
-
+    internal SphereCasting sphereCasting;
     public List<GameObject> selectableObjects = new List<GameObject>();
 
     private void destroyChildGameObjects() {
@@ -93,10 +93,10 @@ public class SquadMenu : MonoBehaviour {
     private GameObject lastPickedObject;
     private Material oldPickedObjectMaterial;
 
-    public void selectObject(SteamVR_Controller.Device controller, GameObject obj) {
+    public void selectObject(GameObject obj) {
         //print("picked object:" + pickedObject);
         quadrantPicked = true;
-        if(controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && quadrantIsPicked() == true) {
+        if(sphereCasting.controllerEvents() == SphereCasting.ControllerState.TRIGGER_DOWN && quadrantIsPicked() == true) {
         //if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && quadrantIsPicked() == true && pickedObject == null && obj.transform.parent == panel.transform && !obj.name.Contains("TriangleQuad")) {
             //disableSQUAD();
             //pickedObject = obj;
@@ -118,7 +118,7 @@ public class SquadMenu : MonoBehaviour {
 
     }
 
-    public void refineQuad(SteamVR_Controller.Device controller, GameObject obj) {
+    public void refineQuad(GameObject obj) {
         int val = 0;
         int count = 0;
         if (obj.name == "TriangleQuad North") {
@@ -140,7 +140,7 @@ public class SquadMenu : MonoBehaviour {
         print("----- REFINING QUAD -----");
         print(count);
         if(count == 1) {
-            selectObject(controller, quadObjs[0]);
+            selectObject(quadObjs[0]);
         } else {
 			initialLoop = true;
             generate2DObjects(quadObjs);
@@ -163,9 +163,9 @@ public class SquadMenu : MonoBehaviour {
     }
 
 
-    public void enableSQUAD(SteamVR_Controller.Device controller, SteamVR_TrackedObject trackedObj, List<GameObject> obj) {
-        if (trackedObj != null) {
-            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+    public void enableSQUAD(List<GameObject> obj) {
+        if (sphereCasting.trackedObj != null) {
+            if (sphereCasting.controllerEvents() == SphereCasting.ControllerState.TRIGGER_DOWN && pickedUpObject == false) {
                 print("EnableSquad() called");
                 SphereCasting.inMenu = true;
                 panel.SetActive(true);
@@ -181,7 +181,7 @@ public class SquadMenu : MonoBehaviour {
 
     private GameObject lastQuad;
     private Material oldMaterial;
-    public void hoverQuad(SteamVR_Controller.Device controller, GameObject obj) {
+    public void hoverQuad(GameObject obj) {
         //print("obj contians:"+obj.name.Contains("TriangleQuad"));
         if(obj.name.Contains("TriangleQuad") && isActive() == true) {
             if(lastQuad == null) {
@@ -194,17 +194,17 @@ public class SquadMenu : MonoBehaviour {
                     obj.transform.GetComponent<Renderer>().material = quadrantMaterial;
                     lastQuad = obj;
                 }
-                if(controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+                if(sphereCasting.controllerEvents() == SphereCasting.ControllerState.TRIGGER_DOWN) {
                     print("Quad selected:" + obj.name);
-                    refineQuad(controller, obj);
+                    refineQuad(obj);
                 }
             }
         }
     }
 
 
-    public void selectQuad(SteamVR_Controller.Device controller, GameObject obj) {
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+    public void selectQuad(GameObject obj) {
+        if (sphereCasting.controllerEvents() == SphereCasting.ControllerState.TRIGGER_DOWN) {
             if (obj.name.Contains("TriangleQuad") && isActive() == true && quadrantPicked == false) {
                 Renderer rend = obj.transform.GetComponent<Renderer>();
                 //rend.material.color = Color.blue;

@@ -26,11 +26,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class ARMLaser : MonoBehaviour {
-	public LayerMask interactionLayers;
 
+#if SteamVR_Legacy
     private SteamVR_TrackedObject trackedObj;
+
+    private SteamVR_Controller.Device Controller {
+        get {
+            return SteamVR_Controller.Input((int)trackedObj.index);
+        }
+    }
+
+#elif SteamVR_2
+    private SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_controllerPress;
+    public SteamVR_Action_Boolean m_touchpadPress;
+#endif
+
+    public LayerMask interactionLayers;
+
     public GameObject theController;
     public GameObject laserPrefab;
     private GameObject laser;
@@ -49,28 +65,22 @@ public class ARMLaser : MonoBehaviour {
 
     public GameObject currentlyPointingAt;
 
-	public UnityEvent selectedObject; // Invoked when an object is selected
-	public UnityEvent hovered; // Invoked when an object is hovered by technique
-	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+    public UnityEvent selectedObject; // Invoked when an object is selected
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
 
     // Using the hack from gogo shadow - will have to fix them all once find a better way
-    void makeModelChild()
-    {
-        if (this.transform.childCount == 0)
-        {
-            if (theModel.GetComponent<SteamVR_RenderModel>() != null)
-            { // The steamVR_RenderModel is generated after code start so we cannot parent right away or it wont generate. 
-                if (theModel.transform.childCount > 0)
-                {
+    void makeModelChild() {
+        if (this.transform.childCount == 0) {
+            if (theModel.GetComponent<SteamVR_RenderModel>() != null) { // The steamVR_RenderModel is generated after code start so we cannot parent right away or it wont generate. 
+                if (theModel.transform.childCount > 0) {
                     theModel.transform.parent = this.transform;
                     // Due to the transfer happening at a random time down the line we need to re-align the model inside the shadow controller to 0 so nothing is wonky.
                     theModel.transform.localPosition = Vector3.zero;
                     theModel.transform.localRotation = Quaternion.identity;
                 }
-            }
-            else
-            {
+            } else {
                 // If it is just a custom model we can immediately parent
                 theModel.transform.parent = this.transform;
                 // Due to the transfer happening at a random time down the line we need to re-align the model inside the shadow controller to 0 so nothing is wonky.
@@ -80,42 +90,34 @@ public class ARMLaser : MonoBehaviour {
         }
     }
 
-    private void ShowLaser(RaycastHit hit)
-    {
+    private void ShowLaser(RaycastHit hit) {
         laser.SetActive(true);
         laserTransform.position = Vector3.Lerp(this.transform.position, hitPoint, .5f);
         laserTransform.LookAt(hitPoint);
         laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y,
             hit.distance);
 
-        
+
         // highlighting the object
-		if(interactionLayers == (interactionLayers | (1 << hit.transform.gameObject.layer)))
-        {
-            if (currentlyPointingAt == null)
-            {
+        if (interactionLayers == (interactionLayers | (1 << hit.transform.gameObject.layer))) {
+            if (currentlyPointingAt == null) {
                 // no object previouslly was highlighted so just highlight this one
                 currentlyPointingAt = hit.transform.gameObject;
                 hovered.Invoke();
-            }
-            else if (hit.transform.gameObject != currentlyPointingAt)
-            {
+            } else if (hit.transform.gameObject != currentlyPointingAt) {
                 // unhighlight previous one and highlight this one
                 unHovered.Invoke();
                 currentlyPointingAt = hit.transform.gameObject;
                 hovered.Invoke();
             }
-        } else
-        {
+        } else {
             unHovered.Invoke();
         }
     }
 
-    private void ShowLaser()
-    {
+    private void ShowLaser() {
         // removing highlight from previously highlighted object
-        if (currentlyPointingAt != null)
-        {
+        if (currentlyPointingAt != null) {
             // remove highlight from previously highlighted object 
             unHovered.Invoke();
             currentlyPointingAt = null;
@@ -137,18 +139,16 @@ public class ARMLaser : MonoBehaviour {
            100);
     }
 
-    private SteamVR_Controller.Device Controller
-    {
-        get { return SteamVR_Controller.Input((int)trackedObj.index); }
-    }
-
-    void Awake()
-    {
+    void Awake() {
+#if SteamVR_Legacy
         trackedObj = theController.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+        trackedObj = theController.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
     }
 
     // Use this for initialization
-    void Start () {
+    void Start() {
 
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
@@ -158,70 +158,82 @@ public class ARMLaser : MonoBehaviour {
         lastPosition = trackedObj.transform.position;
     }
 
-    void toggleARM()
-    {
-        if(!ARMOn)
-        {
+    void toggleARM() {
+        if (!ARMOn) {
             lastDirectionPointing = trackedObj.transform.forward;
             lastRotation = trackedObj.transform.rotation;
             lastPosition = trackedObj.transform.position;
         }
         ARMOn = !ARMOn;
     }
-	
-    void updatePositionAndRotationToFollowController()
-    {
+
+    void updatePositionAndRotationToFollowController() {
         this.transform.position = trackedObj.transform.position;
         Quaternion rotationOfDevice = trackedObj.transform.rotation;
-        if (ARMOn)
-        {
+        if (ARMOn) {
 
             // scaled down by factor of 10
             this.transform.rotation = Quaternion.Lerp(lastRotation, trackedObj.transform.rotation, 0.1f);
             this.transform.position = Vector3.Lerp(lastPosition, trackedObj.transform.position, 0.1f);
             print("On");
-        } else
-        {
+        } else {
             this.transform.rotation = trackedObj.transform.rotation;
             this.transform.position = trackedObj.transform.position;
         }
     }
 
-	// Update is called once per frame
-	void Update () {
+    public enum ControllerState {
+        TRIGGER_DOWN, TOUCHPAD_DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (Controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad)) {
+            return ControllerState.TOUCHPAD_DOWN;
+        }
+        if (Controller.GetHairTriggerDown()) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (m_touchpadPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TOUCHPAD_DOWN;
+        }
+#endif
+        return ControllerState.NONE;
+    }
+
+    // Update is called once per frame
+    void Update() {
         makeModelChild();
         updatePositionAndRotationToFollowController();
-        
+
         RaycastHit hit;
-        if (Physics.Raycast(this.transform.position, this.transform.forward, out hit, 100))
-        {
+        if (Physics.Raycast(this.transform.position, this.transform.forward, out hit, 100)) {
             hitPoint = hit.point;
             ShowLaser(hit);
-        }
-        else
-        {
+        } else {
             ShowLaser();
         }
 
-        if (Controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
-        {
+        if (controllerEvents() == ControllerState.TOUCHPAD_DOWN) {
             toggleARM();
         }
 
         // If remote trigger pulled
-        if(Controller.GetHairTriggerDown()) {
-            if(currentlyPointingAt != null) { // If pointing at an object
-                if(interactionType == InteractionType.Selection) 
-                {
+        if (controllerEvents() == ControllerState.TRIGGER_DOWN) {
+            if (currentlyPointingAt != null) { // If pointing at an object
+                if (interactionType == InteractionType.Selection) {
                     lastSelectedObject = currentlyPointingAt;
-                } else if (interactionType == InteractionType.Manipulation) 
-                {
+                } else if (interactionType == InteractionType.Manipulation) {
                     // No manipualtion implemented for this currently
                     lastSelectedObject = currentlyPointingAt;
                 }
                 selectedObject.Invoke();
             }
         }
-        
+
     }
 }

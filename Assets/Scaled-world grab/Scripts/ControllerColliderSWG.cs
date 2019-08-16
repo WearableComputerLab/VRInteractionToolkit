@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class ControllerColliderSWG : MonoBehaviour {
 
@@ -26,7 +27,7 @@ public class ControllerColliderSWG : MonoBehaviour {
         print(col.transform.name);
         if(scaledWorldGrab.objSelected && col.gameObject == scaledWorldGrab.selectedObject) {
 
-            if(scaledWorldGrab.controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && scaledWorldGrab.objectGrabbed == false) {
+            if(scaledWorldGrab.controllerEvents() == ScaledWorldGrab.ControllerState.TRIGGER_DOWN && scaledWorldGrab.objectGrabbed == false) {
                 scaleSelected = scaledWorldGrab.selectedObject;
                 unHovered.Invoke();
                 selectedObject.Invoke();
@@ -66,7 +67,7 @@ public class ControllerColliderSWG : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if(scaledWorldGrab.controller.GetHairTriggerUp()) {
+        if(scaledWorldGrab.controllerEvents() == ScaledWorldGrab.ControllerState.TRIGGER_UP) {
             if(scaleSelected != null) {
                 print("scale selected: " + scaleSelected);
                 scaleSelected.gameObject.transform.SetParent(null);

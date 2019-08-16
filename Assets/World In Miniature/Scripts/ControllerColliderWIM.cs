@@ -39,7 +39,7 @@ public class ControllerColliderWIM : MonoBehaviour {
     private void OnTriggerStay(Collider col) {
 		if(col.gameObject.layer == Mathf.Log(worldInMin.interactableLayer.value, 2)) {
             //Debug.Log("You have collided with " + col.name + " and activated OnTriggerStay");
-            if (worldInMin.controllerO.GetPress(SteamVR_Controller.ButtonMask.Trigger) && worldInMin.objectPicked == false) {
+            if (worldInMin.controllerEvents() == WorldInMiniature.ControllerState.TRIGGER_PRESS && worldInMin.objectPicked == false) {
                 Debug.Log("You have collided with " + col.name + " while holding down Touch");
                 if (worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Movement) {
 					listOfChildrenR.Clear();
@@ -61,7 +61,7 @@ public class ControllerColliderWIM : MonoBehaviour {
                     this.GetComponent<SelectionManipulation>().selectedObject = col.gameObject;
                 }
             }
-            if(worldInMin.controllerO.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && worldInMin.objectPicked == true) {
+            if(worldInMin.controllerEvents() == WorldInMiniature.ControllerState.TRIGGER_UP && worldInMin.objectPicked == true) {
                 worldInMin.currentObjectCollided = null;
 
                 if(worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Movement) {

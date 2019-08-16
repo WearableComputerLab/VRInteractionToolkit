@@ -2,17 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class GrabObject : MonoBehaviour {
-    
-	public LayerMask interactionLayers;
+#if SteamVR_Legacy
+    public SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device Controller {
+        get {
+            return SteamVR_Controller.Input((int)trackedObj.index);
+        }
+    }
+#elif SteamVR_2
+    public SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_controllerPress;
+#endif
 
-     // Allows to choose if the script purley selects or has full manipulation
+    public LayerMask interactionLayers;
+
+    // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
     public InteractionType interactionType;
     public GameObject selection = null; // holds the selected object
 
-    public SteamVR_TrackedObject trackedObj;
     public GameObject collidingObject;
     private GameObject objectInHand;
 
@@ -22,32 +33,21 @@ public class GrabObject : MonoBehaviour {
     public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
 
-
-    private SteamVR_Controller.Device Controller
-    {
-        get { return SteamVR_Controller.Input((int)trackedObj.index); }
-    }
-
-    void OnEnable()
-    {
+    void OnEnable() {
         var render = SteamVR_Render.instance;
-        if (render == null)
-        {
+        if (render == null) {
             enabled = false;
             return;
         }
     }
 
-    void Awake()
-    {
+    void Awake() {
         //trackedObj = GetComponent<SteamVR_TrackedObject>();
     }
 
-    private void SetCollidingObject(Collider col)
-    {
+    private void SetCollidingObject(Collider col) {
 
-        if (collidingObject || !col.GetComponent<Rigidbody>())
-        {
+        if (collidingObject || !col.GetComponent<Rigidbody>()) {
             return;
         }
 
@@ -55,38 +55,31 @@ public class GrabObject : MonoBehaviour {
     }
 
 
-    public void OnTriggerEnter(Collider other)
-    {
+    public void OnTriggerEnter(Collider other) {
         SetCollidingObject(other);
-		if(interactionLayers == (interactionLayers | (1 << other.gameObject.layer)) && objectInHand == null)
-        {
+        if (interactionLayers == (interactionLayers | (1 << other.gameObject.layer)) && objectInHand == null) {
             hovered.Invoke();
         }
     }
 
 
-    public void OnTriggerStay(Collider other)
-    {
+    public void OnTriggerStay(Collider other) {
         SetCollidingObject(other);
     }
 
 
-    public void OnTriggerExit(Collider other)
-    {
-        if (!collidingObject)
-        {
+    public void OnTriggerExit(Collider other) {
+        if (!collidingObject) {
             return;
         }
-		if(interactionLayers == (interactionLayers | (1 << other.gameObject.layer)))
-        {
+        if (interactionLayers == (interactionLayers | (1 << other.gameObject.layer))) {
             unHovered.Invoke();
         }
-        
+
         collidingObject = null;
     }
 
-    private void pickUpObject()
-    {       
+    private void pickUpObject() {
         objectInHand = collidingObject;
 
         collidingObject = null;
@@ -95,38 +88,61 @@ public class GrabObject : MonoBehaviour {
         joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
     }
 
-    private FixedJoint AddFixedJoint()
-    {
+    private FixedJoint AddFixedJoint() {
         FixedJoint fx = gameObject.AddComponent<FixedJoint>();
         fx.breakForce = 20000;
         fx.breakTorque = 20000;
         return fx;
     }
 
-    private void ReleaseObject()
-    {
+    private void ReleaseObject() {
 
-        if (GetComponent<FixedJoint>())
-        {
- 
+        if (GetComponent<FixedJoint>()) {
+
             GetComponent<FixedJoint>().connectedBody = null;
             Destroy(GetComponent<FixedJoint>());
-       
+#if SteamVR_Legacy
             objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
             objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
+#elif SteamVR_2
+            objectInHand.GetComponent<Rigidbody>().velocity = trackedObj.GetVelocity();
+            objectInHand.GetComponent<Rigidbody>().angularVelocity = trackedObj.GetAngularVelocity();
+#endif
+
         }
-  
+
         objectInHand = null;
     }
 
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (Controller.GetHairTriggerDown()) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (Controller.GetHairTriggerUp()) {
+            return ControllerState.TRIGGER_UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#endif
+        return ControllerState.NONE;
+    }
+
     // Update is called once per frame
-    void Update () {
-        if (Controller.GetHairTriggerDown())
-        {
-			if (collidingObject && interactionLayers == (interactionLayers | (1 << collidingObject.gameObject.layer)))
-            {
+    void Update() {
+        if (controllerEvents() == ControllerState.TRIGGER_DOWN) {
+            if (collidingObject && interactionLayers == (interactionLayers | (1 << collidingObject.gameObject.layer))) {
                 selectedObject.Invoke();
-                if(interactionType == InteractionType.Selection) {
+                if (interactionType == InteractionType.Selection) {
                     // Pure selection
                     print("selected " + collidingObject);
                     selection = collidingObject;
@@ -135,14 +151,12 @@ public class GrabObject : MonoBehaviour {
                     pickUpObject();
                     selection = collidingObject;
                 }
-                
+
             }
         }
 
-        if (Controller.GetHairTriggerUp())
-        {
-            if (objectInHand)
-            {
+        if (controllerEvents() == ControllerState.TRIGGER_UP) {
+            if (objectInHand) {
                 ReleaseObject();
             }
         }

@@ -1,10 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR;
 
 public class PRISM : MonoBehaviour {
-
+#if SteamVR_Legacy
     private SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device Controller
+    {
+        get { return SteamVR_Controller.Input((int)trackedObj.index); }
+    }
+#elif SteamVR_2
+    private SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_touchpadPress;
+#endif
+
+
     public GameObject theController;
     public GameObject laserPrefab;
     private GameObject laser;
@@ -95,14 +106,14 @@ public class PRISM : MonoBehaviour {
            100);
     }
 
-    private SteamVR_Controller.Device Controller
-    {
-        get { return SteamVR_Controller.Input((int)trackedObj.index); }
-    }
-
     void Awake()
     {
+#if SteamVR_Legacy
         trackedObj = theController.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+        trackedObj = theController.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
+
     }
 
     // Use this for initialization
@@ -145,8 +156,25 @@ public class PRISM : MonoBehaviour {
         }
     }
 
-	// Update is called once per frame
-	void Update () {
+    public enum ControllerState {
+        TOUCHPADDOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (Controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad)){
+            return ControllerState.TOUCHPADDOWN;
+        }
+#elif SteamVR_2
+        if (m_touchpadPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TOUCHPADDOWN;
+        }
+#endif
+        return ControllerState.NONE;
+    }
+
+    // Update is called once per frame
+    void Update () {
         makeModelChild();
         updatePositionAndRotationToFollowController();
         
@@ -161,7 +189,7 @@ public class PRISM : MonoBehaviour {
             ShowLaser();
         }
 
-        if (Controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
+        if (controllerEvents() == ControllerState.TOUCHPADDOWN)
         {
             toggleARM();
         }

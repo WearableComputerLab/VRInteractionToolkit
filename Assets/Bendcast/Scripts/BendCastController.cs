@@ -26,6 +26,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR;
 
 [ExecuteInEditMode]
 public class BendCastController : MonoBehaviour {
@@ -38,9 +39,29 @@ public class BendCastController : MonoBehaviour {
         if((cast = this.GetComponent<BendCast>()) != null) {
             if(cast.leftController == null && cast.rightController == null) {
                 // Locates the camera rig and its child controllers
-                SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
-                cast.leftController = CameraRigObject.left;
-                cast.rightController = CameraRigObject.right;
+                GameObject leftController = null, rightController = null;
+#if SteamVR_Legacy
+        // Locates the camera rig and its child controllers
+        SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
+        leftController = CameraRigObject.left;
+        rightController = CameraRigObject.right;
+
+        cast.leftController = leftController;
+        cast.rightController = rightController;
+#elif SteamVR_2
+        SteamVR_Behaviour_Pose[] controllers = FindObjectsOfType<SteamVR_Behaviour_Pose>();
+        if (controllers.Length > 1) {
+            leftController = controllers[0].inputSource.ToString() == "LeftHand" ? controllers[0].gameObject : controllers[1].inputSource.ToString() == "LeftHand" ? controllers[1].gameObject : null;
+            rightController = controllers[0].inputSource.ToString() == "RightHand" ? controllers[0].gameObject : controllers[1].inputSource.ToString() == "RightHand" ? controllers[1].gameObject : null;
+        } else if (controllers.Length == 1) {
+            leftController = controllers[0].inputSource.ToString() == "LeftHand" ? controllers[0].gameObject : null;
+            rightController = controllers[0].inputSource.ToString() == "RightHand" ? controllers[0].gameObject : null;
+        } else {
+            return;
+        }
+        cast.leftController = leftController;
+        cast.rightController = rightController;
+#endif
             }
         }
     }

@@ -4,6 +4,7 @@ using System;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
+using Valve.VR;
 
 public class BubbleCursor2D : MonoBehaviour {
 

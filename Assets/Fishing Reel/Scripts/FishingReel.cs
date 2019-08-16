@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class FishingReel : MonoBehaviour {
 
@@ -8,16 +9,22 @@ public class FishingReel : MonoBehaviour {
      * 
      * */
 
+#if SteamVR_Legacy
+    private SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device controller;
+#elif SteamVR_2
+    public SteamVR_Action_Boolean m_controllerPress;
+    public SteamVR_Action_Boolean m_applicationMenu;
+    public SteamVR_Action_Boolean m_touchpad;
+    public SteamVR_Action_Vector2 m_touchpadAxis;
+    private SteamVR_Behaviour_Pose trackedObj;
+#endif
+
     public LayerMask interactionLayers;
 
     public GameObject controllerRight = null;
     public GameObject controllerLeft = null;
-#if SteamVR_Legacy
-    private SteamVR_TrackedObject trackedObj;
-#elif SteamVR_2
-    errors aren't visible to script..
-#endif
-    private SteamVR_Controller.Device controller;
+
 
     public GameObject laserPrefab;
     private GameObject laser;
@@ -25,7 +32,10 @@ public class FishingReel : MonoBehaviour {
     private Vector3 hitPoint;
     private GameObject mirroredCube;
 
-    public enum InteractionType {Selection, Manipulation_Movement, Manipulation_Full};
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public enum ControllerState {
+        UP, DOWN, NONE
+    }
     public InteractionType interacionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
@@ -37,8 +47,8 @@ public class FishingReel : MonoBehaviour {
 
     public UnityEvent droppedObject; // Invoked when object is dropped
 
-	public UnityEvent hovered; // Invoked when an object is hovered by technique
-	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     private void ShowLaser(RaycastHit hit) {
         mirroredCube.SetActive(false);
@@ -53,7 +63,26 @@ public class FishingReel : MonoBehaviour {
         mirroredCube.SetActive(true);
     }
 
-    private Valve.VR.EVRButtonId trigger = Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger;
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.DOWN;
+        }
+        if (controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.UP;
+        }
+
+#endif
+
+        return ControllerState.NONE;
+    }
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     public GameObject lastSelectedObject;
@@ -62,14 +91,14 @@ public class FishingReel : MonoBehaviour {
             // object is wrong layer so return immediately 
             return;
         }
-        if(lastSelectedObject != obj) {
+        if (lastSelectedObject != obj) {
             // is a different object from the currently highlighted so unhover
             unHovered.Invoke();
         }
         hovered.Invoke();
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
-            if (controller.GetPressDown(trigger) && pickedUpObject == false) {
+            if (controllerEvents() == ControllerState.DOWN && pickedUpObject == false) {
                 if (interacionType == InteractionType.Manipulation_Movement) {
                     obj.transform.SetParent(trackedObj.transform);
                     extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
@@ -85,13 +114,13 @@ public class FishingReel : MonoBehaviour {
                 }
                 selectedObject.Invoke();
             }
-            if (controller.GetPressUp(trigger) && pickedUpObject == true) {
+            if (controllerEvents() == ControllerState.UP && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement) {
                     lastSelectedObject.transform.SetParent(null);
                     pickedUpObject = false;
                     droppedObject.Invoke();
                 }
-                objectSelected = false;               
+                objectSelected = false;
             }
         }
     }
@@ -104,10 +133,18 @@ public class FishingReel : MonoBehaviour {
             return;
         }
         Vector3 controllerPos = trackedObj.transform.forward;
+#if SteamVR_Legacy
         if (controller.GetAxis().y != 0) {
             extendDistance += controller.GetAxis().y / reelSpeed;
             reelObject(obj);
         }
+#elif SteamVR_2
+
+        if (m_touchpadAxis.GetAxis(trackedObj.inputSource).y != 0) {
+            extendDistance += m_touchpadAxis.GetAxis(trackedObj.inputSource).y / reelSpeed;
+            reelObject(obj);
+        }
+#endif
     }
 
     void reelObject(GameObject obj) {
@@ -140,14 +177,17 @@ public class FishingReel : MonoBehaviour {
 
     private void initializeControllers() {
         if (controllerPicked == ControllerPicked.Right_Controller) {
-            print(controllerRight);
 #if SteamVR_Legacy
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
 #elif SteamVR_2
-            trackedObj = controllerRight.GetComponent<SteamVR_TrackedController>(); .. etc
+            trackedObj = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
 #endif
         } else if (controllerPicked == ControllerPicked.Left_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
@@ -159,11 +199,14 @@ public class FishingReel : MonoBehaviour {
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         initializeControllers();
         if (interacionType == InteractionType.Manipulation_Full) {
-
-            //this.gameObject.AddComponent<ColorPicker>();
-            //this.GetComponent<ColorPicker>().trackedObj = trackedObj;
             this.gameObject.AddComponent<SelectionManipulation>();
             this.GetComponent<SelectionManipulation>().trackedObj = trackedObj;
+#if SteamVR_2
+            this.GetComponent<SelectionManipulation>().m_controllerPress = m_controllerPress;
+            this.GetComponent<SelectionManipulation>().m_touchpad = m_touchpad;
+            this.GetComponent<SelectionManipulation>().m_touchpadAxis = m_touchpadAxis;
+            this.GetComponent<SelectionManipulation>().m_applicationMenu = m_applicationMenu;
+#endif
             manipulationIcons = GameObject.Find("Manipulation_Icons");
             this.GetComponent<SelectionManipulation>().manipulationIcons = manipulationIcons;
         }
@@ -177,17 +220,18 @@ public class FishingReel : MonoBehaviour {
     }
 
     void Update() {
+#if SteamVR_Legacy
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+#endif
         mirroredObject();
         ShowLaser();
-        Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             hitPoint = hit.point;
-                PickupObject(hit.transform.gameObject);
-                if (pickedUpObject == true && lastSelectedObject == hit.transform.gameObject) {
-                    PadScrolling(hit.transform.gameObject);
-                }
+            PickupObject(hit.transform.gameObject);
+            if (pickedUpObject == true && lastSelectedObject == hit.transform.gameObject) {
+                PadScrolling(hit.transform.gameObject);
+            }
             ShowLaser(hit);
         }
     }

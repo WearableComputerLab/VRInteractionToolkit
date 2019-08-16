@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class ControllerColliderVH : MonoBehaviour {
 
@@ -16,6 +17,31 @@ public class ControllerColliderVH : MonoBehaviour {
 
     public GameObject scaleSelected = null;
 
+    public enum ControllerState {
+        UP, DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (simpleVirtualHand.controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger)) {
+            return ControllerState.DOWN;
+        }
+        if (simpleVirtualHand.controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger)) {
+            return ControllerState.DOWN;
+        }
+#elif SteamVR_2
+        if (simpleVirtualHand.m_controllerPress.GetStateDown(simpleVirtualHand.trackedObj.inputSource)) {
+            return ControllerState.DOWN;
+        }
+        if (simpleVirtualHand.m_controllerPress.GetStateUp(simpleVirtualHand.trackedObj.inputSource)) {
+            return ControllerState.UP;
+        }
+
+#endif
+
+        return ControllerState.NONE;
+    }
+
     private void OnTriggerStay(Collider col) {
         this.interactionLayers = simpleVirtualHand.interactionLayers;
         if(!isInteractionlayer(col.gameObject)) {
@@ -23,7 +49,7 @@ public class ControllerColliderVH : MonoBehaviour {
             print("returning");
             return;
         }
-        if(simpleVirtualHand.controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && simpleVirtualHand.objectGrabbed == false) {
+        if(controllerEvents() == ControllerState.DOWN && simpleVirtualHand.objectGrabbed == false) {
             scaleSelected = simpleVirtualHand.selectedObject;
             unHovered.Invoke();
             selectedObject.Invoke();
@@ -36,7 +62,7 @@ public class ControllerColliderVH : MonoBehaviour {
                 print("Selected object in pure selection mode:" + col.gameObject.name);
                 return;
             }
-        } else if(simpleVirtualHand.controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && simpleVirtualHand.objectGrabbed == true) {
+        } else if(controllerEvents() == ControllerState.DOWN && simpleVirtualHand.objectGrabbed == true) {
             simpleVirtualHand.selectedObject.gameObject.transform.SetParent(null);
             print("Object dropped..");
             simpleVirtualHand.objectGrabbed = false;

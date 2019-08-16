@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class StressTest : MonoBehaviour {
-
+    /*
     public int ObjectsSpawnCount = 50;
     private int objectsSpawned = 0;
     private SteamVR_TrackedObject trackedObj;
@@ -49,5 +49,5 @@ public class StressTest : MonoBehaviour {
         device = SteamVR_Controller.Input((int)trackedObj.index);
         spawnObjects();
 
-    }
+    }*/
 }

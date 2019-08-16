@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class BubbleSelection : MonoBehaviour {
-
+#if SteamVR_Legacy
+    private SteamVR_Controller.Device controller;
+    internal SteamVR_TrackedObject trackedObj;
+#elif SteamVR_2
+    internal SteamVR_Behaviour_Pose trackedObj;
+#endif
     internal List<GameObject> selectableObjects = new List<GameObject>();
-    //private List<GameObject> pickedObjects = new List<GameObject>();
 
     private GameObject[] pickedObjects;
     private BubbleCursor3D bubbleCursor;
@@ -27,7 +32,7 @@ public class BubbleSelection : MonoBehaviour {
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     private GameObject tempObjectStored;
-    private SteamVR_Controller.Device controller;
+
     private GameObject pickedObj2D = null;
     private GameObject pickedObj = null;
     private int imageSlots = 0;
@@ -66,10 +71,6 @@ public class BubbleSelection : MonoBehaviour {
             pickedObj2D.transform.localPosition = new Vector3(posX, posY, 0f);
         }
     }
-
-    private SteamVR_TrackedObject trackedObj;
-
-
 
     void Awake() {
         panel = GameObject.Find("2DBubbleCursor_Panel");
@@ -117,7 +118,7 @@ public class BubbleSelection : MonoBehaviour {
     }
 
     public void disableMenuOnTrigger() {
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && inBubbleSelection == true) {
+        if (bubbleCursor.controllerEvents() == BubbleCursor3D.ControllerState.TRIGGER_DOWN && inBubbleSelection == true) {
             clearList();
             destroyChildGameObjects();
             pickedObjects = null;
@@ -132,11 +133,10 @@ public class BubbleSelection : MonoBehaviour {
         }
     }
 
-    public void enableMenu(SteamVR_Controller.Device myController, SteamVR_TrackedObject myTrackedObj, List<GameObject> obj) {
-        if (myTrackedObj != null) {
-            if (myController.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && inBubbleSelection == false) {
+    public void enableMenu(List<GameObject> obj) {
+        if (trackedObj != null) {
+            if (bubbleCursor.controllerEvents() == BubbleCursor3D.ControllerState.TRIGGER_DOWN && inBubbleSelection == false) {
                 print("size:" + obj.Count);
-                trackedObj = myTrackedObj;
                 panel.SetActive(true);
                 bubbleCursor.cursor.SetActive(false);
                 inBubbleSelection = true;
@@ -203,7 +203,9 @@ public class BubbleSelection : MonoBehaviour {
     private void Update() {
         if (inBubbleSelection == true) {
             if (trackedObj != null) {
+#if SteamVR_Legacy
                 controller = SteamVR_Controller.Input((int)trackedObj.index);
+#endif
                 moveCursor();
             }
             if (pickedObjects != null) {

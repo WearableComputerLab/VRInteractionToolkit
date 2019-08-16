@@ -2,8 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class ImagePlane_StickyHand : MonoBehaviour {
+
+#if SteamVR_Legacy
+    private SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device controller;
+#elif SteamVR_2
+    private SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_controllerPress;
+#endif
+
     internal bool objSelected = false;
     public GameObject cameraHead;
     public GameObject cameraRig;
@@ -20,8 +30,6 @@ public class ImagePlane_StickyHand : MonoBehaviour {
     public GameObject controllerRight = null;
     public GameObject controllerLeft = null;
 
-    private SteamVR_TrackedObject trackedObj;
-    private SteamVR_Controller.Device controller;
     public GameObject laserPrefab;
     private GameObject laser;
     private Transform laserTransform;
@@ -140,11 +148,34 @@ void checkSurroundingObjects()
         cameraRig.transform.localPosition = new Vector3(0f, 0f, 0f);
     }
 
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#endif
+        return ControllerState.NONE;
+    }
+
     private Material oldMaterial;
 
     public void PickupObject(GameObject obj) {
         if (trackedObj != null) {
-            if(controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && objSelected == false) {
+            if(controllerEvents() == ControllerState.TRIGGER_DOWN && objSelected == false) {
                 if(interacionType == InteractionType.Manipulation_Movement) {
                     selectedObject = obj;
                     oldParent = obj.transform.parent;
@@ -164,7 +195,7 @@ void checkSurroundingObjects()
                     //obj.transform.GetComponent<Renderer>().material = outlineMaterial;
 
                 }
-            } else if(controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && objSelected == true) {
+            } else if(controllerEvents() == ControllerState.TRIGGER_DOWN && objSelected == true) {
                 if(interacionType == InteractionType.Manipulation_Movement) {
                     //print("reset.."+oldParent+" | obj:"+ selectedObject);
                     selectedObject.transform.SetParent(oldParent);
@@ -226,7 +257,26 @@ void checkSurroundingObjects()
         mirroredCube.transform.position = mirroredPos;
         mirroredCube.transform.rotation = pointOfInteraction.transform.rotation;
     }
-     
+
+    private void initializeControllers() {
+        if (controllerPicked == ControllerPicked.Right_Controller) {
+#if SteamVR_Legacy
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
+        } else if (controllerPicked == ControllerPicked.Left_Controller) {
+#if SteamVR_Legacy
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
+        } else {
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
+
+    }
 
     void Awake() {
 
@@ -234,14 +284,7 @@ void checkSurroundingObjects()
         //cameraRig = GameObject.Find("[CameraRig]");
         pointOfInteraction = this.transform.Find("InteractionPoint").gameObject;
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
-        if (controllerPicked == ControllerPicked.Right_Controller) {
-            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
-        } else if (controllerPicked == ControllerPicked.Left_Controller) {
-            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
-        } else {
-            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
-            Application.Quit();
-        }
+        initializeControllers();
     }
 
     void Start() {
@@ -272,8 +315,9 @@ void checkSurroundingObjects()
     }
 
     void Update() {
-        
+#if SteamVR_Legacy
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+#endif
         //if (objSelected == false) {
         castRay();
     }

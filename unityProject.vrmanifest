@@ -1,0 +1,16 @@
+{
+  "source": "Unity",
+  "applications": [
+    {
+      "app_key": "application.generated.unity.steamvr.exe",
+      "launch_type": "url",
+      "url": "steam://launch/",
+      "action_manifest_path": "C:\\Users\\Kieran\\Documents\\GitHub\\VRInteractionToolkit\\actions.json",
+      "strings": {
+        "en_us": {
+          "name": "SteamVR [Testing]"
+        }
+      }
+    }
+  ]
+}

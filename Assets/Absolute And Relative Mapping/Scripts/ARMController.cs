@@ -22,6 +22,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR;
 
 [ExecuteInEditMode]
 public class ARMController : MonoBehaviour {
@@ -42,10 +43,25 @@ public class ARMController : MonoBehaviour {
         // Reference to shadow objects (children of this object)
 
         // Locates the camera rig and its child controllers
+        GameObject leftController = null, rightController = null;
+#if SteamVR_Legacy
+        // Locates the camera rig and its child controllers
         SteamVR_ControllerManager CameraRigObject = FindObjectOfType<SteamVR_ControllerManager>();
-        GameObject leftController = CameraRigObject.left;
-        GameObject rightController = CameraRigObject.right;
+        leftController = CameraRigObject.left;
+        rightController = CameraRigObject.right;
+#elif SteamVR_2
+        SteamVR_Behaviour_Pose[] controllers = FindObjectsOfType<SteamVR_Behaviour_Pose>();
+        if (controllers.Length > 1) {
+            leftController = controllers[0].inputSource.ToString() == "LeftHand" ? controllers[0].gameObject : controllers[1].inputSource.ToString() == "LeftHand" ? controllers[1].gameObject : null;
+            rightController = controllers[0].inputSource.ToString() == "RightHand" ? controllers[0].gameObject : controllers[1].inputSource.ToString() == "RightHand" ? controllers[1].gameObject : null;
+        } else if (controllers.Length == 1) {
+            leftController = controllers[0].inputSource.ToString() == "LeftHand" ? controllers[0].gameObject : null;
+            rightController = controllers[0].inputSource.ToString() == "RightHand" ? controllers[0].gameObject : null;
+        } else {
+            return;
+        }
 
+#endif
         // Get child shadow controllers and set their component info (if corresponding controllers exist)
         foreach (Transform child in transform)
         {

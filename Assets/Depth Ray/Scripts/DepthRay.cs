@@ -1,25 +1,28 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class DepthRay : MonoBehaviour {
 
     /* Depth Ray implementation by Kieran May
      * University of South Australia
-     * 
-     * TODO
-	 * -Add physics to gameObjects
-     * -Refactor Code
      * */
+#if SteamVR_Legacy
+    private SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device controller;
+#elif SteamVR_2
+    public SteamVR_Action_Boolean m_controllerPress;
+    private SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Vector2 m_touchpad;
+#endif
 
-    
     public GameObject controllerRight;
     public GameObject controllerLeft;
 
     public LayerMask interactionLayers;
 
-    private SteamVR_TrackedObject trackedObj;
-    private SteamVR_Controller.Device controller;
+
     private GameObject mirroredCube;
     private RaycastHit[] raycastObjects;
 
@@ -36,7 +39,7 @@ public class DepthRay : MonoBehaviour {
     public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
     public enum SelectionAssister { Hide_Closest_Only, Hide_All_But_Closest };
 
-    
+
     public InteractionType interacionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
@@ -79,12 +82,42 @@ public class DepthRay : MonoBehaviour {
     private float cursorSpeed = 20f; // Decrease to make faster, Increase to make slower
 
     private void PadScrolling() {
+#if SteamVR_Legacy
         if (controller.GetAxis().y != 0) {
-            //print(controller.GetAxis().y);
-            //cursor.transform.position += new Vector3(0f, 0f, controller.GetAxis().y/20);
             extendDistance += controller.GetAxis().y / cursorSpeed;
             moveCubeAssister();
         }
+#elif SteamVR_2
+        if (m_touchpad.GetAxis(trackedObj.inputSource).y != 0) {
+            extendDistance += m_touchpad.GetAxis(trackedObj.inputSource).y / cursorSpeed;
+            moveCubeAssister();
+        }
+#endif
+    }
+
+    public enum ControllerState {
+        UP, DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.DOWN;
+        }
+        if (controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.UP;
+        }
+
+#endif
+
+        return ControllerState.NONE;
     }
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
@@ -95,7 +128,7 @@ public class DepthRay : MonoBehaviour {
             return;
         }
         if (trackedObj != null) {
-            if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+            if (controllerEvents() == ControllerState.DOWN && pickedUpObject == false) {
                 if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
                     obj.transform.SetParent(trackedObj.transform);
                     tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
@@ -107,13 +140,13 @@ public class DepthRay : MonoBehaviour {
                 }
                 selectedObject.Invoke();
             }
-            if (controller.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
+            if (controllerEvents() == ControllerState.UP && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
                     tempObjectStored.transform.SetParent(null);
                     pickedUpObject = false;
                 } else if (interacionType == InteractionType.Selection) {
                     objectSelected = false;
-                }              
+                }
                 droppedObject.Invoke();
             }
         }
@@ -164,7 +197,7 @@ public class DepthRay : MonoBehaviour {
             }
         }
 
-            return lowestValue;
+        return lowestValue;
     }
 
     private void ResetAllMaterials() {
@@ -189,17 +222,30 @@ public class DepthRay : MonoBehaviour {
         return false;
     }
 
-    void Awake() {
-        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
-        cubeAssister = this.transform.Find("Cube Assister").gameObject;
+    private void initializeControllers() {
         if (controllerPicked == ControllerPicked.Right_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else if (controllerPicked == ControllerPicked.Left_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }
+
+    }
+
+    void Awake() {
+        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        cubeAssister = this.transform.Find("Cube Assister").gameObject;
+        initializeControllers();
     }
 
     void Start() {
@@ -222,7 +268,9 @@ public class DepthRay : MonoBehaviour {
     public Material defaultMat;
     private Material currentClosestObjectMaterial;
     void Update() {
+#if SteamVR_Legacy
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+#endif
         moveCubeAssister();
         PadScrolling();
         forward = trackedObj.transform.TransformDirection(Vector3.forward) * 10;
@@ -232,12 +280,12 @@ public class DepthRay : MonoBehaviour {
             raycastObjects = hits;
             int closestVal = ClosestObject();
             if (raycastObjects[closestVal].transform.name != "Mirrored Cube") {
-				
-                    if (currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
-                        currentClosestObject = raycastObjects[closestVal].transform.gameObject;
-                    }
-				//print ("closest obj:"+currentClosestObject);
-				PickupObject(currentClosestObject);
+
+                if (currentClosestObject != raycastObjects[closestVal].transform.gameObject) {
+                    currentClosestObject = raycastObjects[closestVal].transform.gameObject;
+                }
+                //print ("closest obj:"+currentClosestObject);
+                PickupObject(currentClosestObject);
             }
         }
 
@@ -245,7 +293,7 @@ public class DepthRay : MonoBehaviour {
         for (int i = 0; i < hits.Length; i++) {
             RaycastHit hit = hits[i];
 
-                //print("hit:" + hit.transform.name + " index:"+i);
+            //print("hit:" + hit.transform.name + " index:"+i);
             distance = hit.distance;
             hitPoint = hit.point;
             //hit.transform.gameObject.GetComponent<Renderer>().material.color = new Color(1, 1, 1, 0.5f);

@@ -7,6 +7,15 @@ using Valve.VR.InteractionSystem;
 
 public class GoGoShadow : MonoBehaviour
 {
+
+#if SteamVR_Legacy
+    public SteamVR_TrackedObject trackedObj; 
+    private SteamVR_Controller.Device device;
+#elif SteamVR_2
+    public SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_touchpadPress;
+#endif
+
     public GameObject cameraRig; // So shadow can attach itself to the camera rig on game start
 
     public enum ToggleArmLengthCalculator { 
@@ -23,11 +32,7 @@ public class GoGoShadow : MonoBehaviour
 
     public GameObject theController; // controller for the gogo to access inout
 
-    public SteamVR_TrackedObject trackedObj; 
-
     public GameObject theModel; // the model of the controller that will be shadowed for gogo use
-
-    private SteamVR_Controller.Device device;
     
 	public float extensionVariable = 10f; // this variable in the equation controls the multiplier for how far the arm can extend with small movements
 
@@ -138,11 +143,28 @@ public class GoGoShadow : MonoBehaviour
         transform.rotation = rot;
     }
 
+    public enum ControllerState {
+        TOUCHPAD_UP, NONE
+    }
 
-    void checkForAction()
-    {
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (device.GetPressUp(SteamVR_Controller.ButtonMask.Axis0)) {
+            return ControllerState.TOUCHPAD_UP;
+        }
+#elif SteamVR_2
+        if (m_touchpadPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TOUCHPAD_UP;
+        }
+#endif
+        return ControllerState.NONE;
+    }
+
+    void checkForAction() {
+#if SteamVR_Legacy
         device = SteamVR_Controller.Input((int)trackedObj.index);
-        if (armLengthCalculator == ToggleArmLengthCalculator.on && device.GetPressUp(SteamVR_Controller.ButtonMask.Axis0)) //(will only register if arm length calculator is on)
+#endif
+        if (armLengthCalculator == ToggleArmLengthCalculator.on && controllerEvents() == ControllerState.TOUCHPAD_UP) //(will only register if arm length calculator is on)
         {
             armLength = Vector3.Distance(trackedObj.transform.position, chestPosition);
             calibrated = true;

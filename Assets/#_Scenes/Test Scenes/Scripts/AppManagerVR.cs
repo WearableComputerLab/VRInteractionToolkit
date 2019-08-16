@@ -6,7 +6,7 @@ using System.IO;
 using UnityEngine.SceneManagement;
 
 public class AppManagerVR : MonoBehaviour {
-
+    /*
     public GameObject script;
     public SteamVR_TrackedObject trackedObjL;
     public SteamVR_TrackedObject trackedObjR;
@@ -285,5 +285,5 @@ public class AppManagerVR : MonoBehaviour {
         if(target >= 1) {
             prevHitTime += Time.deltaTime;
         }
-    }
+    }*/
 }

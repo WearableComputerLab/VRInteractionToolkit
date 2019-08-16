@@ -2,13 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Valve.VR;
 
 public class LaserPointer : MonoBehaviour {
-
-    private GameObject[] circleObjects;
-    public GameObject cursor;
+#if SteamVR_Legacy
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
+#elif SteamVR_2
+    private SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_touchpad;
+#endif
+    private GameObject[] circleObjects;
+    public GameObject cursor;
 
     private float startRadius = 0f;
     public GameObject laserPrefab;
@@ -88,7 +93,11 @@ public class LaserPointer : MonoBehaviour {
 
 
     void Awake() {
+#if SteamVR_Legacy
         trackedObj = GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+        trackedObj = GetComponent<SteamVR_Behaviour_Pose>();
+#endif
     }
 
     void Start() {
@@ -96,16 +105,40 @@ public class LaserPointer : MonoBehaviour {
         laserTransform = laser.transform;
     }
 
+    public enum ControllerState {
+        TOUCHPAD_PRESS, TOUCHPAD_DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad)) {
+            return ControllerState.TOUCHPAD_PRESS;
+        }
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad)) {
+            return ControllerState.TOUCHPAD_DOWN;
+        }
+#elif SteamVR_2
+        if (m_touchpad.GetState(trackedObj.inputSource)) {
+            return ControllerState.TOUCHPAD_PRESS;
+        }
+        if (m_touchpad.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TOUCHPAD_DOWN;
+        }
+#endif
+        return ControllerState.NONE;
+    }
+
     // Update is called once per frame
     void Update() {
         //handleBubble();
-
+#if SteamVR_Legacy
         controller = SteamVR_Controller.Input((int)trackedObj.index);
-        if (controller.GetPress(SteamVR_Controller.ButtonMask.Touchpad)) {
+#endif
+        if (controllerEvents() == ControllerState.TOUCHPAD_PRESS) {
             RaycastHit hit;
             if (Physics.Raycast(trackedObj.transform.position, transform.forward, out hit, 100)) {
                 print("hit:" + hit.transform.name);
-                if (controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad)) {
+                if (controllerEvents() == ControllerState.TOUCHPAD_DOWN) {
                     hitPoint = hit.point;
                 }
                 transformCursor(hitPoint);

@@ -6,59 +6,56 @@ using System.Linq;
 
 public class ImagePlane_StickyHand_Redone : MonoBehaviour {
     //http://www.cs.cmu.edu/~stage3/publications/97/conferences/3DSymposium/HeadCrusher/index.html
-    private SteamVR_TrackedObject trackedObj;
-    private SteamVR_Controller.Device controller;
 
-    public GameObject laserPrefab;
-    private GameObject laser;
-    private Transform laserTransform;
-    private Vector3 hitPoint;
-    private GameObject mirroredCube;
-    public Material outlineMaterial;
+    /*
+private SteamVR_TrackedObject trackedObj;
+private SteamVR_Controller.Device controller;
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
-    public InteractionType interacionType;
+public GameObject laserPrefab;
+private GameObject laser;
+private Transform laserTransform;
+private Vector3 hitPoint;
+private GameObject mirroredCube;
+public Material outlineMaterial;
 
-    public enum ControllerPicked { Left_Controller, Right_Controller };
-    public ControllerPicked controllerPicked;
+public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+public InteractionType interacionType;
 
-    private void ShowLaser(RaycastHit hit) {
-        mirroredCube.SetActive(false);
-        laser.SetActive(true);
-        laserTransform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
-        laserTransform.LookAt(hitPoint);
-        laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
-        PickupObject(hit.transform.gameObject);
+public enum ControllerPicked { Left_Controller, Right_Controller };
+public ControllerPicked controllerPicked;
+
+private void ShowLaser(RaycastHit hit) {
+mirroredCube.SetActive(false);
+laser.SetActive(true);
+laserTransform.position = Vector3.Lerp(trackedObj.transform.position, hitPoint, .5f);
+laserTransform.LookAt(hitPoint);
+laserTransform.localScale = new Vector3(laserTransform.localScale.x, laserTransform.localScale.y, hit.distance);
+PickupObject(hit.transform.gameObject);
+}
+
+private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
+private GameObject tempObjectStored;
+void PickupObject(GameObject obj) {
+Vector3 controllerPos = trackedObj.transform.forward;
+if (trackedObj != null) {
+    if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
+        //obj.transform.SetParent(trackedObj.transform);
+        float dist = Vector3.Distance(trackedObj.transform.position, obj.transform.position);
+        //GameObject clonedObject = Instantiate(obj);
+        obj.transform.position = Vector3.Lerp(trackedObj.transform.position, obj.transform.position, 0.05f);
+        //clonedObject.transform.localScale = obj.transform.localScale / dist;
+        obj.transform.localScale = new Vector3(obj.transform.localScale.x / dist, obj.transform.localScale.y / dist, obj.transform.localScale.z / dist);
+        obj.transform.SetParent(trackedObj.transform);
+        extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
+        //obj.transform.GetComponent<Renderer>().material = outlineMaterial;
+        print("scale dist:" + dist);
+        tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
+        pickedUpObject = true;
+    } else if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
+        tempObjectStored.transform.SetParent(null);
+        pickedUpObject = false;
     }
-
-    private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
-    private GameObject tempObjectStored;
-    void PickupObject(GameObject obj) {
-        Vector3 controllerPos = trackedObj.transform.forward;
-        if (trackedObj != null) {
-            if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == false) {
-                //obj.transform.SetParent(trackedObj.transform);
-                float dist = Vector3.Distance(trackedObj.transform.position, obj.transform.position);
-                //GameObject clonedObject = Instantiate(obj);
-                obj.transform.position = Vector3.Lerp(trackedObj.transform.position, obj.transform.position, 0.05f);
-                //clonedObject.transform.localScale = obj.transform.localScale / dist;
-                obj.transform.localScale = new Vector3(obj.transform.localScale.x / dist, obj.transform.localScale.y / dist, obj.transform.localScale.z / dist);
-                obj.transform.SetParent(trackedObj.transform);
-                extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
-                //obj.transform.GetComponent<Renderer>().material = outlineMaterial;
-                print("scale dist:" + dist);
-                tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
-                pickedUpObject = true;
-            } else if (controller.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
-                tempObjectStored.transform.SetParent(null);
-                pickedUpObject = false;
-            }
-            /*if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
-                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
-                tempObjectStored.transform.SetParent(null);
-                pickedUpObject = false;
-            }*/
-        }
+}
     }
 
     private void ShowLaser() {
@@ -147,5 +144,5 @@ public class ImagePlane_StickyHand_Redone : MonoBehaviour {
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         castRay();
     }
-
+    */
 }

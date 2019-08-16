@@ -24,12 +24,24 @@ using UnityEngine;
 using Valve.VR;
 using UnityEngine.Events;
 
-public class FlexiblePointer : MonoBehaviour
-{
-	public LayerMask interactionLayers;
+public class FlexiblePointer : MonoBehaviour {
 
+#if SteamVR_Legacy
     public SteamVR_TrackedObject trackedObjL;
     public SteamVR_TrackedObject trackedObjR;
+
+    private SteamVR_Controller.Device deviceL;
+    private SteamVR_Controller.Device deviceR;
+#elif SteamVR_2
+    public SteamVR_Action_Boolean m_controllerPress;
+    public SteamVR_Action_Vector2 m_touchpadAxis;
+
+    public SteamVR_Behaviour_Pose trackedObjL;
+    public SteamVR_Behaviour_Pose trackedObjR;
+#endif
+
+    public LayerMask interactionLayers;
+
     public GameObject controlPoint;
 
     public bool controlPointVisible = true;
@@ -49,17 +61,14 @@ public class FlexiblePointer : MonoBehaviour
     private Transform[] laserTransform;
     private Vector3 hitPoint;
 
-    private SteamVR_Controller.Device deviceL;
-    private SteamVR_Controller.Device deviceR;
-    
     public GameObject currentlyPointingAt; // Is the gameobject that the ray is currently touching
 
     public GameObject selection;
 
-	public UnityEvent selectedObject; // Invoked when an object is selected
+    public UnityEvent selectedObject; // Invoked when an object is selected
 
-	public UnityEvent hovered; // Invoked when an object is hovered by technique
-	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
+    public UnityEvent hovered; // Invoked when an object is hovered by technique
+    public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
 
 
@@ -68,13 +77,11 @@ public class FlexiblePointer : MonoBehaviour
     public InteractionType interactionType;
 
     // Use this for initialization
-    void Start()
-    {
+    void Start() {
         // Initalizing all the lasers
         lasers = new GameObject[numOfLasers];
         laserTransform = new Transform[numOfLasers];
-        for (int i = 0; i < numOfLasers; i++)
-        {
+        for (int i = 0; i < numOfLasers; i++) {
             GameObject laserPart = Instantiate(laserPrefab, new Vector3((float)i, 1, 0), Quaternion.identity) as GameObject;
             laserTransform[i] = laserPart.transform;
             lasers[i] = laserPart;
@@ -84,16 +91,14 @@ public class FlexiblePointer : MonoBehaviour
     }
 
     // Returns 1 for controller 1 and 2 for controller 2
-    int calculatePointingController()
-    {
+    int calculatePointingController() {
         Vector3 playerPos = this.transform.position;
         float distTo1 = Vector3.Distance(playerPos, trackedObjL.transform.position);
         float distTo2 = Vector3.Distance(playerPos, trackedObjR.transform.position);
         return 1;
     }
 
-    void setPoint0and1()
-    {
+    void setPoint0and1() {
         // Setting test points
         Vector3 controller1Pos = trackedObjL.transform.position;
 
@@ -106,8 +111,7 @@ public class FlexiblePointer : MonoBehaviour
         // and calculating new end control point
         float distanceBetweenControllers = Vector3.Distance(controller1Pos, controller2Pos) * scaleFactor;
 
-        if (calculatePointingController() == 1)
-        {
+        if (calculatePointingController() == 1) {
             forwardVectorBetweenRemotes = new Vector3(controller1Pos.x - controller2Pos.x, controller1Pos.y - controller2Pos.y, controller1Pos.z - controller2Pos.z);
 
             // Start control point
@@ -116,12 +120,13 @@ public class FlexiblePointer : MonoBehaviour
             float distance_formula_on_vector = Mathf.Sqrt(forwardVectorBetweenRemotes.x * forwardVectorBetweenRemotes.x + forwardVectorBetweenRemotes.y * forwardVectorBetweenRemotes.y + forwardVectorBetweenRemotes.z * forwardVectorBetweenRemotes.z);
 
             // End control point
-            point2.x = controller1Pos.x + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.x; ;
-            point2.y = controller1Pos.y + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.y; ;
-            point2.z = controller1Pos.z + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.z; ;
-        }
-        else
-        {
+            point2.x = controller1Pos.x + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.x;
+            ;
+            point2.y = controller1Pos.y + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.y;
+            ;
+            point2.z = controller1Pos.z + (distanceBetweenControllers / (distance_formula_on_vector)) * forwardVectorBetweenRemotes.z;
+            ;
+        } else {
             forwardVectorBetweenRemotes = new Vector3(controller2Pos.x - controller1Pos.x, controller2Pos.y - controller1Pos.y, controller2Pos.z - controller1Pos.z);
 
             // Start control point
@@ -139,19 +144,25 @@ public class FlexiblePointer : MonoBehaviour
     }
 
     // Initalizes point1 's curve
-    void setCurveControlPoint()
-    {
+    void setCurveControlPoint() {
+
+#if SteamVR_Legacy
         // Will use touchpads to calculate touchpoint
         deviceL = SteamVR_Controller.Input((int)trackedObjL.index);
         deviceR = SteamVR_Controller.Input((int)trackedObjR.index);
 
         Vector2 touchpadL = (deviceL.GetAxis(EVRButtonId.k_EButton_Axis0)); // Getting reference to the touchpad
         Vector2 touchpadR = (deviceR.GetAxis(EVRButtonId.k_EButton_Axis0)); // Getting reference to the touchpad
+#elif SteamVR_2
+        Vector2 touchpadL = (m_touchpadAxis.GetAxis(trackedObjL.inputSource)); // Getting reference to the touchpad
+        Vector2 touchpadR = (m_touchpadAxis.GetAxis(trackedObjL.inputSource)); // Getting reference to the touchpad
+#endif
+
 
         // Set the controllable distance to be the distance between the end of laser to back remote
         float distanceToMoveControlPoint = Vector3.Distance(point2, trackedObjR.transform.position);
 
-        if(float.IsNaN(distanceToMoveControlPoint)) {
+        if (float.IsNaN(distanceToMoveControlPoint)) {
             // error with calculation will return
             return;
         }
@@ -166,42 +177,58 @@ public class FlexiblePointer : MonoBehaviour
 
         // getting between the front of the flexible pointer to the back of the remotes
         Vector3 forwardBetweenRemotes = point2 - trackedObjR.transform.position;
-        Vector3 middleOfRemotes = (point2 + trackedObjR.transform.position)/2f;
+        Vector3 middleOfRemotes = (point2 + trackedObjR.transform.position) / 2f;
 
         // moving along y axis acording to R y
-        controlPoint.transform.position = vectorDistanceAlongFoward(distanceToMoveControlPoint*(yvalR), middleOfRemotes, forwardBetweenRemotes);
+        controlPoint.transform.position = vectorDistanceAlongFoward(distanceToMoveControlPoint * (yvalR), middleOfRemotes, forwardBetweenRemotes);
         // now need to move left and right by getting the side vector forward 
         Vector3 sideForward = Vector3.Cross(forwardBetweenRemotes, Vector3.up);
-        controlPoint.transform.position = vectorDistanceAlongFoward(distanceToMoveControlPoint*(xvalR*-1), controlPoint.transform.position, sideForward);
+        controlPoint.transform.position = vectorDistanceAlongFoward(distanceToMoveControlPoint * (xvalR * -1), controlPoint.transform.position, sideForward);
         // now need to control depth using the other controller
-        controlPoint.transform.position = vectorDistanceAlongFoward(distanceToMoveControlPoint*(yvalL), controlPoint.transform.position, Vector3.up);
+        controlPoint.transform.position = vectorDistanceAlongFoward(distanceToMoveControlPoint * (yvalL), controlPoint.transform.position, Vector3.up);
 
         // setting the actual bezier curve point to follow control point
         point1 = controlPoint.transform.position;
-    
+
     }
 
     private Vector3 vectorDistanceAlongFoward(float theDistance, Vector3 startPos, Vector3 forward) {
-        return startPos+forward.normalized*theDistance;
+        return startPos + forward.normalized * theDistance;
+    }
+
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (deviceR.GetHairTriggerDown()) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObjR.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+#endif
+        return ControllerState.NONE;
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
         checkControlPointVisibility();
         setPoint0and1();
         castBezierRay();
 
         // checking for selection
-        if(deviceR.GetHairTriggerDown() && currentlyPointingAt != null) {
-            
-            if(interactionType == InteractionType.Selection) {
+        if (controllerEvents() == ControllerState.TRIGGER_DOWN && currentlyPointingAt != null) {
+
+            if (interactionType == InteractionType.Selection) {
                 // Pure Selection
                 selection = currentlyPointingAt;
                 selectedObject.Invoke();
 
-                
-            } else if(interactionType == InteractionType.Manipulation) {
+
+            } else if (interactionType == InteractionType.Manipulation) {
                 // Currently no manipulation
                 selection = currentlyPointingAt;
             }
@@ -209,29 +236,24 @@ public class FlexiblePointer : MonoBehaviour
         }
     }
 
-    void castBezierRay()
-    {
+    void castBezierRay() {
         float valueToSearchBezierBy = 0f;
 
         Vector3 positionOfLastLaserPart;
-        if (calculatePointingController() == 1)
-        {
+        if (calculatePointingController() == 1) {
             positionOfLastLaserPart = trackedObjR.transform.position;
-        }
-        else
-        {
+        } else {
             positionOfLastLaserPart = trackedObjL.transform.position;
         }
 
         // Used to see if ANY of the lasers collided with an object
         bool foundObject = false;
-        
-        for (int i = 0; i < numOfLasers; i++)
-        {
+
+        for (int i = 0; i < numOfLasers; i++) {
             lasers[i].SetActive(true);
             Vector3 nextPart = getBezierPoint(valueToSearchBezierBy);
             float distBetweenParts = Vector3.Distance(nextPart, positionOfLastLaserPart);
-            if(float.IsNaN(distBetweenParts)) {
+            if (float.IsNaN(distBetweenParts)) {
                 // error with calculation will return
                 return;
             }
@@ -243,46 +265,43 @@ public class FlexiblePointer : MonoBehaviour
             positionOfLastLaserPart = nextPart;
             valueToSearchBezierBy += (1f / numOfLasers);
 
-            if (i > 0)
-            {
-                if(!foundObject) {
+            if (i > 0) {
+                if (!foundObject) {
                     // Do a ray cast check on each part to check for collision (extended from laser part) 
                     // First object collided with is the only one that will select
                     Vector3 dir = laserTransform[i - 1].forward;
                     RaycastHit hit;
-                    if (Physics.Raycast(positionOfLastLaserPart, dir, out hit, distBetweenParts))
-					{
+                    if (Physics.Raycast(positionOfLastLaserPart, dir, out hit, distBetweenParts)) {
                         // no object previouslly was highlighted so just highlight this one
-						if(interactionLayers == (interactionLayers | (1 << hit.transform.gameObject.layer))) {
-                            if(currentlyPointingAt != hit.transform.gameObject) {
+                        if (interactionLayers == (interactionLayers | (1 << hit.transform.gameObject.layer))) {
+                            if (currentlyPointingAt != hit.transform.gameObject) {
                                 unHovered.Invoke(); // unhover old object
                             }
-                            
+
                             currentlyPointingAt = hit.transform.gameObject;
                             hovered.Invoke();
                             foundObject = true;
                         }
-                    }                 
+                    }
                 }
-            }              
+            }
         }
-        if(!foundObject) {
+        if (!foundObject) {
             // no object was hit so unhover and deselect
             unHovered.Invoke();
             currentlyPointingAt = null;
         }
     }
-    
+
 
     // t being betweek 0 and 1 to get a spot on the curve
-    Vector3 getBezierPoint(float t)
-    {
+    Vector3 getBezierPoint(float t) {
         return (Mathf.Pow(1 - t, 2) * point0 + 2 * (1 - t) * t * point1 + Mathf.Pow(t, 2) * point2);
     }
 
     // sets whether the user can see the control point. Will be called if user changes the bool variable setting
     private void checkControlPointVisibility() {
-        if(controlPointVisible) {
+        if (controlPointVisible) {
             controlPoint.GetComponent<MeshRenderer>().enabled = true;
         } else {
             controlPoint.GetComponent<MeshRenderer>().enabled = false;

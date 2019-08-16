@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using Valve.VR;
 public class WorldInMiniature : MonoBehaviour {
 
     /* World In Miniature implementation by Kieran May
@@ -10,15 +10,25 @@ public class WorldInMiniature : MonoBehaviour {
      * 
      * */
 
+#if SteamVR_Legacy
     internal SteamVR_TrackedObject trackedObj;
     internal SteamVR_TrackedObject trackedObjO; //tracked object other
     private SteamVR_Controller.Device controller;
     internal SteamVR_Controller.Device controllerO; //controller other
+#elif SteamVR_2
+    internal SteamVR_Behaviour_Pose trackedObj;
+    internal SteamVR_Behaviour_Pose trackedObjO; //tracked object other
+    public SteamVR_Action_Boolean m_controllerPress;
+    public SteamVR_Action_Boolean m_menuButton;
+    public SteamVR_Action_Vector2 m_touchpadAxis;
+    public SteamVR_Action_Boolean m_touchpadTouch;
+#endif
+
     public GameObject worldInMinParent;
     GameObject[] allSceneObjects;
     public static bool WiMrunning = false;
     public bool WiMactive = false;
-    public List<string> ignorableObjectsString = new List<string>{ "[CameraRig]", "Directional Light", "background"};
+    public List<string> ignorableObjectsString = new List<string> { "[CameraRig]", "Directional Light", "background" };
     public float scaleAmount = 20f;
     public LayerMask interactableLayer;
     public Material outlineMaterial;
@@ -29,50 +39,101 @@ public class WorldInMiniature : MonoBehaviour {
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
 
-	public GameObject controllerRight;
-	public GameObject controllerLeft;
-	public GameObject cameraHead;
+    public GameObject controllerRight;
+    public GameObject controllerLeft;
+    public GameObject cameraHead;
     private int counter = 0;
 
-	private List<GameObject> listOfChildren = new List<GameObject>();
-	private void findClonedObject(GameObject obj){
-		if (null == obj)
-			return;
-		foreach (Transform child in obj.transform){
-			if (null == child)
-				continue;
-			if (child.gameObject.GetComponent<Rigidbody> () != null) {
-				child.gameObject.GetComponent<Rigidbody> ().isKinematic = true;
-			}
-            if(child.GetComponent<ObjectID>() != null) {
-                listOfIDs[child.GetComponent<ObjectID>().ID-1].GetComponent<ObjectID>().clonedObject = child.gameObject;
+    private List<GameObject> listOfChildren = new List<GameObject>();
+    private void findClonedObject(GameObject obj) {
+        if (null == obj)
+            return;
+        foreach (Transform child in obj.transform) {
+            if (null == child)
+                continue;
+            if (child.gameObject.GetComponent<Rigidbody>() != null) {
+                child.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+            }
+            if (child.GetComponent<ObjectID>() != null) {
+                listOfIDs[child.GetComponent<ObjectID>().ID - 1].GetComponent<ObjectID>().clonedObject = child.gameObject;
             }
             //listOfIDs[child.gameObject.GetComponent<ObjectID>().ID].GetComponent<ObjectID>().clonedObject = child.gameObject;
             //listOfIDs[child.gameObject.GetComponent]
             //listOfIDs[counter].GetComponent<ObjectID>().clonedObject = child.gameObject;
             counter++;
             listOfChildren.Add(child.gameObject);
-			findClonedObject(child.gameObject);
-		}
-	}
+            findClonedObject(child.gameObject);
+        }
+    }
 
-	private List<GameObject> listOfIDs = new List<GameObject>();
-	private void setIDObject(GameObject obj){
-		if (null == obj)
-			return;
-		foreach (Transform child in obj.transform){
-			if (null == child)
-				continue;
-			//if (child.gameObject.GetComponent<Rigidbody> () != null) {
-				this.GetComponent<WIM_IDHandler> ().addID (child.gameObject);
-			//}
-			listOfIDs.Add(child.gameObject);
-			setIDObject(child.gameObject);
-		}
-	}
+    private List<GameObject> listOfIDs = new List<GameObject>();
+    private void setIDObject(GameObject obj) {
+        if (null == obj)
+            return;
+        foreach (Transform child in obj.transform) {
+            if (null == child)
+                continue;
+            //if (child.gameObject.GetComponent<Rigidbody> () != null) {
+            this.GetComponent<WIM_IDHandler>().addID(child.gameObject);
+            //}
+            listOfIDs.Add(child.gameObject);
+            setIDObject(child.gameObject);
+        }
+    }
+
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, TRIGGER_PRESS, APPLICATION_MENU, NONE, TOUCHPAD_TOUCH
+    }
+
+    public ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_UP;
+
+        }
+        if (controllerO.GetPress(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_PRESS;
+        }
+        if (controllerO.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_UP;
+
+        }
+        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) {
+            return ControllerState.APPLICATION_MENU;
+        }
+        if (controller.GetTouch(SteamVR_Controller.ButtonMask.Touchpad)) {
+            return ControllerState.TOUCHPAD_TOUCH;
+        }
+        if (controllerO.GetPressUp(SteamVR_Controller.ButtonMask.Trigger)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        } if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        } if (m_controllerPress.GetState(trackedObjO.inputSource)) {
+            return ControllerState.TRIGGER_PRESS;
+        } if (m_controllerPress.GetStateUp(trackedObjO.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        } if (m_menuButton.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.APPLICATION_MENU;
+        } if (m_controllerPress.GetStateDown(trackedObjO.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        } if (m_touchpadTouch.GetState(trackedObj.inputSource)) {
+            return ControllerState.TOUCHPAD_TOUCH;
+        }
+
+#endif
+
+        return ControllerState.NONE;
+    }
 
     void createWiM() {
-        if (controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu)) {
+        if (controllerEvents() == ControllerState.APPLICATION_MENU) {
             if (WiMactive == false) {
                 WiMactive = true;
                 WiMrunning = true;
@@ -103,7 +164,7 @@ public class WorldInMiniature : MonoBehaviour {
                         cloneObject.transform.localPosition = new Vector3(posX, posY, posZ);
                     }
                 }
-				findClonedObject (worldInMinParent);
+                findClonedObject(worldInMinParent);
                 //worldInMinParent.transform.SetParent(null);
                 //worldInMinParent.transform.localEulerAngles = new Vector3(0f, cameraHead.transform.localEulerAngles.y-45f, 0f);
                 worldInMinParent.transform.localEulerAngles = new Vector3(0f, trackedObj.transform.localEulerAngles.y - 45f, 0f);
@@ -136,99 +197,121 @@ public class WorldInMiniature : MonoBehaviour {
         worldInMinParent.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
     }
 
-	// Use this for initialization
-	void Start () {
-		
+    // Use this for initialization
+    void Start() {
+
         allSceneObjects = SceneManager.GetActiveScene().GetRootGameObjects();
-		for (int i = 0; i<allSceneObjects.Length; i++) {
-			setIDObject (allSceneObjects[i]);
-		}
-        
+        for (int i = 0; i < allSceneObjects.Length; i++) {
+            setIDObject(allSceneObjects[i]);
+        }
+
         worldInMinParent.transform.SetParent(trackedObj.transform);
         resetAllProperties();
 
-		//adding colliders and collider scripts to controllers for WIM if they don't allready exist
-		SphereCollider col;
-		if ((col = trackedObj.transform.gameObject.GetComponent<SphereCollider> ()) == null) {
-			
-			col = trackedObj.transform.gameObject.AddComponent<SphereCollider> ();
-			col.isTrigger = true;
-			col.radius = 0.05f;
-            col.center = new Vector3(0f,-0.05f,0f);
-			trackedObj.transform.gameObject.AddComponent<ControllerColliderWIM> ();
-		}
-		SphereCollider col0;
-		if((col0 = trackedObjO.transform.gameObject.GetComponent<SphereCollider> ()) == null) {
-			
-			col0 = trackedObjO.transform.gameObject.AddComponent<SphereCollider> ();
-			col0.isTrigger = true;
-			col0.radius = 0.05f;
+        //adding colliders and collider scripts to controllers for WIM if they don't allready exist
+        SphereCollider col;
+        if ((col = trackedObj.transform.gameObject.GetComponent<SphereCollider>()) == null) {
+
+            col = trackedObj.transform.gameObject.AddComponent<SphereCollider>();
+            col.isTrigger = true;
+            col.radius = 0.05f;
+            col.center = new Vector3(0f, -0.05f, 0f);
+            trackedObj.transform.gameObject.AddComponent<ControllerColliderWIM>();
+        }
+        SphereCollider col0;
+        if ((col0 = trackedObjO.transform.gameObject.GetComponent<SphereCollider>()) == null) {
+
+            col0 = trackedObjO.transform.gameObject.AddComponent<SphereCollider>();
+            col0.isTrigger = true;
+            col0.radius = 0.05f;
             col0.center = new Vector3(0f, -0.05f, 0f);
-            trackedObjO.transform.gameObject.AddComponent<ControllerColliderWIM> ();
-		}
+            trackedObjO.transform.gameObject.AddComponent<ControllerColliderWIM>();
+        }
     }
 
-	public GameObject findRealObject(GameObject selectedObject) {
-		for (int i = 0; i < listOfIDs.Count; i++) {
-			//print("looking for:" + )
-			if (selectedObject.GetComponent<ObjectID> ().ID == listOfIDs [i].GetComponent<ObjectID> ().ID) {
-				return listOfIDs [i];
-			}
-		}
-		return null;
-	}
+    public GameObject findRealObject(GameObject selectedObject) {
+        for (int i = 0; i < listOfIDs.Count; i++) {
+            //print("looking for:" + )
+            if (selectedObject.GetComponent<ObjectID>().ID == listOfIDs[i].GetComponent<ObjectID>().ID) {
+                return listOfIDs[i];
+            }
+        }
+        return null;
+    }
 
-    void Awake() {
-        worldInMinParent = this.transform.Find("WorldInMinParent").gameObject;
+    private void initializeControllers() {
         if (controllerPicked == ControllerPicked.Right_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
             trackedObjO = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
+            trackedObjO = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else if (controllerPicked == ControllerPicked.Left_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
             trackedObjO = controllerRight.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+            trackedObjO = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }
     }
 
-	public bool isMoving() {
-		if (realObject != null && realObject.transform.GetComponent<Rigidbody> () != null) {
-			return !realObject.transform.GetComponent<Rigidbody> ().IsSleeping ();
-		}
-		return false;
-	}
+    void Awake() {
+        worldInMinParent = this.transform.Find("WorldInMinParent").gameObject;
+        initializeControllers();
+    }
 
-	private GameObject realObject;
+    public bool isMoving() {
+        if (realObject != null && realObject.transform.GetComponent<Rigidbody>() != null) {
+            return !realObject.transform.GetComponent<Rigidbody>().IsSleeping();
+        }
+        return false;
+    }
+
+    private GameObject realObject;
     private float tiltAroundY = 0f;
     public float tiltSpeed = 2f; //2x quicker than normal
-	private bool startedMoving = false;
+    private bool startedMoving = false;
     // Update is called once per frame
-    void Update () {
-		//print (isMoving ());
-		if (WiMactive == true && isMoving() == true && selectedObject != null && selectedObject.GetComponent<ObjectID>() != null && realObject != null && realObject.GetComponent<ObjectID>() != null && selectedObject.GetComponent<ObjectID>().ID == realObject.GetComponent<ObjectID>().ID) {
-			startedMoving = true;
-			selectedObject.transform.localPosition = realObject.transform.localPosition;
-			selectedObject.transform.localEulerAngles = realObject.transform.localEulerAngles;
-		} else if (isMoving() == false && startedMoving == true) {
-			startedMoving = false;
-		}
+    void Update() {
+#if SteamVR_Legacy
         controller = SteamVR_Controller.Input((int)trackedObj.index);
         controllerO = SteamVR_Controller.Input((int)trackedObjO.index);
+#endif
+
+        //print (isMoving ());
+        if (WiMactive == true && isMoving() == true && selectedObject != null && selectedObject.GetComponent<ObjectID>() != null && realObject != null && realObject.GetComponent<ObjectID>() != null && selectedObject.GetComponent<ObjectID>().ID == realObject.GetComponent<ObjectID>().ID) {
+            startedMoving = true;
+            selectedObject.transform.localPosition = realObject.transform.localPosition;
+            selectedObject.transform.localEulerAngles = realObject.transform.localEulerAngles;
+        } else if (isMoving() == false && startedMoving == true) {
+            startedMoving = false;
+        }
+
         createWiM();
         if (WiMactive == true) {
+#if SteamVR_Legacy
             tiltAroundY = controller.GetAxis(Valve.VR.EVRButtonId.k_EButton_Axis0).y;
-            if (controller.GetTouch(SteamVR_Controller.ButtonMask.Touchpad)) {
-                worldInMinParent.transform.Rotate(0, tiltAroundY* tiltSpeed, 0);
+#elif SteamVR_2
+            tiltAroundY = m_touchpadAxis.GetAxis(trackedObj.inputSource).y;
+#endif
+            if (controllerEvents() == ControllerState.TOUCHPAD_TOUCH) {
+                worldInMinParent.transform.Rotate(0, tiltAroundY * tiltSpeed, 0);
             }
         }
-        if (controllerO.GetPressUp(SteamVR_Controller.ButtonMask.Trigger) && selectedObject == true) {
+        if (controllerEvents() == ControllerState.TRIGGER_UP && selectedObject == true) {
             selectedObject.transform.SetParent(oldParent);
-			realObject = findRealObject(selectedObject);
+            realObject = findRealObject(selectedObject);
             realObject.transform.localPosition = selectedObject.transform.localPosition;
             realObject.transform.localEulerAngles = selectedObject.transform.localEulerAngles;
             objectPicked = false;
         }
 
-        }
+    }
 }

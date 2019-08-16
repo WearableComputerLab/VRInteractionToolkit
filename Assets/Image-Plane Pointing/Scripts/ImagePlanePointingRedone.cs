@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,6 +7,7 @@ using System.Linq;
 
 public class ImagePlanePointingRedone : MonoBehaviour {
     //http://www.cs.cmu.edu/~stage3/publications/97/conferences/3DSymposium/HeadCrusher/index.html
+    /*
     private SteamVR_TrackedObject trackedObj;
     private SteamVR_Controller.Device controller;
 
@@ -48,11 +50,6 @@ public class ImagePlanePointingRedone : MonoBehaviour {
                 tempObjectStored.transform.SetParent(null);
                 pickedUpObject = false;
             }
-            /*if (controller.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger) && pickedUpObject == true) {
-                //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
-                tempObjectStored.transform.SetParent(null);
-                pickedUpObject = false;
-            }*/
         }
     }
 
@@ -139,5 +136,6 @@ public class ImagePlanePointingRedone : MonoBehaviour {
             ShowLaser(hit);
         }
     }
-
+    */
 }
+

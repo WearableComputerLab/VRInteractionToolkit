@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TriggerDropAction : MonoBehaviour {
-
+    /*
     private SteamVR_Controller.Device deviceL;
     private SteamVR_Controller.Device deviceR;
     private SteamVR_TrackedObject trackedObjL;
@@ -45,5 +45,5 @@ public class TriggerDropAction : MonoBehaviour {
         if((int)trackedObjR.index != -1) {
             deviceR = SteamVR_Controller.Input((int)trackedObjR.index);
         }
-    }
+    }*/
 }

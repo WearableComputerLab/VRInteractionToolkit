@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class DockerData : MonoBehaviour {
 
-
+    /*
     public globalDocker globalScript;
     public SteamVR_TrackedObject trackedObjL;
     public SteamVR_TrackedObject trackedObjR;
@@ -88,12 +88,6 @@ public class DockerData : MonoBehaviour {
                 outlineObjects[i].SetActive(false);
             }
         }*/
-        
-        
-	}
+    //}
 	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }

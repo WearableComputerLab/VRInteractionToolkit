@@ -29,7 +29,15 @@ using System;
 
 public class BendCast : MonoBehaviour
 {
-	public LayerMask interactionLayers;
+
+#if SteamVR_Legacy
+    private SteamVR_TrackedObject trackedObj;  // used by the script to keep track of the controller
+#elif SteamVR_2
+    private SteamVR_Behaviour_Pose trackedObj;  // used by the script to keep track of the controller
+    public SteamVR_Action_Boolean m_controllerPress;
+#endif
+
+    public LayerMask interactionLayers;
 
     public GameObject leftController; // Reference to the steam VR left controller
     public GameObject rightController; // Reference to the steam VR right controller
@@ -37,7 +45,7 @@ public class BendCast : MonoBehaviour
     public enum SetController {left, right, notSet}; // So the player can choose which controller this bendcast will use
     public SetController setController = SetController.left; // the set controller
 
-    private SteamVR_TrackedObject trackedObj;  // used by the script to keep track of the controller
+
 
     // Allows to choose if the script purley selects or has full manipulation
     public enum InteractionType { Selection, Manipulation };
@@ -62,21 +70,29 @@ public class BendCast : MonoBehaviour
 	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
 
-
+#if SteamVR_Legacy
     private SteamVR_Controller.Device Controller
     {
         get { return SteamVR_Controller.Input((int)trackedObj.index); }
     }
-
+#endif
     private GameObject laserHolderGameobject;
 
     // Use this for initialization
     void Start()
     {
         if(setController == SetController.left) {
+#if SteamVR_Legacy
             trackedObj = leftController.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = leftController.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else if (setController == SetController.right) {
+#if SteamVR_Legacy
             trackedObj = rightController.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = rightController.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         }
 
         // Initalizing all the lasers
@@ -94,9 +110,26 @@ public class BendCast : MonoBehaviour
             laserPart.transform.parent = laserHolderGameobject.transform;
         }
     }
-    void Awake()
-    {
 
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (Controller.GetHairTriggerDown()) {
+            return ControllerState.TRIGGER_DOWN;
+        } if (Controller.GetHairTriggerUp()) {
+            return ControllerState.TRIGGER_UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        } if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#endif
+        return ControllerState.NONE;
     }
 
     // Update is called once per frame
@@ -105,7 +138,7 @@ public class BendCast : MonoBehaviour
         checkSurroundingObjects();
         castLaserCurve();
 
-        if(Controller.GetHairTriggerDown() && currentlyPointingAt != null) {
+        if(controllerEvents() == ControllerState.TRIGGER_DOWN && currentlyPointingAt != null) {
             lastSelectedObject = currentlyPointingAt;
             if(interactionType == InteractionType.Selection) {
                 // Pure Selection            
@@ -117,7 +150,7 @@ public class BendCast : MonoBehaviour
             }
             selectedObject.Invoke();
         }
-        if (Controller.GetHairTriggerUp())
+        if (controllerEvents() == ControllerState.TRIGGER_UP)
         {
             if (lastSelectedObject != null)
             {
@@ -134,9 +167,13 @@ public class BendCast : MonoBehaviour
  
             GetComponent<FixedJoint>().connectedBody = null;
             Destroy(GetComponent<FixedJoint>());
-       
+#if SteamVR_Legacy
             lastSelectedObject.GetComponent<Rigidbody>().velocity = Controller.velocity;
             lastSelectedObject.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
+#elif SteamVR_2
+            lastSelectedObject.GetComponent<Rigidbody>().velocity = trackedObj.GetVelocity();
+            lastSelectedObject.GetComponent<Rigidbody>().angularVelocity = trackedObj.GetAngularVelocity();
+#endif
         }
     }
 

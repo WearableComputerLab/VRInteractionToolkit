@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class SpindleInteractor : MonoBehaviour {
-	public LayerMask interactionLayers;
 
+#if SteamVR_Legacy
     public SteamVR_TrackedObject trackedObj1;
     public SteamVR_TrackedObject trackedObj2;
 
@@ -13,14 +14,24 @@ public class SpindleInteractor : MonoBehaviour {
     {
         get { return SteamVR_Controller.Input((int)trackedObj1.index); }
     }
+        private SteamVR_Controller.Device Controller2
+    {
+        get { return SteamVR_Controller.Input((int)trackedObj2.index); }
+    }
+#elif SteamVR_2
+    public SteamVR_Action_Boolean m_controllerPress;
+    public SteamVR_Behaviour_Pose trackedObj1;
+    public SteamVR_Behaviour_Pose trackedObj2;
+#endif
+
+    public LayerMask interactionLayers;
+
+
 
     private float distanceBetweenControllersOnPickup;
     private Vector3 objectScaleOnPickup;
 
-    private SteamVR_Controller.Device Controller2
-    {
-        get { return SteamVR_Controller.Input((int)trackedObj2.index); }
-    }
+
 
     // Pickup Vars
     public GameObject collidingObject;
@@ -34,13 +45,43 @@ public class SpindleInteractor : MonoBehaviour {
     public UnityEvent hovered; // Invoked when an object is hovered by technique
     public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
     public UnityEvent droppedObject;
-    
 
-    // Use this for initialization
-    void Start () {
-		
-	}
-	
+
+    public enum ControllerState {
+        TRIGGER_UP1, TRIGGER_DOWN1, TRIGGER_UP2, TRIGGER_DOWN2, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (Controller1.GetHairTriggerDown()) {
+            return ControllerState.TRIGGER_DOWN1;
+        }
+        if (Controller1.GetHairTriggerUp()) {
+            return ControllerState.TRIGGER_UP1;
+        }
+        if (Controller2.GetHairTriggerDown()) {
+            return ControllerState.TRIGGER_DOWN2;
+        }
+        if (Controller2.GetHairTriggerUp()) {
+            return ControllerState.TRIGGER_UP2;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj1.inputSource)) {
+            return ControllerState.TRIGGER_DOWN1;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj1.inputSource)) {
+            return ControllerState.TRIGGER_UP1;
+        }
+        if (m_controllerPress.GetStateDown(trackedObj2.inputSource)) {
+            return ControllerState.TRIGGER_DOWN2;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj2.inputSource)) {
+            return ControllerState.TRIGGER_UP2;
+        }
+#endif
+        return ControllerState.NONE;
+    }
+
     void adjustScale()
     {
 
@@ -49,22 +90,20 @@ public class SpindleInteractor : MonoBehaviour {
         objectInHand.transform.localScale = new Vector3(objectScaleOnPickup.x + changeInDistance, objectScaleOnPickup.y + changeInDistance, objectScaleOnPickup.z + changeInDistance);
     }
 
-    void pickupWithController(SteamVR_Controller.Device theController)
+    void pickupWithController()
     {
-        if(theController == null)
+        if(trackedObj1 == null && trackedObj2 == null)
         {
             return;
         }
-        if (theController.GetHairTriggerDown())
-        {
+        if (controllerEvents() == ControllerState.TRIGGER_DOWN1 || controllerEvents() == ControllerState.TRIGGER_DOWN2) {
             if (collidingObject)
             {
                 GrabObject();
                 distanceBetweenControllersOnPickup = Vector3.Distance(trackedObj1.transform.position, trackedObj2.transform.position);
                 objectScaleOnPickup = objectInHand.transform.localScale;
             }
-            if(theController.Equals(Controller1))
-            {
+            if(controllerEvents() == ControllerState.TRIGGER_DOWN1) {
                 pickedUpWith1 = true;
             } else
             {
@@ -72,13 +111,12 @@ public class SpindleInteractor : MonoBehaviour {
             }         
         }
 
-        if (theController.GetHairTriggerUp())
-        {
+        if (controllerEvents() == ControllerState.TRIGGER_UP1 || controllerEvents() == ControllerState.TRIGGER_UP2) {
             if (objectInHand)
             {
                 ReleaseObject();
             }
-            if (theController.Equals(Controller1))
+            if (controllerEvents() == ControllerState.TRIGGER_UP1)
             {
                 pickedUpWith1 = false;
             }
@@ -94,20 +132,20 @@ public class SpindleInteractor : MonoBehaviour {
 
         if(pickedUpWith1)
         {
-            pickupWithController(Controller1);
+            pickupWithController();
             adjustScale();
 
         } else  if (pickedUpWith2)
         {
-            pickupWithController(Controller2);
+            pickupWithController();
             adjustScale();
 
         } else if(!pickedUpWith1 && !pickedUpWith2)
         {
-            pickupWithController(Controller1);
+            pickupWithController();
             if(!pickedUpWith1)
             {
-                pickupWithController(Controller2);
+                pickupWithController();
             }
         }
     }
@@ -174,9 +212,14 @@ public class SpindleInteractor : MonoBehaviour {
 
             GetComponent<FixedJoint>().connectedBody = null;
             Destroy(GetComponent<FixedJoint>());
-
+#if SteamVR_Legacy
             objectInHand.GetComponent<Rigidbody>().velocity = Controller1.velocity;
             objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller1.angularVelocity;
+#elif SteamVR_2
+            objectInHand.GetComponent<Rigidbody>().velocity = trackedObj1.GetVelocity();
+            objectInHand.GetComponent<Rigidbody>().angularVelocity = trackedObj1.GetAngularVelocity();
+#endif
+
         }
         droppedObject.Invoke();
         objectInHand = null;

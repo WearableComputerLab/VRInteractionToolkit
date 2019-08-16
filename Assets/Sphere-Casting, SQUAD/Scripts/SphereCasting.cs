@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class SphereCasting : MonoBehaviour {
 
@@ -10,11 +11,18 @@ public class SphereCasting : MonoBehaviour {
     * 
     * */
 
+#if SteamVR_Legacy
+    internal SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device controller;
+#elif SteamVR_2
+    internal SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_controllerPress;
+    public SteamVR_Action_Vector2 m_touchpadAxis;
+#endif
+
     public GameObject controllerRight;
     public GameObject controllerLeft;
     
-    private SteamVR_TrackedObject trackedObj;
-    private SteamVR_Controller.Device controller;
     private PickupObjects pickupObjs;
     private SquadMenu menu;
     public static bool inMenu = false;
@@ -70,33 +78,78 @@ public class SphereCasting : MonoBehaviour {
 
     private void PadScrolling() {
         Vector3 controllerPos = trackedObj.transform.forward;
+#if SteamVR_Legacy
         if (controller.GetAxis().y != 0) {
             extendRadius += controller.GetAxis().y / cursorSpeed;
             sphereObject.transform.localScale = new Vector3((extendRadius) * 2, (extendRadius) * 2, (extendRadius) * 2);
         }
+#elif SteamVR_2
+        if (m_touchpadAxis.GetAxis(trackedObj.inputSource).y != 0) {
+            extendRadius += m_touchpadAxis.GetAxis(trackedObj.inputSource).y / cursorSpeed;
+            sphereObject.transform.localScale = new Vector3((extendRadius) * 2, (extendRadius) * 2, (extendRadius) * 2);
+        }   
+#endif
+
+    }
+
+    private void initializeControllers() {
+        if (controllerPicked == ControllerPicked.Right_Controller) {
+#if SteamVR_Legacy
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
+        } else if (controllerPicked == ControllerPicked.Left_Controller) {
+#if SteamVR_Legacy
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
+        } else {
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
+
+    }
+
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, NONE
+    }
+
+    public ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#endif
+        return ControllerState.NONE;
     }
 
     void Awake() {    
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         sphereObject = this.transform.Find("SphereTooltip").gameObject;
-        if (controllerPicked == ControllerPicked.Right_Controller) {
-            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
-        } else if (controllerPicked == ControllerPicked.Left_Controller) {
-            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
-        } else {
-            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
-            Application.Quit();
+        initializeControllers();
+        pickupObjs = sphereObject.AddComponent<PickupObjects>();
+        if (squadEnabled == true) {
+            menu = sphereObject.GetComponent<SquadMenu>();
+            menu.sphereCasting = this;
         }
+        pickupObjs.sphereCasting = this;
     }
 
     void Start() {
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
-        pickupObjs = sphereObject.AddComponent<PickupObjects>();
-        if (squadEnabled == true) {
-            menu = sphereObject.GetComponent<SquadMenu>();
-			//menu.panel
-        }
     }
 
     void mirroredObject() {
@@ -119,28 +172,29 @@ public class SphereCasting : MonoBehaviour {
     }
 
     void Update() {
+#if SteamVR_Legacy
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+#endif
         //print(menu.selectableObjectsCount());
         //printArray();
         mirroredObject();
         PadScrolling();
         ShowLaser();
-        Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
 			//print("hit:" + hit.transform.gameObject);
             hitPoint = hit.point;
             ShowLaser(hit);
             if (squadEnabled == false) {
-                pickupObjs.PickupObject(controller, trackedObj, pickupObjs.getSelectableObjects());
+                pickupObjs.PickupObject(pickupObjs.getSelectableObjects());
                 pickupObjs.clearList();
             } else if (squadEnabled == true && menu.isActive() == false && menu.quadrantIsPicked() == false) {
                 //print("selectable objects:"+menu.getSelectableObjects().Count);
                 if (menu.getSelectableObjects().Count > 1) {
-                    menu.enableSQUAD(controller, trackedObj, menu.getSelectableObjects());
+                    menu.enableSQUAD(menu.getSelectableObjects());
                     menu.clearList();
                 } else if (menu.getSelectableObjects().Count == 1) {
-                    pickupObjs.PickupObject(controller, trackedObj, pickupObjs.getSelectableObjects());
+                    pickupObjs.PickupObject(pickupObjs.getSelectableObjects());
                     pickupObjs.clearList();
                 }
             } else if (squadEnabled == true && menu.quadrantIsPicked() == true && menu.isActive() == true) {
@@ -150,7 +204,7 @@ public class SphereCasting : MonoBehaviour {
                 //menu.selectObject(controller, hit.transform.gameObject);
             } else if (squadEnabled == true && menu.quadrantIsPicked() == false && menu.isActive() == true) {
                 //menu.selectQuad(controller, hit.transform.gameObject);
-                menu.hoverQuad(controller, hit.transform.gameObject);
+                menu.hoverQuad(hit.transform.gameObject);
             }
         }
     }

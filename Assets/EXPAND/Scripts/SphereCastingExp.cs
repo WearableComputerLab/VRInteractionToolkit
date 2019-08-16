@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Valve.VR;
 
 public class SphereCastingExp : MonoBehaviour {
 
@@ -8,12 +9,19 @@ public class SphereCastingExp : MonoBehaviour {
     * University of South Australia
     * 
     * */
-    
+
+#if SteamVR_Legacy
+    internal SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device controller;
+#elif SteamVR_2
+    public SteamVR_Action_Boolean m_controllerPress;
+    public SteamVR_Action_Vector2 m_touchpadAxis;
+    internal SteamVR_Behaviour_Pose trackedObj;
+#endif
+    public GameObject cameraHead;
     public GameObject controllerLeft;
     public GameObject controllerRight;
-    
-    private SteamVR_TrackedObject trackedObj;
-    private SteamVR_Controller.Device controller;
+
     public static bool inMenu = false;
     internal ExpandMenu menu;
 
@@ -61,29 +69,74 @@ public class SphereCastingExp : MonoBehaviour {
 
     private void PadScrolling() {
         Vector3 controllerPos = trackedObj.transform.forward;
+#if SteamVR_Legacy
         if (controller.GetAxis().y != 0) {
             extendRadius += controller.GetAxis().y / cursorSpeed;
             sphereObject.transform.localScale = new Vector3((extendRadius) * 2, (extendRadius) * 2, (extendRadius) * 2);
         }
+#elif SteamVR_2
+        if (m_touchpadAxis.GetAxis(trackedObj.inputSource).y != 0) {
+            extendRadius += m_touchpadAxis.GetAxis(trackedObj.inputSource).y / cursorSpeed;
+            sphereObject.transform.localScale = new Vector3((extendRadius) * 2, (extendRadius) * 2, (extendRadius) * 2);
+        }
+#endif
+    }
+
+    private void initializeControllers() {
+        if (controllerPicked == ControllerPicked.Right_Controller) {
+#if SteamVR_Legacy
+            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
+        } else if (controllerPicked == ControllerPicked.Left_Controller) {
+#if SteamVR_Legacy
+            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
+        } else {
+            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
+            Application.Quit();
+        }
+
+    }
+
+    public enum ControllerState {
+        TRIGGER_UP, TRIGGER_DOWN, NONE
+    }
+
+    public ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.TRIGGER_UP;
+        }
+#endif
+        return ControllerState.NONE;
     }
 
     void Awake() {
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         sphereObject = this.transform.Find("SphereTooltip").gameObject;
-        if (controllerPicked == ControllerPicked.Right_Controller) {
-            trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
-        } else if (controllerPicked == ControllerPicked.Left_Controller) {
-            trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
-        } else {
-            print("Couldn't detect trackedObject, please specify the controller type in the settings.");
-            Application.Quit();
-        }
+        menu = sphereObject.GetComponent<ExpandMenu>();
+        menu.cameraHead = this.cameraHead;
+        menu.sphereCasting = this;
+        initializeControllers();
     }
 
     void Start() {
         laser = Instantiate(laserPrefab);
         laserTransform = laser.transform;
-        menu = sphereObject.GetComponent<ExpandMenu>();
     }
 
     void mirroredObject() {
@@ -101,23 +154,24 @@ public class SphereCastingExp : MonoBehaviour {
 
 
     void Update() {
+#if SteamVR_Legacy
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+#endif
         if (inMenu == false) {
             mirroredObject();
             PadScrolling();
         }
         ShowLaser();
-        Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             //print("hit:" + hit.transform.name);
             hitPoint = hit.point;
             ShowLaser(hit);
-			if (menu.isActive() == false && menu.getSelectableObjects().Count > 0) {
-                menu.enableEXPAND(controller, trackedObj, menu.getSelectableObjects());
+            if (menu.isActive() == false && menu.getSelectableObjects().Count > 0) {
+                menu.enableEXPAND(menu.getSelectableObjects());
                 menu.clearList();
             } else if (menu.isActive() == true) {
-                menu.selectObject(controller, hit.transform.gameObject);
+                menu.selectObject(hit.transform.gameObject);
             }
         }
     }

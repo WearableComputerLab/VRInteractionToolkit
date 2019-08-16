@@ -1,20 +1,26 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
+using Valve.VR;
 
 public class Raycasting : MonoBehaviour {
 
-    /* Fishing Reel implementation by Kieran May
+    /* Raycasting implementation by Kieran May
      * University of South Australia
      * 
      * */
-
+#if SteamVR_Legacy
+    private SteamVR_TrackedObject trackedObj;
+    private SteamVR_Controller.Device controller;
+#elif SteamVR_2
+    private SteamVR_Behaviour_Pose trackedObj;
+    public SteamVR_Action_Boolean m_controllerPress;
+#endif
     public LayerMask interactionLayers;
 
     public GameObject controllerRight = null;
     public GameObject controllerLeft = null;
 
-    private SteamVR_TrackedObject trackedObj;
-    private SteamVR_Controller.Device controller;
+
 
     public GameObject laserPrefab;
     private GameObject laser;
@@ -50,7 +56,30 @@ public class Raycasting : MonoBehaviour {
         mirroredCube.SetActive(true);
     }
 
-    private Valve.VR.EVRButtonId trigger = Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger;
+    public enum ControllerState {
+        UP, DOWN, NONE
+    }
+
+    private ControllerState controllerEvents() {
+#if SteamVR_Legacy
+        if (controller.GetPressDown(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.DOWN;
+        }
+        if (controller.GetPressUp(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger)) {
+            return ControllerState.UP;
+        }
+#elif SteamVR_2
+        if (m_controllerPress.GetStateDown(trackedObj.inputSource)) {
+            return ControllerState.DOWN;
+        }
+        if (m_controllerPress.GetStateUp(trackedObj.inputSource)) {
+            return ControllerState.UP;
+        }
+
+#endif
+
+        return ControllerState.NONE;
+    }
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
     public GameObject lastSelectedObject;
@@ -66,7 +95,7 @@ public class Raycasting : MonoBehaviour {
         hovered.Invoke();
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
-            if (controller.GetPressDown(trigger) && pickedUpObject == false) {
+            if (controllerEvents() == ControllerState.DOWN && pickedUpObject == false) {
                 if (interacionType == InteractionType.Manipulation_Movement) {
                     obj.transform.SetParent(trackedObj.transform);
                     lastSelectedObject = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
@@ -81,7 +110,7 @@ public class Raycasting : MonoBehaviour {
                 }
                 selectedObject.Invoke();
             }
-            if (controller.GetPressUp(trigger) && pickedUpObject == true) {
+            if (controllerEvents() == ControllerState.UP && pickedUpObject == true) {
                 if (interacionType == InteractionType.Manipulation_Movement) {
                     lastSelectedObject.transform.SetParent(null);
                     pickedUpObject = false;
@@ -107,18 +136,29 @@ public class Raycasting : MonoBehaviour {
 
     private GameObject manipulationIcons;
 
-    void Awake() {
-        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+    private void initializeControllers() {
         if (controllerPicked == ControllerPicked.Right_Controller) {
-            print(controllerRight);
+#if SteamVR_Legacy
             trackedObj = controllerRight.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerRight.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else if (controllerPicked == ControllerPicked.Left_Controller) {
+#if SteamVR_Legacy
             trackedObj = controllerLeft.GetComponent<SteamVR_TrackedObject>();
+#elif SteamVR_2
+            trackedObj = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
+#endif
         } else {
             print("Couldn't detect trackedObject, please specify the controller type in the settings.");
             Application.Quit();
         }
 
+    }
+
+    void Awake() {
+        mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        initializeControllers();
         if (interacionType == InteractionType.Manipulation_Full) {
 
             //this.gameObject.AddComponent<ColorPicker>();
@@ -137,10 +177,11 @@ public class Raycasting : MonoBehaviour {
     }
 
     void Update() {
+#if SteamVR_Legacy
         controller = SteamVR_Controller.Input((int)trackedObj.index);
+#endif
         mirroredObject();
         ShowLaser();
-        Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             hitPoint = hit.point;
