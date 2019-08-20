@@ -27,6 +27,7 @@ public class HOMER : MonoBehaviour {
 
     public GameObject controllerRight;
     public GameObject controllerLeft;
+    public GameObject cameraHead; // t
 
     private GameObject mirroredCube;
     public GameObject laserPrefab;
@@ -85,7 +86,6 @@ public class HOMER : MonoBehaviour {
     float Disth = 0f;
     float Disto = 0f;
     bool objSelected = false;
-    private GameObject cameraHead; // t
     private GameObject virtualHand;
     public GameObject selectedObject;
     public GameObject handPrefab;
@@ -178,7 +178,7 @@ public class HOMER : MonoBehaviour {
     }
 
     void Awake() {
-        cameraHead = GameObject.Find("Camera (eye)");
+        //cameraHead = GameObject.Find("Camera (eye)");
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         initializeControllers();
     }

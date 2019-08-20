@@ -192,7 +192,6 @@ public class ScaledWorldGrab : MonoBehaviour {
     private void castRay() {
         mirroredObject();
         ShowLaser();
-        Ray ray = Camera.main.ScreenPointToRay(trackedObj.transform.position);
         RaycastHit hit;
         if (Physics.Raycast(trackedObj.transform.position, trackedObj.transform.forward, out hit, 100)) {
             hitPoint = hit.point;

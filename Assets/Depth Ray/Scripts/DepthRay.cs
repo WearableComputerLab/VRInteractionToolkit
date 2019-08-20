@@ -14,7 +14,7 @@ public class DepthRay : MonoBehaviour {
 #elif SteamVR_2
     public SteamVR_Action_Boolean m_controllerPress;
     private SteamVR_Behaviour_Pose trackedObj;
-    public SteamVR_Action_Vector2 m_touchpad;
+    public SteamVR_Action_Vector2 m_touchpadAxis;
 #else
     public GameObject trackedObj;
 #endif
@@ -180,7 +180,6 @@ public class DepthRay : MonoBehaviour {
         mirroredCube.transform.rotation = trackedObj.transform.rotation;
     }
 
-    public float thickness = 0.002f;
     float dist = 100f;
 
     private int ClosestObject() {

@@ -5,8 +5,9 @@ using UnityEngine;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
 
-public class GoGoShadow : MonoBehaviour
-{
+public class GoGoShadow : MonoBehaviour {
+
+    private Camera playerCamera;
 
 #if SteamVR_Legacy
     public SteamVR_TrackedObject trackedObj; 
@@ -20,13 +21,13 @@ public class GoGoShadow : MonoBehaviour
 
     public GameObject cameraRig; // So shadow can attach itself to the camera rig on game start
 
-    public enum ToggleArmLengthCalculator { 
+    public enum ToggleArmLengthCalculator {
         on,
         off
     }
     // If toggled on the user can press down on the touchpad with their arm extended to take a measurement of the arm
     // If it is off the user must inut a manual estimate of what the users arm length would be
-    public ToggleArmLengthCalculator armLengthCalculator = ToggleArmLengthCalculator.off; 
+    public ToggleArmLengthCalculator armLengthCalculator = ToggleArmLengthCalculator.off;
 
     public float armLength; // Either manually inputted or will be set to the arm length when calculated
 
@@ -35,31 +36,25 @@ public class GoGoShadow : MonoBehaviour
     public GameObject theController; // controller for the gogo to access inout
 
     public GameObject theModel; // the model of the controller that will be shadowed for gogo use
-    
-	public float extensionVariable = 10f; // this variable in the equation controls the multiplier for how far the arm can extend with small movements
+
+    public float extensionVariable = 10f; // this variable in the equation controls the multiplier for how far the arm can extend with small movements
 
     bool calibrated = false;
     Vector3 chestPosition;
     Vector3 relativeChestPos;
 
-    
 
-    void makeModelChild()
-    {
-        if (this.transform.childCount == 0)
-        {
-            if (theModel.GetComponent<SteamVR_RenderModel>() != null)
-            { // The steamVR_RenderModel is generated after code start so we cannot parent right away or it wont generate. 
-                if (theModel.transform.childCount > 0)
-                {
+
+    void makeModelChild() {
+        if (this.transform.childCount == 0) {
+            if (theModel.GetComponent<SteamVR_RenderModel>() != null) { // The steamVR_RenderModel is generated after code start so we cannot parent right away or it wont generate. 
+                if (theModel.transform.childCount > 0) {
                     theModel.transform.parent = this.transform;
                     // Due to the transfer happening at a random time down the line we need to re-align the model inside the shadow controller to 0 so nothing is wonky.
                     theModel.transform.localPosition = Vector3.zero;
                     theModel.transform.localRotation = Quaternion.identity;
                 }
-            }
-            else
-            {
+            } else {
                 // If it is just a custom model we can immediately parent
                 theModel.transform.parent = this.transform;
                 // Due to the transfer happening at a random time down the line we need to re-align the model inside the shadow controller to 0 so nothing is wonky.
@@ -71,23 +66,21 @@ public class GoGoShadow : MonoBehaviour
     }
 
     // Might have to have a manuel calibration for best use
-    float getDistanceToExtend()
-    {
+    float getDistanceToExtend() {
         // estimating chest position using an assumed distance from head to chest and then going that distance down the down vector of the camera. This will not allways be optimal especially when leaning is involved.
         // To improve gogo to suite your needs all you need to do is implement your own algorithm to estimate chest (or shoulder for even high accuracy) position and set the chest position vector to match it
 
-        Vector3 direction = Camera.main.transform.up * -1;
+        Vector3 direction = playerCamera.transform.up * -1;
         Vector3 normalizedDirectionPlusDistance = direction.normalized * distanceFromHeadToChest;
-        chestPosition = Camera.main.transform.position + normalizedDirectionPlusDistance;
+        chestPosition = playerCamera.transform.position + normalizedDirectionPlusDistance;
 
         float distChestPos = Vector3.Distance(trackedObj.transform.position, chestPosition);
 
         float D = (2f * armLength) / 3f; // 2/3 of users arm length
 
         //D = 0;
-        if (distChestPos >= D)
-        {
-			float extensionDistance = distChestPos + (extensionVariable * (float)Math.Pow(distChestPos - D, 2));
+        if (distChestPos >= D) {
+            float extensionDistance = distChestPos + (extensionVariable * (float)Math.Pow(distChestPos - D, 2));
             // Dont need both here as we only want the distance to extend by not the full distance
             // but we want to keep the above formula matching the original papers formula so will then calculate just the distance to extend below
             return extensionDistance - distChestPos;
@@ -96,23 +89,24 @@ public class GoGoShadow : MonoBehaviour
     }
 
     // Use this for initialization
-    void Start()
-    {
+    void Start() {
         this.transform.parent = cameraRig.transform;
+        if (Camera.main != null) {
+            playerCamera = Camera.main;
+        } else {
+            playerCamera = cameraRig.GetComponentInChildren<Camera>();
+        }
         makeModelChild();
     }
 
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
         makeModelChild();
         //this.GetComponentInChildren<SteamVR_RenderModel>().gameObject.SetActive(false);
         Renderer[] renderers = this.transform.parent.GetComponentsInChildren<Renderer>();
-        foreach (Renderer renderer in renderers)
-        {
-            if (renderer.material.name == "Standard (Instance)")
-            {
+        foreach (Renderer renderer in renderers) {
+            if (renderer.material.name == "Standard (Instance)") {
                 renderer.enabled = true;
             }
         }
@@ -120,8 +114,7 @@ public class GoGoShadow : MonoBehaviour
         moveControllerForward();
     }
 
-    void moveControllerForward()
-    {
+    void moveControllerForward() {
         // Using the origin and the forward vector of the remote the extended positon of the remote can be calculated
         //Vector3 theVector = theController.transform.forward;
         Vector3 theVector = theController.transform.position - chestPosition;
@@ -133,8 +126,7 @@ public class GoGoShadow : MonoBehaviour
 
         float distanceToExtend = getDistanceToExtend();
 
-        if (distanceToExtend != 0)
-        {
+        if (distanceToExtend != 0) {
             // Using formula to find a point which lies at distance on a 3D line from vector and direction
             pose.x = pose.x + (distanceToExtend / (distance_formula_on_vector)) * theVector.x;
             pose.y = pose.y + (distanceToExtend / (distance_formula_on_vector)) * theVector.y;
