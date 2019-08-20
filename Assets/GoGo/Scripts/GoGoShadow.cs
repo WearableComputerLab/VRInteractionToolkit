@@ -14,6 +14,8 @@ public class GoGoShadow : MonoBehaviour
 #elif SteamVR_2
     public SteamVR_Behaviour_Pose trackedObj;
     public SteamVR_Action_Boolean m_touchpadPress;
+#else
+    public GameObject trackedObj;
 #endif
 
     public GameObject cameraRig; // So shadow can attach itself to the camera rig on game start

@@ -32,6 +32,8 @@ public class Flashlight : MonoBehaviour {
     private SteamVR_Controller.Device device;
 #elif SteamVR_2
     public SteamVR_Behaviour_Pose trackedObj;
+#else
+    public GameObject trackedObj;
 #endif
 
     public GameObject objectAttachedTo;

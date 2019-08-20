@@ -18,6 +18,8 @@ public class SphereCasting : MonoBehaviour {
     internal SteamVR_Behaviour_Pose trackedObj;
     public SteamVR_Action_Boolean m_controllerPress;
     public SteamVR_Action_Vector2 m_touchpadAxis;
+#else
+    public GameObject trackedObj;
 #endif
 
     public GameObject controllerRight;

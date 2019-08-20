@@ -43,6 +43,9 @@ public class ARMLaser : MonoBehaviour {
     private SteamVR_Behaviour_Pose trackedObj;
     public SteamVR_Action_Boolean m_controllerPress;
     public SteamVR_Action_Boolean m_touchpadPress;
+
+#else
+    public GameObject trackedObj;
 #endif
 
     public LayerMask interactionLayers;

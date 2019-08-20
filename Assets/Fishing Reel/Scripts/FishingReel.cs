@@ -18,6 +18,8 @@ public class FishingReel : MonoBehaviour {
     public SteamVR_Action_Boolean m_touchpad;
     public SteamVR_Action_Vector2 m_touchpadAxis;
     private SteamVR_Behaviour_Pose trackedObj;
+#else
+    public GameObject trackedObj;
 #endif
 
     public LayerMask interactionLayers;

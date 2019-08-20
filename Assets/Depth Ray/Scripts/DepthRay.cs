@@ -15,6 +15,8 @@ public class DepthRay : MonoBehaviour {
     public SteamVR_Action_Boolean m_controllerPress;
     private SteamVR_Behaviour_Pose trackedObj;
     public SteamVR_Action_Vector2 m_touchpad;
+#else
+    public GameObject trackedObj;
 #endif
 
     public GameObject controllerRight;

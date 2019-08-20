@@ -14,6 +14,8 @@ public class Raycasting : MonoBehaviour {
 #elif SteamVR_2
     private SteamVR_Behaviour_Pose trackedObj;
     public SteamVR_Action_Boolean m_controllerPress;
+#else
+    public GameObject trackedObj;
 #endif
     public LayerMask interactionLayers;
 

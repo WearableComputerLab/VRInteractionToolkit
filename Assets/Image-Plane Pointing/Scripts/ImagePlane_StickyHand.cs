@@ -12,6 +12,8 @@ public class ImagePlane_StickyHand : MonoBehaviour {
 #elif SteamVR_2
     private SteamVR_Behaviour_Pose trackedObj;
     public SteamVR_Action_Boolean m_controllerPress;
+#else
+    public GameObject trackedObj;
 #endif
 
     internal bool objSelected = false;

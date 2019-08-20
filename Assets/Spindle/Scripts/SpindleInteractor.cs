@@ -22,6 +22,9 @@ public class SpindleInteractor : MonoBehaviour {
     public SteamVR_Action_Boolean m_controllerPress;
     public SteamVR_Behaviour_Pose trackedObj1;
     public SteamVR_Behaviour_Pose trackedObj2;
+#else
+    public GameObject trackedObj1;
+    public GameObject trackedObj2;
 #endif
 
     public LayerMask interactionLayers;

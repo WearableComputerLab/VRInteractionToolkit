@@ -38,6 +38,9 @@ public class FlexiblePointerController : MonoBehaviour {
 #elif SteamVR_2
             SteamVR_Behaviour_Pose leftTracked = leftController.GetComponent<SteamVR_Behaviour_Pose>();
             SteamVR_Behaviour_Pose rightTracked = rightController.GetComponent<SteamVR_Behaviour_Pose>();
+#else
+            GameObject leftTracked = leftController.gameObject;
+            GameObject rightTracked = rightController.gameObject;
 #endif
             if (flexiblePointerComponent.trackedObjL == null && leftTracked != null) {
                 flexiblePointerComponent.trackedObjL = leftTracked;

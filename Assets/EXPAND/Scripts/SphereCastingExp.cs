@@ -17,6 +17,8 @@ public class SphereCastingExp : MonoBehaviour {
     public SteamVR_Action_Boolean m_controllerPress;
     public SteamVR_Action_Vector2 m_touchpadAxis;
     internal SteamVR_Behaviour_Pose trackedObj;
+#else
+    public GameObject trackedObj;
 #endif
     public GameObject cameraHead;
     public GameObject controllerLeft;

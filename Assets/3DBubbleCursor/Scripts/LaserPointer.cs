@@ -11,6 +11,8 @@ public class LaserPointer : MonoBehaviour {
 #elif SteamVR_2
     private SteamVR_Behaviour_Pose trackedObj;
     public SteamVR_Action_Boolean m_touchpad;
+#else
+    public GameObject trackedObj;
 #endif
     private GameObject[] circleObjects;
     public GameObject cursor;

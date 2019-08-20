@@ -11,6 +11,9 @@ public class Spindle : MonoBehaviour {
 #elif SteamVR_2
     public SteamVR_Behaviour_Pose trackedObj1;
     public SteamVR_Behaviour_Pose trackedObj2;
+#else
+    public GameObject trackedObj1;
+    public GameObject trackedObj2;
 #endif
 
     public bool spindleAndWheel = false;

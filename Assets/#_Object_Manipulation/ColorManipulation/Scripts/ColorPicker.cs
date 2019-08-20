@@ -11,6 +11,8 @@ public class ColorPicker : MonoBehaviour {
     internal SteamVR_Behaviour_Pose trackedObj;
     internal SteamVR_Action_Boolean m_controllerPress;
     internal SteamVR_Action_Vector2 m_touchpadAxis;
+#else
+    internal GameObject trackedObj;
 #endif
     private float hue, saturation, val = 1f;
 

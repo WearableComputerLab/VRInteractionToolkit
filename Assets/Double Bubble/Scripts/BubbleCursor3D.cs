@@ -24,6 +24,8 @@ public class BubbleCursor3D : MonoBehaviour {
     public SteamVR_Action_Boolean m_controllerPress;
     public SteamVR_Action_Boolean m_touchpad;
     public SteamVR_Action_Vector2 m_touchpadAxis;
+#else
+    public GameObject trackedObj;
 #endif
 
     private GameObject[] interactableObjects; // In-game objects

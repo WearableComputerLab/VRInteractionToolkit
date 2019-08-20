@@ -22,6 +22,9 @@ public class WorldInMiniature : MonoBehaviour {
     public SteamVR_Action_Boolean m_menuButton;
     public SteamVR_Action_Vector2 m_touchpadAxis;
     public SteamVR_Action_Boolean m_touchpadTouch;
+#else
+    public GameObject trackedObj;
+    public GameObject trackedObjO;
 #endif
 
     public GameObject worldInMinParent;

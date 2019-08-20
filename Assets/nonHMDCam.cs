@@ -9,6 +9,8 @@ public class nonHMDCam : MonoBehaviour {
      public SteamVR_TrackedObject trackedObj;
 #elif SteamVR_2
     public SteamVR_Behaviour_Pose trackedObj;
+#else
+    public GameObject trackedObj;
 #endif
 
 

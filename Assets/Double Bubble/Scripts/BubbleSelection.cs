@@ -11,6 +11,8 @@ public class BubbleSelection : MonoBehaviour {
     internal SteamVR_TrackedObject trackedObj;
 #elif SteamVR_2
     internal SteamVR_Behaviour_Pose trackedObj;
+#else
+    public GameObject trackedObj;
 #endif
     internal List<GameObject> selectableObjects = new List<GameObject>();
 

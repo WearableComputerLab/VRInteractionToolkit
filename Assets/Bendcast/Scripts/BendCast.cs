@@ -35,6 +35,8 @@ public class BendCast : MonoBehaviour
 #elif SteamVR_2
     private SteamVR_Behaviour_Pose trackedObj;  // used by the script to keep track of the controller
     public SteamVR_Action_Boolean m_controllerPress;
+#else
+    public GameObject trackedObj;
 #endif
 
     public LayerMask interactionLayers;

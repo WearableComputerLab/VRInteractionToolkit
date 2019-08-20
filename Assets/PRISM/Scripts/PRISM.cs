@@ -13,6 +13,8 @@ public class PRISM : MonoBehaviour {
 #elif SteamVR_2
     private SteamVR_Behaviour_Pose trackedObj;
     public SteamVR_Action_Boolean m_touchpadPress;
+#else
+    public GameObject trackedObj;
 #endif
 
 

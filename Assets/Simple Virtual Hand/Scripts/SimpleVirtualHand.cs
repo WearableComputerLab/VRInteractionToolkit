@@ -16,6 +16,8 @@ public class SimpleVirtualHand : MonoBehaviour {
 #elif SteamVR_2
     internal SteamVR_Behaviour_Pose trackedObj;
     public SteamVR_Action_Boolean m_controllerPress;
+#else
+    public GameObject trackedObj;
 #endif
 
 

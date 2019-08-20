@@ -14,6 +14,8 @@ public class SelectionManipulation : MonoBehaviour {
     public SteamVR_Action_Vector2 m_touchpadAxis;
     public SteamVR_Action_Boolean m_applicationMenu;
     internal SteamVR_Behaviour_Pose trackedObj;
+# else
+    public GameObject trackedObj;
 #endif
 
     internal GameObject selectedObject;
@@ -170,6 +172,8 @@ public class SelectionManipulation : MonoBehaviour {
             if (oldParent != null && oldParent.GetComponent<SteamVR_TrackedObject>() == null) {
 #elif SteamVR_2
             if (oldParent != null && oldParent.GetComponent<SteamVR_Behaviour_Pose>() == null) {
+#else
+            if (oldParent != null) {
 #endif
             selectedObject.transform.SetParent(oldParent);
         } else {
@@ -212,8 +216,10 @@ void navigateOptions() {
             Vector2 touchpad = (controller.GetAxis(Valve.VR.EVRButtonId.k_EButton_Axis0));
 #elif SteamVR_2
             Vector2 touchpad = (m_touchpadAxis.GetAxis(trackedObj.inputSource));
+#else
+            Vector2 touchpad = Vector2.zero; //Not supported without SteamVR
 #endif
-        if (colourPickerEnabled == false && changeSizeEnabled == false) {
+            if (colourPickerEnabled == false && changeSizeEnabled == false) {
             if (touchpad.x > 0.7f) {
                 //print("Moved right..");
                 if (index < 4) {

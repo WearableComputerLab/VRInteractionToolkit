@@ -14,6 +14,9 @@ public class ImagePlane_FramingHands : MonoBehaviour {
 	private SteamVR_Behaviour_Pose trackedObjR;
     public SteamVR_Action_Boolean m_controllerPress;
     public SteamVR_Action_Boolean m_applicationMenu;
+#else
+    public GameObject trackedObjL;
+    public GameObject trackedObjR;
 #endif
 
     /* ImagePlane_FramingHands implementation by Kieran May

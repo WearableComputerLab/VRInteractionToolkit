@@ -38,6 +38,9 @@ public class FlexiblePointer : MonoBehaviour {
 
     public SteamVR_Behaviour_Pose trackedObjL;
     public SteamVR_Behaviour_Pose trackedObjR;
+#else
+    public GameObject trackedObjL;
+    public GameObject trackedObjR;
 #endif
 
     public LayerMask interactionLayers;
@@ -156,6 +159,10 @@ public class FlexiblePointer : MonoBehaviour {
 #elif SteamVR_2
         Vector2 touchpadL = (m_touchpadAxis.GetAxis(trackedObjL.inputSource)); // Getting reference to the touchpad
         Vector2 touchpadR = (m_touchpadAxis.GetAxis(trackedObjL.inputSource)); // Getting reference to the touchpad
+#else
+        //not supported without SteamVR
+        Vector2 touchpadL = Vector2.zero;
+        Vector2 touchpadR = Vector2.zero;
 #endif
 
 

@@ -11,6 +11,9 @@ public class AperatureSelection : MonoBehaviour {
 #elif SteamVR_2
     public SteamVR_Behaviour_Pose controllerTrackedObj;
 	public GameObject headsetTrackedObj;
+#else
+    public GameObject controllerTrackedObj;
+    public GameObject headsetTrackedObj;
 #endif
 
     // Uses a laser as the handle

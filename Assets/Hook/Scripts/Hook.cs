@@ -21,6 +21,8 @@ public class Hook : MonoBehaviour {
 #elif SteamVR_2
     public SteamVR_Action_Boolean m_controllerPress;
     public SteamVR_Behaviour_Pose trackedObj = null;
+#else
+    public GameObject trackedObj = null;
 #endif
 
     // User can specify layers of objects that the hook will be able to select

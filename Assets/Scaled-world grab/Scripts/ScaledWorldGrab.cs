@@ -20,6 +20,8 @@ public class ScaledWorldGrab : MonoBehaviour {
     internal SteamVR_Behaviour_Pose trackedObj;
     public SteamVR_Action_Boolean m_controllerPress;
     public SteamVR_Action_Boolean m_menuButton;
+#else
+    public GameObject trackedObj;
 #endif
 
     public GameObject controllerCollider;
