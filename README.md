@@ -9,10 +9,12 @@ Our full systems requirement document is available at: https://docs.google.com/d
 ## Getting Started
 -TODO : Basic pics/tutorials..
 
-# Reference
+# Disclaimer
+
+## Reference
 All techniques implemented in this project are based off the research of other people, and have been acquired from the textbook '3D User Interfaces theory and practice'
 Full reference below:
 LaViola, J., Kruijff, E., McMahan, R., Bowman, D. and Poupyrev, I. (2017). 3D user interfaces. 2nd ed. Boston: Addison-Wesley, pp.256-315.
 
-# Full Systems Requirement document available at:
+## License
 Code released under the MIT License.
