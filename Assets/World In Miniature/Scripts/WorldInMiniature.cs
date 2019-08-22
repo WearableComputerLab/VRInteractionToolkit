@@ -36,7 +36,7 @@ public class WorldInMiniature : MonoBehaviour {
     public LayerMask interactableLayer;
     public Material outlineMaterial;
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public enum InteractionType { Selection, Manipulation_Movement };
     public InteractionType interacionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };

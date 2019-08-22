@@ -47,7 +47,7 @@ public class FlashlightSelection : MonoBehaviour {
     public LayerMask interactionLayers;
 
     // Allows to choose if the script purley selects or has full manipulation
-    public enum InteractionType { Selection, Manipulation };
+    public enum InteractionType { Selection, Manipulation, Manipulation_UI};
     public InteractionType interactionType;
     public GameObject selection; // holds the selected object
     private GameObject trackedObj;
@@ -76,6 +76,13 @@ public class FlashlightSelection : MonoBehaviour {
 
     void Awake() {
         //trackedObj = GetComponent<SteamVR_TrackedObject>();
+        if (interactionType == InteractionType.Manipulation_UI) {
+            this.gameObject.AddComponent<SelectionManipulation>();
+            this.GetComponent<SelectionManipulation>().trackedObj = theController;
+#if SteamVR_2
+            this.GetComponent<SelectionManipulation>().m_controllerPress = m_controllerPress;
+#endif
+        }
     }
 
     private void SetCollidingObject(Collider col) {
@@ -243,6 +250,8 @@ public class FlashlightSelection : MonoBehaviour {
                 } else if (interactionType == InteractionType.Manipulation) {
                     //Manipulation
                     GrabObject();
+                } else if (interactionType == InteractionType.Manipulation_UI && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                    this.GetComponent<SelectionManipulation>().selectedObject = objectHoveredOver;
                 }
                 selection = objectHoveredOver;
                 selectedObject.Invoke();

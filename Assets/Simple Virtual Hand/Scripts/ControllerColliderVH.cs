@@ -53,7 +53,7 @@ public class ControllerColliderVH : MonoBehaviour {
             scaleSelected = simpleVirtualHand.selectedObject;
             unHovered.Invoke();
             selectedObject.Invoke();
-            if(simpleVirtualHand.interacionType == SimpleVirtualHand.InteractionType.Manipulation_Full || simpleVirtualHand.interacionType == SimpleVirtualHand.InteractionType.Manipulation_Movement) {
+            if(simpleVirtualHand.interacionType == SimpleVirtualHand.InteractionType.Manipulation_Movement) {
                 col.gameObject.transform.SetParent(simpleVirtualHand.trackedObj.gameObject.transform);
                 simpleVirtualHand.objectGrabbed = true;
                 simpleVirtualHand.selectedObject = col.gameObject;

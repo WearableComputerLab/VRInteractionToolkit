@@ -38,11 +38,11 @@ public class DepthRay : MonoBehaviour {
 
     internal bool objectSelected = false;
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full, Manipulation_UI};
     public enum SelectionAssister { Hide_Closest_Only, Hide_All_But_Closest };
 
 
-    public InteractionType interacionType;
+    public InteractionType interactionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
@@ -131,22 +131,26 @@ public class DepthRay : MonoBehaviour {
         }
         if (trackedObj != null) {
             if (controllerEvents() == ControllerState.DOWN && pickedUpObject == false) {
-                if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+                if (interactionType == InteractionType.Manipulation_Movement || interactionType == InteractionType.Manipulation_Full) {
                     obj.transform.SetParent(trackedObj.transform);
                     tempObjectStored = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
                     pickedUpObject = true;
-                } else if (interacionType == InteractionType.Selection) {
+                } else if (interactionType == InteractionType.Selection) {
                     tempObjectStored = obj;
                     objectSelected = true;
                     print("Selected object in pure selection mode:" + tempObjectStored.name);
+                } else if (interactionType == InteractionType.Manipulation_UI && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                    tempObjectStored = obj;
+                    objectSelected = true;
+                    this.GetComponent<SelectionManipulation>().selectedObject = obj;
                 }
                 selectedObject.Invoke();
             }
             if (controllerEvents() == ControllerState.UP && pickedUpObject == true) {
-                if (interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+                if (interactionType == InteractionType.Manipulation_Movement) {
                     tempObjectStored.transform.SetParent(null);
                     pickedUpObject = false;
-                } else if (interacionType == InteractionType.Selection) {
+                } else if (interactionType == InteractionType.Selection) {
                     objectSelected = false;
                 }
                 droppedObject.Invoke();
@@ -247,6 +251,10 @@ public class DepthRay : MonoBehaviour {
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         cubeAssister = this.transform.Find("Cube Assister").gameObject;
         initializeControllers();
+        if (interactionType == InteractionType.Manipulation_UI) {
+            this.gameObject.AddComponent<SelectionManipulation>();
+            this.GetComponent<SelectionManipulation>().trackedObj = trackedObj;
+        }
     }
 
     void Start() {

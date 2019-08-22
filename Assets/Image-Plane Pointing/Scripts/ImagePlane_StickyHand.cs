@@ -47,8 +47,8 @@ public class ImagePlane_StickyHand : MonoBehaviour {
 	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 	public GameObject selectedObject;
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
-    public InteractionType interacionType;
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_UI };
+    public InteractionType interactionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
@@ -178,7 +178,7 @@ void checkSurroundingObjects()
     public void PickupObject(GameObject obj) {
         if (trackedObj != null) {
             if(controllerEvents() == ControllerState.TRIGGER_DOWN && objSelected == false) {
-                if(interacionType == InteractionType.Manipulation_Movement) {
+                if (interactionType == InteractionType.Manipulation_Movement) {
                     selectedObject = obj;
                     oldParent = obj.transform.parent;
                     float dist = Vector3.Distance(trackedObj.transform.position, obj.transform.position);
@@ -187,8 +187,8 @@ void checkSurroundingObjects()
                     obj.transform.SetParent(trackedObj.transform);
                     objSelected = true;
                     selectedObjectEvent.Invoke();
-                } else if(interacionType == InteractionType.Selection) {
-                    if(selectedObject != null && oldMaterial != null) {
+                } else if (interactionType == InteractionType.Selection) {
+                    if (selectedObject != null && oldMaterial != null) {
                         selectedObject.transform.GetComponent<Renderer>().material = oldMaterial;
                     }
                     selectedObject = obj;
@@ -196,9 +196,13 @@ void checkSurroundingObjects()
                     //oldMaterial = obj.transform.GetComponent<Renderer>().material;
                     //obj.transform.GetComponent<Renderer>().material = outlineMaterial;
 
+                } else if (interactionType == InteractionType.Manipulation_UI && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                    selectedObject = obj;
+                    objSelected = true;
+                    this.GetComponent<SelectionManipulation>().selectedObject = obj;
                 }
             } else if(controllerEvents() == ControllerState.TRIGGER_DOWN && objSelected == true) {
-                if(interacionType == InteractionType.Manipulation_Movement) {
+                if(interactionType == InteractionType.Manipulation_Movement) {
                     //print("reset.."+oldParent+" | obj:"+ selectedObject);
                     selectedObject.transform.SetParent(oldParent);
                     objSelected = false;
@@ -287,6 +291,13 @@ void checkSurroundingObjects()
         pointOfInteraction = this.transform.Find("InteractionPoint").gameObject;
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         initializeControllers();
+        if (interactionType == InteractionType.Manipulation_UI) {
+            this.gameObject.AddComponent<SelectionManipulation>();
+            this.GetComponent<SelectionManipulation>().trackedObj = trackedObj;
+#if SteamVR_2
+            this.GetComponent<SelectionManipulation>().m_controllerPress = m_controllerPress;
+#endif
+        }
     }
 
     void Start() {
@@ -303,8 +314,6 @@ void checkSurroundingObjects()
         }
         interactionPosition();
         mirroredObject();
-        
-        Ray ray = Camera.main.ScreenPointToRay(cameraHead.transform.position);
 
         Vector3 newForward = pointOfInteraction.transform.position - cameraHead.transform.position;
         RaycastHit hit;

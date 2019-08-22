@@ -43,7 +43,7 @@ public class SphereCasting : MonoBehaviour {
 	public UnityEvent hovered; // Invoked when an object is hovered by technique
 	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public enum InteractionType { Selection, Manipulation_Movement };
     public InteractionType interacionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };

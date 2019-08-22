@@ -50,7 +50,7 @@ public class BendCast : MonoBehaviour
 
 
     // Allows to choose if the script purley selects or has full manipulation
-    public enum InteractionType { Selection, Manipulation };
+    public enum InteractionType { Selection, Manipulation, Manipulation_UI };
     public InteractionType interactionType;
     public GameObject lastSelectedObject; // holds the selected object
 
@@ -95,6 +95,10 @@ public class BendCast : MonoBehaviour
 #elif SteamVR_2
             trackedObj = rightController.GetComponent<SteamVR_Behaviour_Pose>();
 #endif
+            if (interactionType == InteractionType.Manipulation_UI) {
+                this.gameObject.AddComponent<SelectionManipulation>();
+                this.GetComponent<SelectionManipulation>().trackedObj = trackedObj;
+            }
         }
 
         // Initalizing all the lasers
@@ -149,6 +153,10 @@ public class BendCast : MonoBehaviour
                 
             } else if(interactionType == InteractionType.Manipulation) {
 
+            } else if (interactionType == InteractionType.Manipulation_UI && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                lastSelectedObject = currentlyPointingAt;
+                this.GetComponent<SelectionManipulation>().selectedObject = lastSelectedObject;
+                selectedObject.Invoke();
             }
             selectedObject.Invoke();
         }

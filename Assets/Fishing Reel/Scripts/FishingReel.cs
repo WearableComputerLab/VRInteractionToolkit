@@ -34,11 +34,11 @@ public class FishingReel : MonoBehaviour {
     private Vector3 hitPoint;
     private GameObject mirroredCube;
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_UI};
     public enum ControllerState {
         UP, DOWN, NONE
     }
-    public InteractionType interacionType;
+    public InteractionType interactionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
@@ -101,23 +101,23 @@ public class FishingReel : MonoBehaviour {
         Vector3 controllerPos = trackedObj.transform.forward;
         if (trackedObj != null) {
             if (controllerEvents() == ControllerState.DOWN && pickedUpObject == false) {
-                if (interacionType == InteractionType.Manipulation_Movement) {
+                if (interactionType == InteractionType.Manipulation_Movement) {
                     obj.transform.SetParent(trackedObj.transform);
                     extendDistance = Vector3.Distance(controllerPos, obj.transform.position);
                     lastSelectedObject = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
                     pickedUpObject = true;
-                } else if (interacionType == InteractionType.Manipulation_Full && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                } else if (interactionType == InteractionType.Manipulation_UI && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
                     lastSelectedObject = obj;
                     objectSelected = true;
                     this.GetComponent<SelectionManipulation>().selectedObject = obj;
-                } else if (interacionType == InteractionType.Selection) {
+                } else if (interactionType == InteractionType.Selection) {
                     lastSelectedObject = obj;
                     objectSelected = true;
                 }
                 selectedObject.Invoke();
             }
             if (controllerEvents() == ControllerState.UP && pickedUpObject == true) {
-                if (interacionType == InteractionType.Manipulation_Movement) {
+                if (interactionType == InteractionType.Manipulation_Movement) {
                     lastSelectedObject.transform.SetParent(null);
                     pickedUpObject = false;
                     droppedObject.Invoke();
@@ -200,7 +200,7 @@ public class FishingReel : MonoBehaviour {
     void Awake() {
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
         initializeControllers();
-        if (interacionType == InteractionType.Manipulation_Full) {
+        if (interactionType == InteractionType.Manipulation_UI) {
             this.gameObject.AddComponent<SelectionManipulation>();
             this.GetComponent<SelectionManipulation>().trackedObj = trackedObj;
 #if SteamVR_2
@@ -209,8 +209,6 @@ public class FishingReel : MonoBehaviour {
             this.GetComponent<SelectionManipulation>().m_touchpadAxis = m_touchpadAxis;
             this.GetComponent<SelectionManipulation>().m_applicationMenu = m_applicationMenu;
 #endif
-            manipulationIcons = GameObject.Find("Manipulation_Icons");
-            this.GetComponent<SelectionManipulation>().manipulationIcons = manipulationIcons;
         }
 
     }

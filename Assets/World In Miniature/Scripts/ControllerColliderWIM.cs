@@ -56,7 +56,7 @@ public class ControllerColliderWIM : MonoBehaviour {
                     worldInMin.selectedObject = col.gameObject;
                     //worldInMin.selectedObject.transform.GetComponent<Renderer>().material = worldInMin.outlineMaterial;
                     worldInMin.objectPicked = true;
-                } else if (worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Full && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                } else if (this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
                     worldInMin.objectPicked = true;
                     this.GetComponent<SelectionManipulation>().selectedObject = col.gameObject;
                 }
@@ -65,11 +65,9 @@ public class ControllerColliderWIM : MonoBehaviour {
                 worldInMin.currentObjectCollided = null;
 
                 if(worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Movement) {
-					//col.attachedRigidbody.isKinematic = false;
-					//enableRigidBody (worldInMin.worldInMinParent);
-                    if(worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Full) {
+                    /*if(worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Full) {
                         this.GetComponent<SelectionManipulation>().selectedObject.transform.SetParent(null);
-                    }
+                    }*/
                     worldInMin.objectPicked = false;
                 }
             }
@@ -93,11 +91,5 @@ public class ControllerColliderWIM : MonoBehaviour {
     // Use this for initialization
     void Start () {
         worldInMin = GameObject.Find("WorldInMiniature_Technique").GetComponent<WorldInMiniature>();
-        if(worldInMin.interacionType == WorldInMiniature.InteractionType.Manipulation_Full) {
-            this.gameObject.AddComponent<SelectionManipulation>();
-            this.GetComponent<SelectionManipulation>().trackedObj = worldInMin.trackedObjO;
-            manipulationIcons = GameObject.Find("Manipulation_Icons");
-            this.GetComponent<SelectionManipulation>().manipulationIcons = manipulationIcons;
-        }
     }
 }

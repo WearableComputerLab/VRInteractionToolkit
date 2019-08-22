@@ -31,7 +31,7 @@ public class ControllerColliderSWG : MonoBehaviour {
                 scaleSelected = scaledWorldGrab.selectedObject;
                 unHovered.Invoke();
                 selectedObject.Invoke();
-                if(scaledWorldGrab.interacionType == ScaledWorldGrab.InteractionType.Manipulation_Full || scaledWorldGrab.interacionType == ScaledWorldGrab.InteractionType.Manipulation_Movement) {
+                if(scaledWorldGrab.interacionType == ScaledWorldGrab.InteractionType.Manipulation_Movement) {
                     col.gameObject.transform.SetParent(scaledWorldGrab.trackedObj.gameObject.transform);
                     scaledWorldGrab.objectGrabbed = true;
                 } else if(scaledWorldGrab.interacionType == ScaledWorldGrab.InteractionType.Selection) {

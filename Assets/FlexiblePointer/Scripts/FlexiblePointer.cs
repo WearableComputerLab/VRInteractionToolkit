@@ -76,7 +76,7 @@ public class FlexiblePointer : MonoBehaviour {
 
 
     // Allows to choose if the script purley selects or has full manipulation
-    public enum InteractionType { Selection, Manipulation };
+    public enum InteractionType { Selection, Manipulation, Manipulation_UI};
     public InteractionType interactionType;
 
     // Use this for initialization
@@ -91,6 +91,10 @@ public class FlexiblePointer : MonoBehaviour {
             laserPart.transform.parent = laserContainer.transform;
         }
         setPoint0and1();
+        if (interactionType == InteractionType.Manipulation_UI) {
+            this.gameObject.AddComponent<SelectionManipulation>();
+            this.GetComponent<SelectionManipulation>().trackedObj = trackedObjR;
+        }
     }
 
     // Returns 1 for controller 1 and 2 for controller 2
@@ -238,6 +242,9 @@ public class FlexiblePointer : MonoBehaviour {
             } else if (interactionType == InteractionType.Manipulation) {
                 // Currently no manipulation
                 selection = currentlyPointingAt;
+            } else if (interactionType == InteractionType.Manipulation_UI) {
+                selection = currentlyPointingAt;
+                this.GetComponent<SelectionManipulation>().selectedObject = selection;
             }
             selectedObject.Invoke();
         }

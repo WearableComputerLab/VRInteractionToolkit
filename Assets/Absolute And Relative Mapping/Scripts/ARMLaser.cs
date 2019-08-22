@@ -61,7 +61,7 @@ public class ARMLaser : MonoBehaviour {
     private Vector3 lastPosition;
     public GameObject theModel;
 
-    public enum InteractionType { Selection, Manipulation };
+    public enum InteractionType { Selection, Manipulation, Manipulation_UI};
 
     public InteractionType interactionType = InteractionType.Selection;
     public GameObject lastSelectedObject; // holds the selected object
@@ -148,6 +148,10 @@ public class ARMLaser : MonoBehaviour {
 #elif SteamVR_2
         trackedObj = theController.GetComponent<SteamVR_Behaviour_Pose>();
 #endif
+        if (interactionType == InteractionType.Manipulation_UI) {
+            this.gameObject.AddComponent<SelectionManipulation>();
+            this.GetComponent<SelectionManipulation>().trackedObj = trackedObj;
+        }
     }
 
     // Use this for initialization
@@ -233,6 +237,9 @@ public class ARMLaser : MonoBehaviour {
                 } else if (interactionType == InteractionType.Manipulation) {
                     // No manipualtion implemented for this currently
                     lastSelectedObject = currentlyPointingAt;
+                } else if (interactionType == InteractionType.Manipulation_UI) {
+                    lastSelectedObject = currentlyPointingAt;
+                    this.GetComponent<SelectionManipulation>().selectedObject = lastSelectedObject;
                 }
                 selectedObject.Invoke();
             }

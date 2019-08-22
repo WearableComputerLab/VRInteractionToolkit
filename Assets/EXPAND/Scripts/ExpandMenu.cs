@@ -15,7 +15,7 @@ public class ExpandMenu : MonoBehaviour {
     public List<GameObject> selectableObjects = new List<GameObject>();
     private GameObject[] pickedObjects;
     private GameObject panel;
-    public GameObject cameraHead;
+    internal GameObject cameraHead;
 
     public LayerMask interactableLayer;
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
@@ -81,9 +81,18 @@ public class ExpandMenu : MonoBehaviour {
             pickedObject = GameObject.Find(objName);
             lastPickedObject = pickedObject;
             print("Final picked object:" + objName);
+            if (sphereCasting.interactionType == SphereCastingExp.InteractionType.Selection) {
+                sphereCasting.selectedObject = pickedObject;
+            } else if (sphereCasting.interactionType == SphereCastingExp.InteractionType.Manipulation_Movement) {
+                sphereCasting.selectedObject = pickedObject;
+                pickedObject.transform.SetParent(sphereCasting.trackedObj.transform);
+            } else if (sphereCasting.interactionType == SphereCastingExp.InteractionType.Manipulation_UI && sphereCasting.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                sphereCasting.selectedObject = pickedObject;
+                sphereCasting.GetComponent<SelectionManipulation>().selectedObject = obj;
+            }
             if (pickedObject.transform.GetComponent<Renderer>() != null) {
                 oldPickedObjectMaterial = pickedObject.transform.GetComponent<Renderer>().material;
-                pickedObject.transform.GetComponent<Renderer>().material = selectedMaterial;
+                //pickedObject.transform.GetComponent<Renderer>().material = selectedMaterial;
             }
             disableEXPAND();
         }

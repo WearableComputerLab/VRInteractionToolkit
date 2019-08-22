@@ -34,7 +34,7 @@ public class BubbleCursor : MonoBehaviour {
     private GameObject objectBubble;
     public LayerMask interactableLayer;
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_UI };
     public InteractionType interactionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller, Head };
@@ -94,6 +94,10 @@ public class BubbleCursor : MonoBehaviour {
         radiusBubble = cursor.transform.Find("RadiusBubble").gameObject;
         objectBubble = this.transform.Find("ObjectBubble").gameObject;
         initializeControllers();
+        if (interactionType == InteractionType.Manipulation_UI) {
+            this.gameObject.AddComponent<SelectionManipulation>();
+            this.GetComponent<SelectionManipulation>().trackedObj = trackedObj;
+        }
     }
 
         // Use this for initialization
@@ -206,11 +210,15 @@ public class BubbleCursor : MonoBehaviour {
     void PickupObject(GameObject obj) {
         if (trackedObj != null) {
             if (controllerEvents() == ControllerState.TRIGGER_DOWN && pickedUpObject == false) {
-                if(interactionType == InteractionType.Manipulation_Movement) {
+                if (interactionType == InteractionType.Manipulation_Movement) {
                     //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
                     obj.transform.SetParent(cursor.transform);
                     lastSelectedObject = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
                     pickedUpObject = true;
+                } else if (interactionType == InteractionType.Manipulation_UI && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                    lastSelectedObject = obj;
+                    pickedUpObject = true;
+                    this.GetComponent<SelectionManipulation>().selectedObject = obj;
                 } else if (interactionType == InteractionType.Selection) {
                     lastSelectedObject = obj;
                     pickedUpObject = true;                   

@@ -34,8 +34,10 @@ public class SphereCastingExp : MonoBehaviour {
     private GameObject mirroredCube;
     private GameObject sphereObject;
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
-    public InteractionType interacionType;
+    public GameObject selectedObject;
+
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_UI };
+    public InteractionType interactionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
@@ -134,6 +136,10 @@ public class SphereCastingExp : MonoBehaviour {
         menu.cameraHead = this.cameraHead;
         menu.sphereCasting = this;
         initializeControllers();
+        if (interactionType == InteractionType.Manipulation_UI) {
+            this.gameObject.AddComponent<SelectionManipulation>();
+            this.GetComponent<SelectionManipulation>().trackedObj = trackedObj;
+        }
     }
 
     void Start() {

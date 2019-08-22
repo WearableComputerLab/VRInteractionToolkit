@@ -35,7 +35,7 @@ public class HOMER : MonoBehaviour {
     private Transform laserTransform;
     private Vector3 hitPoint;
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public enum InteractionType { Selection, Manipulation_Movement};
     public InteractionType interacionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };

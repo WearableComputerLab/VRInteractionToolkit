@@ -35,8 +35,8 @@ public class SerialSelectionMode : MonoBehaviour {
     private bool pickUpObjectsActive = false;
     public Material outlineMaterial;
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
-    public InteractionType interacionType;
+    public enum InteractionType { Selection, Manipulation_Movement };
+    public InteractionType interactionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller };
     public ControllerPicked controllerPicked;
@@ -158,7 +158,7 @@ public class SerialSelectionMode : MonoBehaviour {
             print("pick up objects set to:" + pickUpObjectsActive);
         }
         if (pickUpObjectsActive == true) {
-            if (controllerEvents() == ControllerState.TRIGGER_DOWN && objectsSelected == false && interacionType == InteractionType.Manipulation_Movement || interacionType == InteractionType.Manipulation_Full) {
+            if (controllerEvents() == ControllerState.TRIGGER_DOWN && objectsSelected == false && interactionType == InteractionType.Manipulation_Movement) {
                 for (int i = 0; i < selectedObjectsList.Count; i++) {
                     if (selectedObjectsList[i].layer != LayerMask.NameToLayer("Ignore Raycast")) {
                         selectedObjectsList[i].transform.SetParent(trackedObj.transform);

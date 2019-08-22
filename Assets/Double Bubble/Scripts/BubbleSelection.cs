@@ -33,10 +33,11 @@ public class BubbleSelection : MonoBehaviour {
     public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
     private bool pickedUpObject = false; //ensure only 1 object is picked up at a time
-    private GameObject tempObjectStored;
+    internal GameObject tempObjectStored;
 
     private GameObject pickedObj2D = null;
     private GameObject pickedObj = null;
+
     private int imageSlots = 0;
     private float[,] positions = new float[,] { { -0.3f, 0.2f }, { -0.1f, 0.2f }, { 0.1f, 0.2f }, { 0.3f, 0.2f },
                                                 { -0.3f, 0.1f }, { -0.1f, 0.1f }, { 0.1f, 0.1f }, { 0.3f, 0.1f },
@@ -97,7 +98,7 @@ public class BubbleSelection : MonoBehaviour {
 			float dist = Vector3.Distance(cursor2D.transform.localPosition, objPos.localPosition);
 			dist -= (objPos.lossyScale.x * objPos.lossyScale.x)*10;
 
-			print (objPos.lossyScale.x);
+			//print (objPos.lossyScale.x);
 			if (i == 0) {
 				lowestDist = dist;
 				lowestValue = 0;
@@ -119,8 +120,9 @@ public class BubbleSelection : MonoBehaviour {
         inBubbleSelection = false;
     }
 
-    public void disableMenuOnTrigger() {
+    public void disableMenuOnTrigger(Transform selectedObject) {
         if (bubbleCursor.controllerEvents() == BubbleCursor3D.ControllerState.TRIGGER_DOWN && inBubbleSelection == true) {
+            print("Selected object:" + selectedObject);
             clearList();
             destroyChildGameObjects();
             pickedObjects = null;
@@ -130,6 +132,20 @@ public class BubbleSelection : MonoBehaviour {
             if (bubbleCursor != null) {
                 if (bubbleCursor.cursor != null) {
                     bubbleCursor.cursor.SetActive(true);
+                }
+            }
+            if (selectedObject != null) {
+                selectedObject.GetComponent<Renderer>().material.color = Color.red;
+                if (bubbleCursor.interactionType == BubbleCursor3D.InteractionType.Selection) {
+                    bubbleCursor.lastSelectedObject = selectedObject.gameObject;
+                } else if (bubbleCursor.interactionType == BubbleCursor3D.InteractionType.Manipulation_Movement) {
+                    bubbleCursor.lastSelectedObject = selectedObject.gameObject;
+                    selectedObject.transform.SetParent(trackedObj.transform);
+                    pickedUpObject = true;
+                    tempObjectStored = selectedObject.gameObject;
+                } else if (bubbleCursor.interactionType == BubbleCursor3D.InteractionType.Manipulation_UI && bubbleCursor.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                    bubbleCursor.lastSelectedObject = selectedObject.gameObject;
+                    bubbleCursor.GetComponent<SelectionManipulation>().selectedObject = selectedObject.gameObject;
                 }
             }
         }
@@ -201,6 +217,7 @@ public class BubbleSelection : MonoBehaviour {
     }
 
     private readonly float bubbleOffset = 0.025f;
+    Transform findOriginalObject = null;
 
     private void Update() {
         if (inBubbleSelection == true) {
@@ -226,7 +243,6 @@ public class BubbleSelection : MonoBehaviour {
 				SecondClosestCircleRadius = lowestDistances [1] [0] - (objPos2.transform.lossyScale.x / 2f) + (objPos2.transform.lossyScale.x / 2f);
 
 
-
                 float closestValue = Mathf.Min(ClosestCircleRadius, SecondClosestCircleRadius);
 
                // print("FIRST closest radius:" + ClosestCircleRadius + " | closest value:" + closestValue);
@@ -244,7 +260,7 @@ public class BubbleSelection : MonoBehaviour {
                     this.transform.localScale = new Vector3(finalVal * 2, finalVal * 2, 1f);
                     string objName = pickedObjects[(int)lowestDistances[0][1]].transform.name.Substring(0, pickedObjects[(int)lowestDistances[0][1]].transform.name.Length);
                    // print("objName" + objName);
-                    Transform findOriginalObject = GameObject.Find(objName).transform;
+                    findOriginalObject = GameObject.Find(objName).transform;
                     Transform findObject = panel.transform.Find(pickedObjects[(int)lowestDistances[0][1]].transform.name + " (Clone)");
                     objectBubble2D.transform.localPosition = findObject.localPosition;
 					objectBubble2D.transform.localScale = new Vector3(findObject.transform.lossyScale.x + bubbleOffset, findObject.transform.lossyScale.y + bubbleOffset, findObject.transform.lossyScale.z + bubbleOffset);
@@ -257,7 +273,7 @@ public class BubbleSelection : MonoBehaviour {
                 currentlyHovering = pickedObjects[(int)lowestDistances[0][1]];
                 hovered.Invoke();
             }
-            disableMenuOnTrigger();
+            disableMenuOnTrigger(findOriginalObject);
         }
     }
 

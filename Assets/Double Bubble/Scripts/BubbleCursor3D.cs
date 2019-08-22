@@ -40,7 +40,7 @@ public class BubbleCursor3D : MonoBehaviour {
 	public UnityEvent hovered; // Invoked when an object is hovered by technique
 	public UnityEvent unHovered; // Invoked when an object is no longer hovered by the technique
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_UI };
 	public InteractionType interactionType;
 
     public enum ControllerPicked { Left_Controller, Right_Controller, Head };
@@ -94,6 +94,10 @@ public class BubbleCursor3D : MonoBehaviour {
         radiusBubble = cursor.transform.Find("RadiusBubble").gameObject;
         objectBubble = this.transform.Find("ObjectBubble").gameObject;
         initializeControllers();
+        if (interactionType == InteractionType.Manipulation_UI) {
+            this.gameObject.AddComponent<SelectionManipulation>();
+            this.GetComponent<SelectionManipulation>().trackedObj = trackedObj;
+        }
     }
 
     // Use this for initialization
@@ -207,23 +211,28 @@ public class BubbleCursor3D : MonoBehaviour {
 	void PickupObject(GameObject obj) {
 		if (trackedObj != null) {
 			if (controllerEvents() == ControllerState.TRIGGER_DOWN && pickedUpObject == false) {
-				if(interactionType == InteractionType.Manipulation_Movement) {
-					//obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
-					obj.transform.SetParent(cursor.transform);
-					lastSelectedObject = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
-					pickedUpObject = true;
-				} else if (interactionType == InteractionType.Selection) {
-					lastSelectedObject = obj;
-					pickedUpObject = true;                   
-				}
-				selectedObject.Invoke();
+                if (interactionType == InteractionType.Manipulation_Movement) {
+                    //obj.GetComponent<Collider>().attachedRigidbody.isKinematic = true;
+                    obj.transform.SetParent(cursor.transform);
+                    //obj.transform.localPosition = new Vector3(0f, 0f, obj.transform.localPosition.z);
+                    lastSelectedObject = obj; // Storing the object as an instance variable instead of using the obj parameter fixes glitch of it not properly resetting on TriggerUp
+                    pickedUpObject = true;
+                } else if (interactionType == InteractionType.Selection) {
+                    lastSelectedObject = obj;
+                    pickedUpObject = true;
+                } else if (interactionType == InteractionType.Manipulation_UI && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                    lastSelectedObject = obj;
+                    this.GetComponent<SelectionManipulation>().selectedObject = obj;
+                }
+                selectedObject.Invoke();
 			}
 			if (controllerEvents() == ControllerState.TRIGGER_UP && pickedUpObject == true) {
 				if(interactionType == InteractionType.Manipulation_Movement) {
 					//obj.GetComponent<Collider>().attachedRigidbody.isKinematic = false;
 					lastSelectedObject.transform.SetParent(null);
 					pickedUpObject = false;
-					droppedObject.Invoke();
+                    bubbleSelection.tempObjectStored = null;
+                    droppedObject.Invoke();
 				}
 				pickedUpObject = false;
 			}
@@ -275,7 +284,7 @@ public class BubbleCursor3D : MonoBehaviour {
 					objectBubble.transform.localScale = new Vector3 (0f, 0f, 0f);
 					//PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
 					//bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
-					if (bubbleSelection.getSelectableObjects ().Count > 1) {
+					if (bubbleSelection.getSelectableObjects ().Count > 1 && bubbleSelection.tempObjectStored == null) {
 						bubbleSelection.enableMenu (bubbleSelection.getSelectableObjects ());
 						bubbleSelection.clearList ();
 					} else {
@@ -295,7 +304,7 @@ public class BubbleCursor3D : MonoBehaviour {
 					objectBubble.transform.localScale = new Vector3 (interactableObjects [(int)lowestDistances [0] [1]].transform.localScale.x + bubbleOffset, interactableObjects [(int)lowestDistances [0] [1]].transform.localScale.y + bubbleOffset, interactableObjects [(int)lowestDistances [0] [1]].transform.localScale.z + bubbleOffset);
 					//PickupObject(interactableObjects[(int)lowestDistances[0][1]]);
 					//bubbleSelection.PickupObject(controller, trackedObj, bubbleSelection.getSelectableObjects());
-					if (bubbleSelection.getSelectableObjects ().Count > 1) {
+					if (bubbleSelection.getSelectableObjects ().Count > 1 && bubbleSelection.tempObjectStored == null) {
 						bubbleSelection.enableMenu (bubbleSelection.getSelectableObjects ());
 						bubbleSelection.clearList ();
 					} else {

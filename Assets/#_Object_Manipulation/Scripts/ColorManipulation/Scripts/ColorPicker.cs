@@ -25,6 +25,7 @@ public class ColorPicker : MonoBehaviour {
         blackWheel = GameObject.Find("Black Wheel");
         canvasHolder = GameObject.Find("CanvasHolder");
         canvasHolder.transform.SetParent(trackedObj.transform);
+        canvasHolder.SetActive(false);
 
     }
 

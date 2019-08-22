@@ -39,8 +39,8 @@ public class ImagePlane_FramingHands : MonoBehaviour {
 
 
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
-    public InteractionType interacionType;
+    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_UI };
+    public InteractionType interactionType;
 
     public UnityEvent selectedObjectEvent; // Invoked when an object is selected
     public UnityEvent droppedObject;
@@ -123,11 +123,15 @@ public class ImagePlane_FramingHands : MonoBehaviour {
     private void InstantiateObject(GameObject obj) {
         if (controllerEvents() == ControllerState.TRIGGER_DOWN) {
             if (objSelected == false && obj.transform.name != "Mirrored Cube") {
-                if (interacionType == InteractionType.Selection) {
+                if (interactionType == InteractionType.Selection) {
                     selectedObject = obj;
                     selectedObjectEvent.Invoke();
                     objSelected = true;
-                } else if (interacionType == InteractionType.Manipulation_Movement) {
+                } else if (interactionType == InteractionType.Manipulation_UI && this.GetComponent<SelectionManipulation>().inManipulationMode == false) {
+                    selectedObject = obj;
+                    objSelected = true;
+                    this.GetComponent<SelectionManipulation>().selectedObject = obj;
+                 } else if (interactionType == InteractionType.Manipulation_Movement) {
                     selectedObject = obj;
                     selectedObjectEvent.Invoke();
                     oldParent = selectedObject.transform.parent;
@@ -172,10 +176,10 @@ public class ImagePlane_FramingHands : MonoBehaviour {
                 }
 
             } else if (objSelected == true) {
-                if (interacionType == InteractionType.Manipulation_Movement) {
+                if (interactionType == InteractionType.Manipulation_Movement) {
                     resetProperties();
                 }
-                if (interacionType == InteractionType.Selection) {
+                if (interactionType == InteractionType.Selection) {
                     objSelected = false;
                 }
                 droppedObject.Invoke();
@@ -314,6 +318,13 @@ public class ImagePlane_FramingHands : MonoBehaviour {
 		trackedObjR = controllerLeft.GetComponent<SteamVR_Behaviour_Pose>();
 #endif
         mirroredCube = this.transform.Find("Mirrored Cube").gameObject;
+        if (interactionType == InteractionType.Manipulation_UI) {
+            this.gameObject.AddComponent<SelectionManipulation>();
+            this.GetComponent<SelectionManipulation>().trackedObj = trackedObjL;
+#if SteamVR_2
+            this.GetComponent<SelectionManipulation>().m_controllerPress = m_controllerPress;
+#endif
+        }
     }
 
     void Start() {
@@ -331,7 +342,6 @@ public class ImagePlane_FramingHands : MonoBehaviour {
         interactionPosition();
         mirroredObject();
         ShowLaser();
-        Ray ray = Camera.main.ScreenPointToRay(pointOfInteraction.transform.position);
         RaycastHit hit;
         if (Physics.Raycast(pointOfInteraction.transform.position, cameraHead.transform.forward, out hit, 100)) {
             hitPoint = hit.point;

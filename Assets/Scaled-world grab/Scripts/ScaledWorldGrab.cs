@@ -37,7 +37,7 @@ public class ScaledWorldGrab : MonoBehaviour {
     private Transform laserTransform;
     private Vector3 hitPoint;
 
-    public enum InteractionType { Selection, Manipulation_Movement, Manipulation_Full };
+    public enum InteractionType { Selection, Manipulation_Movement};
     public InteractionType interacionType;
     internal GameObject tempObjectStored;
 
