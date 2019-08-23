@@ -1,10 +1,13 @@
 # 3D User Interaction Toolkit
+![alt text](https://i.imgur.com/xVQx4pW.jpg) <p align="center">This image presents ten of the twenty-five interaction techniques implemented in 3DUITK</p>
 ### This toolkit is designed for immersive 3D User Interaction and contains implementations of twenty-five selection and manipulation techniques proposed from thirty years of prior research.
 
 # Documentation
 Full documentation and additional information about interaction techniques are provided on our GitHub Wiki: https://github.com/WearableComputerLab/VRInteractionToolkit/wiki
 
-Our full systems requirement document is available at: https://docs.google.com/document/d/1FSQwYgCCjmWu63tQH6qZWRbKkr2_fT3JTO9mafTVEZs
+A six page research poster-paper on the 3D User Interaction Toolkit which was published and accepted at ISMAR19 conference can be found here:
+
+Our full systems requirement document can be downloaded here:
 
 ## Getting Started
 -TODO : Basic pics/tutorials..
