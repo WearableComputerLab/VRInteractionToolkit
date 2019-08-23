@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4624784990323132}
   - component: {fileID: 114695581637879810}
   - component: {fileID: 114459498164308158}
+  - component: {fileID: 2056609354}
   m_Layer: 0
   m_Name: BendCast_Technique
   m_TagString: Untagged
@@ -84,6 +85,19 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &2056609354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1003758836769110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47d1056d85bce394682dfe71110f17a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  steamVR_Version: 1
 --- !u!1001 &5227090492519712160
 PrefabInstance:
   m_ObjectHideFlags: 0

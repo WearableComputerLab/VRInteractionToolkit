@@ -107,6 +107,7 @@ public class BubbleCursor3D : MonoBehaviour {
 		SetCursorParent();
 		moveCursorPosition();
         bubbleSelection.trackedObj = trackedObj;
+        bubbleSelection.cameraHead = cameraHead;
     }
 
 	void SetCursorParent() {

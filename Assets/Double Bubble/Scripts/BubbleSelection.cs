@@ -21,7 +21,7 @@ public class BubbleSelection : MonoBehaviour {
     private GameObject panel;
     private GameObject cursor2D;
     private GameObject objectBubble2D;
-    private GameObject cameraHead;
+    internal GameObject cameraHead;
     internal bool inBubbleSelection = false;
     public LayerMask interactableLayer;
 
@@ -79,7 +79,6 @@ public class BubbleSelection : MonoBehaviour {
         panel = GameObject.Find("2DBubbleCursor_Panel");
         objectBubble2D = panel.transform.Find("ObjectBubble2D").gameObject;
         cursor2D = panel.transform.Find("Cursor2D").gameObject;
-        cameraHead = GameObject.Find(CONSTANTS.cameraEyes);
         panel.transform.SetParent(cameraHead.transform);
 
     }

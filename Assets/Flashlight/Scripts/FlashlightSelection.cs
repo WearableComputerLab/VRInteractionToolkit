@@ -42,6 +42,8 @@ public class FlashlightSelection : MonoBehaviour {
 #elif SteamVR_2
     public SteamVR_Behaviour_Pose theController;
     public SteamVR_Action_Boolean m_controllerPress;
+#else
+    public GameObject theController;
 #endif
 
     public LayerMask interactionLayers;

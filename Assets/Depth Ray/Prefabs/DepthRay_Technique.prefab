@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4961854650150424}
   - component: {fileID: 114374650402752632}
   - component: {fileID: 114376531479176238}
+  - component: {fileID: 370948957}
   m_Layer: 0
   m_Name: DepthRay_Technique
   m_TagString: Untagged
@@ -55,7 +56,7 @@ MonoBehaviour:
     m_Bits: 256
   laserPrefab: {fileID: 1159488217044914, guid: aa39209a076fe1041bdd5666839efc44,
     type: 3}
-  interactionType: 0
+  interactionType: 3
   controllerPicked: 1
   selectedObject:
     m_PersistentCalls:
@@ -92,6 +93,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 269f14b18cbcfc942b20f2580f7f8de2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &370948957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604525584227410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47d1056d85bce394682dfe71110f17a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  steamVR_Version: 1
 --- !u!1 &1784238214953468
 GameObject:
   m_ObjectHideFlags: 0
