@@ -1,5 +1,5 @@
 # 3D User Interaction Toolkit
-### A toolkit for immersive 3D User Interaction
+### This toolkit is designed for immersive 3D User Interaction and contains implementations of twenty-five selection and manipulation techniques proposed from thirty years of prior research.
 
 # Documentation
 Full documentation and additional information about interaction techniques are provided on our GitHub Wiki: https://github.com/WearableComputerLab/VRInteractionToolkit/wiki
