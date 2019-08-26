@@ -24,6 +24,8 @@ Our full systems requirement document can be downloaded here:
 
 
 # Disclaimer
+## Authors
+All software written in this project was developed by Kieran May and Ian Hanan.
 
 ## Reference
 All techniques implemented in this project are based off the research of other people, and have been acquired from the textbook '3D User Interfaces theory and practice'
