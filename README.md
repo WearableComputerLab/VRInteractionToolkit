@@ -2,6 +2,10 @@
 ![alt text](https://i.imgur.com/xVQx4pW.jpg) <p align="center">This image presents ten of the twenty-five interaction techniques implemented in 3DUITK</p>
 ### This toolkit is designed for immersive 3D User Interaction and contains implementations of twenty-five selection and manipulation techniques proposed from thirty years of prior research.
 
+#### Below is a video demonstrating the different interaction technique implemented in 3DUITK:
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/nGMC6kkdjg8/0.jpg)](https://www.youtube.com/watch?v=nGMC6kkdjg8)
+
+
 # Documentation
 Full documentation and additional information about interaction techniques are provided on our GitHub Wiki: https://github.com/WearableComputerLab/VRInteractionToolkit/wiki
 
@@ -37,10 +41,6 @@ Our full systems requirement document can be downloaded here:
 3. None - This option completely removes the SteamVR dependencies to allow for alternative platforms to be integrated with 3DUITK. A reference to the controller or tracked GameObject can be dragged into the prefabs 'TrackedObject' inspector parameter. (e.g. if using Android, the Unity gameobject referencing the phone camera is dragged into the prefabs 'TrackedObj' inspector parameter.).
 #### Simple setup in new scene
 ![Alt Text](https://i.imgur.com/sASzavZ.gif)
-
-### Video demonstrating the different interaction technique implementations
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/nGMC6kkdjg8/0.jpg)](https://www.youtube.com/watch?v=nGMC6kkdjg8)
-
 
 # Disclaimer
 ## Authors
