@@ -38,6 +38,9 @@ Our full systems requirement document can be downloaded here:
 #### Simple setup in new scene
 ![Alt Text](https://i.imgur.com/sASzavZ.gif)
 
+### Video demonstrating the different interaction technique implementations
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/nGMC6kkdjg8/0.jpg)](https://www.youtube.com/watch?v=nGMC6kkdjg8)
+
 
 # Disclaimer
 ## Authors
