@@ -27,6 +27,7 @@ Our full systems requirement document can be downloaded here:
 7. Drag an Interaction Technique into the scene (From Technique_Prefabs).
   - ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) NOTE: The controllers should autonomously become attached as a reference to the interaction techniques scripts. However, if null      reference exceptions occur make sure to drag the controllers as a reference to prefabs scripts.
 8. Assign the Interaction Layers. (Interaction Techniques will only interact with specific GameObjects that are specified as an interactable layer). Alternatively, to interact with all GameObjects within the scene, set the Interaction Layers to 'Everything'.
+9. Set the Intearction Type to Selection, Manipulation (Movement), or Manipulation (UI) which presents a UI with additional manipulation options.
 
 ### Dependencies
 3DUITK supports SteamVR Legacy, SteamVR 2.0, and alternative platforms. Setting which platform you intend to use is managed through the Dependencies Manager script which is attached to each implementation. Within the inspector dvelopers can specify the following platform options:
