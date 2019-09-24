@@ -13,19 +13,19 @@ Our full systems requirement document can be downloaded here:
 ### Setting Up
 1. The repository can be downloaded or cloned directly from the GitHub repository (Coming soon: OR can be downloaded directly from the Unity Asset Store.)
 2. Import the project into an existing Unity project OR open the downloaded project in Unity.
-Note: Each interaction technique is seperated into individual folders named after the given interaction technique. Each folder contains the prefabs, scripts, materials, and sprites associated with the given interaction technique. The Techniques Example Scenes folder contains an example scene for each interaction technique. The Technique Prefabs folder provides a reference to each interaction technique. An interaction technique can be implemented into a scene simply by dragging the prefab from the Technique Prefabs folder into the scene.
+- ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) NOTE: Each interaction technique is seperated into individual folders named after the given interaction technique. Each folder contains the prefabs, scripts, materials, and sprites associated with the given interaction technique. The Techniques Example Scenes folder contains an example scene for each interaction technique. The Technique Prefabs folder provides a reference to each interaction technique. An interaction technique can be implemented into a scene simply by dragging the prefab from the Technique Prefabs folder into the scene.
 
 3. Ensure the correct SteamVR CameraRig has been added into the Unity scene and Virtual Reality supported is ticked into the project player settings (Edit -> Project Settings -> Player -> XR Settings).
 #### Accessing testing scenes
 4. Two types of testing scenes are available with 3DUITK:
-1. A comprehensive testing environment which is available in the Technique Examples Scenes folder.
-2. A basic testing environment which can be opened within the interaction techniques default folder.
-
+    1. A comprehensive testing environment which is available in the Technique Examples Scenes folder.
+    2. A basic testing environment which can be opened within the interaction techniques default folder.
+    
 #### Setting up in a new scene
 5. Create a new scene and delete the Main Camera.
 6. Drag the [CameraRig] from inspector into the scene (From Dependencies->SteamVR).
 7. Drag an Interaction Technique into the scene (From Technique_Prefabs).
-Note: The controllers should autonomously become attached as a reference to the interaction techniques scripts. However, if null reference exceptions occur make sure to drag the controllers as a reference to prefabs scripts.
+  - ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) NOTE: The controllers should autonomously become attached as a reference to the interaction techniques scripts. However, if null      reference exceptions occur make sure to drag the controllers as a reference to prefabs scripts.
 8. Assign the Interaction Layers. (Interaction Techniques will only interact with specific GameObjects that are specified as an interactable layer). Alternatively, to interact with all GameObjects within the scene, set the Interaction Layers to 'Everything'.
 
 ### Dependencies
