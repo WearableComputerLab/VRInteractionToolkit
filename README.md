@@ -9,13 +9,13 @@
 # Documentation
 Full documentation and additional information about interaction techniques are provided on our GitHub Wiki: https://github.com/WearableComputerLab/VRInteractionToolkit/wiki
 
-A six page research poster-paper on the 3D User Interaction Toolkit which was published and accepted at ISMAR19 conference can be found here:
+A six page research poster-paper on the 3D User Interaction Toolkit which was published and accepted at ISMAR19 conference can be found here: https://ieeexplore.ieee.org/abstract/document/8951937
 
-Our full systems requirement document can be downloaded here:
+K. May, I. Hanan, A. Cunningham and B. Thomas, "3DUITK: An Opensource Toolkit for Thirty Years of Three-Dimensional Interaction Research," 2019 IEEE International Symposium on Mixed and Augmented Reality Adjunct (ISMAR-Adjunct), 2019, pp. 175-180, doi: 10.1109/ISMAR-Adjunct.2019.00-52.
 
 ## Getting Started
 ### Setting Up
-1. The repository can be downloaded or cloned directly from the GitHub repository (Coming soon: OR can be downloaded directly from the Unity Asset Store.)
+1. The repository can be downloaded or cloned directly from the GitHub repository.
 2. Import the project into an existing Unity project OR open the downloaded project in Unity.
 - ![#f03c15](https://placehold.it/15/f03c15/000000?text=+) NOTE: Each interaction technique is seperated into individual folders named after the given interaction technique. Each folder contains the prefabs, scripts, materials, and sprites associated with the given interaction technique. The Techniques Example Scenes folder contains an example scene for each interaction technique. The Technique Prefabs folder provides a reference to each interaction technique. An interaction technique can be implemented into a scene simply by dragging the prefab from the Technique Prefabs folder into the scene.
 
